@@ -90,6 +90,7 @@ export const DEFAULT_FILTERS = {
   cityModels: true,
   vehicles: true,
   streetProps: true,
+  fx: true,
   loot: false,
   ...Object.fromEntries(LOOT_CATEGORIES.map((c) => [`loot_${c.id}`, c.defaultOn])),
   onlyCurrentFloor: false,
@@ -117,6 +118,7 @@ export const ENV_ROWS = [
   { id: 'cityModels', label: '3D-модели зданий (выкл. — схема)', keys: ['cityModels'], requires: ['buildings'], kinds: ['city'] },
   { id: 'vehicles', label: 'Машины', keys: ['vehicles'] },
   { id: 'streetProps', label: 'Улицы: фонари, знаки, разметка, заборы', keys: ['streetProps'] },
+  { id: 'fx', label: 'Огонь и дым', keys: ['fx'] },
 ];
 
 export const LOOT_MASTER_ROW ={ id: 'loot', label: 'Показывать лут', keys: ['loot'], color: MARKER_TYPES.loot.color };

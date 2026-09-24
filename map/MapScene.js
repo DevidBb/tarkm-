@@ -11,6 +11,7 @@ import { MarkerLayer } from './markers.js';
 import { LootLayer } from './loot.js';
 import { CityLayer } from './city/CityLayer.js';
 import { Navigator } from './navigation.js';
+import { Ambience, campFires } from './fx/ambience.js';
 import { levelViewFor, levelCamera } from '../services/levels.js';
 
 // Overcast haze: the 3D city fades into it at low camera angles instead of a black void.
@@ -101,6 +102,10 @@ export class MapScene {
     this.city = this.kind === 'city' ? new CityLayer(this.scene, mapData, this.renderer) : null;
     this.levels = null;
     this.filters = null;
+    // Fires and smoke (decoration). Ground height comes from the relief once the map's layer has built it.
+    const P = mapData.projection;
+    this.fx = new Ambience(this.scene, { groundAt: (x, z) => (P.heightAt ? P.heightAt(x, z) : null), seed: `fx:${mapData.map.id}` });
+    if (this.city) this.city.fx = this.fx;
     if (this.kind !== 'city') this.applyLevelView(this.activeFloor);
 
     // A click (not a drag) on the canvas selects the nearest visible loot point.
@@ -156,6 +161,7 @@ export class MapScene {
         .then((stats) => {
           console.info('[city]', stats);
           this.syncBuildings();
+          this.finishFx();
         })
         .catch((err) => console.error('[city] build failed, schematic buildings stay on', err));
     }
@@ -187,12 +193,45 @@ export class MapScene {
     else LevelLayer = (await import('./interchange/InterchangeLayer.js')).InterchangeLayer;
     if (this.disposed) return;
     this.levels = new LevelLayer(this.scene, this.mapData, this.renderer);
+    this.levels.fx = this.fx;
     const stats = await this.levels.build(doc, environment);
+    this.finishFx();
     if (this.disposed) return;
     console.info(`[${this.kind}]`, JSON.stringify(stats));
     this.levels.setMode(this.activeFloor);
     this.levels.setWallMode(this.wallMode);
     if (this.filters) this.levels.setFlags(this.filters);
+  }
+
+  // Camp fires, map extras and the GPU buffers of all fires registered while the map built.
+  finishFx() {
+    if (this.disposed) return;
+    const fx = this.fx;
+    if (this.kind !== 'city') campFires(fx, this.mapData, { max: this.kind === 'factory' ? 3 : 8 });
+    if (this.city && this.city.ready) {
+      // Streets: burning wrecks along the curbs and smoke over a few roofs of the war-torn city.
+      fx.cars(this.city.vehicles.placements.map((p) => ({ ...p, y: this.mapData.projection.groundY + 0.2 })), { share: 0.7, max: 12, onlyWrecks: true });
+      const tall = this.city.city.buildings
+        .map((b) => ({ b, top: Math.max(...b.volumes.map((v) => (v.top != null ? v.top : v.height || 0))) }))
+        .filter((t) => Number.isFinite(t.top) && t.top > 12)
+        .sort((a, b) => b.top - a.top);
+      const pickEvery = Math.max(1, Math.floor(tall.length / 4));
+      tall.filter((_, k) => k % pickEvery === 1).slice(0, 4).forEach(({ b, top }) => {
+        const ring = b.poly.outer;
+        const c = ring.reduce((acc, q) => ({ x: acc.x + q.x / ring.length, z: acc.z + q.z / ring.length }), { x: 0, z: 0 });
+        fx.fire(c.x, top + 0.8, c.z, { size: 2.6, smoke: 0 });
+        fx.plume(c.x, top + 2, c.z, { height: 150, size: 7, count: 30, dark: 0.9 });
+      });
+    }
+    this.fxStats = fx.build();
+    console.info('[fx]', JSON.stringify(this.fxStats));
+    this.syncFx();
+  }
+
+  syncFx() {
+    const f = this.filters || {};
+    const outside = !this.mapData.levels || this.activeFloor === this.mapData.levels.defaultFloor;
+    this.fx.setVisible(f.fx !== false && outside);
   }
 
   setFloor(floorId) {
@@ -205,6 +244,7 @@ export class MapScene {
       return;
     }
     this.applyLevelView(floorId);
+    this.syncFx();
     if (this.levels) this.levels.setMode(floorId);
     if (previous !== floorId) this.flyToLevel(floorId);
   }
@@ -240,6 +280,7 @@ export class MapScene {
     this.filters = filters;
     this.markers.applyVisibility({ floor: floorId, filters });
     this.loot.applyVisibility({ floor: floorId, filters });
+    this.syncFx();
     if (this.kind !== 'city') {
       if (this.levels) this.levels.setFlags(filters);
       return;
@@ -460,6 +501,7 @@ export class MapScene {
     if (this.buildings) this.buildings.update(dt);
     if (this.city) this.city.update(dt, this.camera, this.controls.target);
     if (this.levels) this.levels.update(dt, this.camera);
+    this.fx.update(dt);
     this.markers.update(dt, this.camera);
     if (this.preview) this.stepPreview(dt);
     this.renderer.render(this.scene, this.camera);
@@ -495,6 +537,7 @@ export class MapScene {
     this.resizeObserver.disconnect();
     this.controls.dispose();
     this.loot.dispose();
+    this.fx.dispose();
     if (this.levels) this.levels.dispose();
     this.renderer.dispose();
     this.container.replaceChildren();

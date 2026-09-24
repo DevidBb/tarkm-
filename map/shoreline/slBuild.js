@@ -20,6 +20,9 @@ import { buildCars, pylonGeometry } from '../interchange/icBuild.js';
 import { floorProps } from '../interchange/icStreetDetail.js';
 import { CAR_PAINTS, CAR_MODELS } from '../interchange/icModels.js';
 import { rasterMask } from '../interchange/icTextures.js';
+import { HOUSE_TINTS, INDUSTRIAL_TINTS, ROOF_COLORS } from '../fx/palette.js';
+import { canopyGeometry } from '../customs/csModels.js';
+import { box as mbox, merge as mmerge } from '../city/models.js';
 
 // Open ground for scattered trees: meadows and fields white; roads, paths, pavement, rocks, water, piers, buildings and
 // the SVG forest areas (they have their own trees) black.
@@ -172,7 +175,7 @@ export function buildWaterMesh(terrain, waterY, material) {
 }
 
 // ---------------------------------------------------------------- buildings
-export function facadeRing(bucket, ring, y0, y1, vBase) {
+export function facadeRing(bucket, ring, y0, y1, vBase, tint = WHITE) {
   let s = 0;
   for (let i = 0; i < ring.length; i += 1) {
     const a = ring[i];
@@ -182,7 +185,7 @@ export function facadeRing(bucket, ring, y0, y1, vBase) {
     const u0 = s / UPPER_TILE.w;
     const u1 = (s + len) / UPPER_TILE.w;
     const v = (y) => (y - vBase) / UPPER_TILE.h;
-    bucket.quad([a.x, y0, a.z, u0, v(y0)], [b.x, y0, b.z, u1, v(y0)], [b.x, y1, b.z, u1, v(y1)], [a.x, y1, a.z, u0, v(y1)], [(b.z - a.z) / len, 0, -(b.x - a.x) / len], WHITE);
+    bucket.quad([a.x, y0, a.z, u0, v(y0)], [b.x, y0, b.z, u1, v(y0)], [b.x, y1, b.z, u1, v(y1)], [a.x, y1, a.z, u0, v(y1)], [(b.z - a.z) / len, 0, -(b.x - a.x) / len], tint);
     s += len;
   }
 }
@@ -279,7 +282,7 @@ export function buildOutside(ctx, water) {
   const facade = (style) => {
     if (!facadeBuckets.has(style)) {
       facadeBuckets.set(style, new MeshBucket());
-      if (!materials.facades[style]) materials.facades[style] = new THREE.MeshLambertMaterial({ map: upperTexture(style, style === 'stalinka' ? 1 : 0, anisotropy), side: THREE.DoubleSide });
+      if (!materials.facades[style]) materials.facades[style] = new THREE.MeshLambertMaterial({ map: upperTexture(style, style === 'stalinka' ? 1 : 0, anisotropy), side: THREE.DoubleSide, vertexColors: true });
     }
     return facadeBuckets.get(style);
   };
@@ -303,10 +306,13 @@ export function buildOutside(ctx, water) {
       const floorY = high + 0.15;
       const height = kind === 'small' && info.area > 150 ? 4.2 : H;
       const eave = floorY + height;
-      facadeRing(facade(pick(rb, styles)), poly.outer, low - 0.4, eave, floorY);
-      for (const hole of poly.holes) facadeRing(facade('brick'), hole, low - 0.4, eave, floorY);
+      const style = pick(rb, styles);
+      // Painted plaster on houses (every house its own colour), near-white on sheds and industrial blocks.
+      const tint = color(pick(rb, style === 'industrial' || kind === 'terminal' ? INDUSTRIAL_TINTS : HOUSE_TINTS));
+      facadeRing(facade(style), poly.outer, low - 0.4, eave, floorY, tint);
+      for (const hole of poly.holes) facadeRing(facade('brick'), hole, low - 0.4, eave, floorY, tint);
       if (poly.outer.length === 4 && !poly.holes.length && kind !== 'terminal') {
-        gableRoof(roofs, poly.outer, eave, kind === 'small' ? 1.5 : 2.3, pick(rb, [C.roofRust, C.roofGrey, C.roofDark]), C.gable);
+        gableRoof(roofs, poly.outer, eave, kind === 'small' ? 1.5 : 2.3, color(pick(rb, ROOF_COLORS)), C.gable);
       } else {
         slab(roofs, poly, eave, C.roofFlat);
         ringWalls(roofs, poly.outer, eave, eave + 0.45, C.parapetLow, C.parapet);
@@ -326,7 +332,7 @@ export function buildOutside(ctx, water) {
     for (const p of poly.outer) low = Math.min(low, ground(p.x, p.z));
     const bottom = Math.min(low, heights.LEVEL1) - 0.5;
     for (const ring of [poly.outer, ...poly.holes]) {
-      facadeRing(resortFacade, ring, bottom, roofY, heights.LEVEL1 - 0.3);
+      facadeRing(resortFacade, ring, bottom, roofY, heights.LEVEL1 - 0.3, color('#f1e7cf'));
       ringWalls(roofs, ring, roofY, roofY + 0.9, C.parapetLow, C.parapet);
     }
     slab(resortRoof, poly, roofY, WHITE);
@@ -575,7 +581,71 @@ export function buildOutside(ctx, water) {
     const y = v.position.y != null ? Math.max(ground(p.x, p.z) - 0.3, v.position.y - 0.9) : ground(p.x, p.z);
     placements.push({ x: p.x, y, z: p.z, heading, model: pick(rc, CAR_MODELS), paint: pick(rc, CAR_PAINTS) });
   }
-  layers.push(...buildCars(carGroup, placements, ctx));
+  // abandoned cars on the roads (decoration; a few of them burn)
+  const rw = rng(hashString('shoreline-wrecks'));
+  const WRECKS = ['#5b4a3c', '#6e5a45', '#4a4642', '#7a6a55', '#5d3b2e', '#3e4a52'];
+  for (const id of ['Roads', 'Roads_Unpaved']) {
+    for (const s of svg.strokes(id)) {
+      for (const line of s.lines) {
+        walkLine(line, 36, (p, dir) => {
+          if (rw() > 0.2) return;
+          const side = (rw() < 0.5 ? -1 : 1) * (s.width / 2 - 0.8 + rw() * 2);
+          const q = off(p, { x: dir.z, z: -dir.x }, side);
+          if (inWater(q) || inFootprint(q)) return;
+          placements.push({ x: q.x, y: ground(q.x, q.z), z: q.z, heading: alongX(dir) + (rw() < 0.5 ? Math.PI : 0) + (rw() - 0.5) * 0.8, model: pick(rw, [...CAR_MODELS, 'van']), paint: pick(rw, WRECKS), wreck: true });
+        }, 17);
+      }
+    }
+  }
+  stats.wrecks = placements.filter((p) => p.wreck).length;
+
+  // the gas station: a canopy over three pumps between the station and the road, and a price pylon
+  const gasGeos = [];
+  const pumpGeo = mmerge([mbox(0.8, 0.2, 0.6, 0, 0, 0, '#7d7a72'), mbox(0.6, 1.7, 0.4, 0, 0.2, 0, '#e3ded2'), mbox(0.62, 0.3, 0.42, 0, 1.6, 0, '#c8361f'), mbox(0.4, 0.3, 0.03, 0, 1.1, 0.21, '#1b1f22')]);
+  const pylonGeo = mmerge([mbox(0.35, 7.5, 0.35, 0, 0, 0, '#8e8b83'), mbox(2.4, 3.4, 0.35, 0, 4.2, 0, '#f1ede4'), mbox(2.5, 0.9, 0.4, 0, 7, 0, '#c8361f'), mbox(2.0, 0.45, 0.38, 0, 5.2, 0, '#1f2a36'), mbox(2.0, 0.45, 0.38, 0, 4.6, 0, '#1f2a36')]);
+  const stations = [];
+  for (const e of (ctx.mapData.entities || []).filter((x) => x.type === 'place' && /gas|заправ/i.test(`${x.name} ${x.nameRu}`))) {
+    const p0 = { x: -e.position.x, z: e.position.z };
+    if (stations.some((s) => Math.hypot(s.x - p0.x, s.z - p0.z) < 80)) continue; // two labels of one station
+    stations.push(p0);
+    const hit = roadGrid.nearest(p0, 70);
+    if (!hit) continue;
+    const { a, b } = hit.seg;
+    const len = Math.hypot(b.x - a.x, b.z - a.z) || 1;
+    const d = { x: (b.x - a.x) / len, z: (b.z - a.z) / len };
+    const t = Math.max(0, Math.min(1, hit.t));
+    const q = { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t };
+    let n = { x: p0.x - q.x, z: p0.z - q.z };
+    const nl = Math.hypot(n.x, n.z) || 1;
+    n = { x: n.x / nl, z: n.z / nl };
+    let c = off(q, n, 11);
+    for (let k = 0; k < 10 && inFootprint(c); k += 1) c = off(c, n, -1);
+    const y = ground(c.x, c.z);
+    const g = canopyGeometry(15, 9, 5.2);
+    g.rotateY(alongX(d));
+    g.translate(c.x, y, c.z);
+    gasGeos.push(g);
+    for (const k of [-4.5, 0, 4.5]) {
+      const pq = off(c, d, k);
+      const pg = pumpGeo.clone();
+      pg.rotateY(alongX(d));
+      pg.translate(pq.x, y + 0.25, pq.z);
+      gasGeos.push(pg);
+    }
+    const sp = off(off(q, n, 4.5), d, 12);
+    const sg = pylonGeo.clone();
+    sg.rotateY(faceZ(n) + Math.PI / 2);
+    sg.translate(sp.x, ground(sp.x, sp.z), sp.z);
+    gasGeos.push(sg);
+    stats.gasStations = (stats.gasStations || 0) + 1;
+  }
+  if (gasGeos.length) {
+    const m = new THREE.Mesh(mergeGeometries(gasGeos.map((g) => (g.index ? g.toNonIndexed() : g))), materials.props);
+    m.name = 'gas-station';
+    propsGroup.add(m);
+  }
+
+  layers.push(...buildCars(carGroup, placements, ctx, { share: 0.3, max: 6, onlyWrecks: true }));
   stats.cars = placements.length;
   const sandbags = L(propsGroup, 'sandbags', props.sandbags, 600);
   const gun = L(propsGroup, 'gun', props.gun, 400);

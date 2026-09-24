@@ -92,7 +92,7 @@ export function buildVehicles(city, environment, { parent, clippingPlanes, propM
         else if (state < 0.16) { off = -(0.3 + r() * 0.6); tiltX = 0.05 + r() * 0.04; }
         const p = { x: e.a.x + e.dir.x * along - e.out.x * off, z: e.a.z + e.dir.z * along - e.out.z * off };
         if (isFree(p, m.length * 0.6 + 1) && !insideBuilding(p) && btrStops.every((b) => Math.hypot(b.x - p.x, b.z - p.z) > 14)) {
-          const burned = r() < 0.05;
+          const burned = r() < 0.09;
           const paint = burned ? '#2b2723' : FIXED[model] || (model === 'bus' ? '#c9b13a' : model === 'truck' ? pick(r, ['#3d5a7a', '#b8612a', '#4e5f3a', '#7a7f82']) : PAINT[pick(r, CAR_PAINTS)]);
           add({ x: p.x, z: p.z, heading, tiltX, tiltZ, model, paint, burned, source: 'decor' });
         }

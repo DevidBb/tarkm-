@@ -75,6 +75,7 @@ export class InterchangeLayer {
     this.materials = materials;
     const buildings = svg.polygons('Buildings', { minArea: 2 });
     const ctx = {
+      fx: this.fx || null,
       svg,
       projection,
       heights: this.heights,
