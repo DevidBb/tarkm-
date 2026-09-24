@@ -4,6 +4,7 @@
 export const MAPS = [
   {
     id: 'streets',
+    blurb: 'Город, шесть этажей зданий',
     name: 'Streets of Tarkov',
     nameRu: 'Улицы Таркова',
     mapUrl: 'data/streets.map.json',
@@ -11,6 +12,7 @@ export const MAPS = [
   },
   {
     id: 'interchange',
+    blurb: 'ТЦ ULTRA и подземная парковка',
     name: 'Interchange',
     nameRu: 'Развязка',
     mapUrl: 'data/interchange/interchange.map.json',
@@ -18,6 +20,7 @@ export const MAPS = [
   },
   {
     id: 'factory',
+    blurb: 'Цеха, туннели, три этажа',
     name: 'Factory',
     nameRu: 'Завод',
     mapUrl: 'data/factory/factory.map.json',
@@ -25,6 +28,7 @@ export const MAPS = [
   },
   {
     id: 'customs',
+    blurb: 'Общаги, склады, заправки',
     name: 'Customs',
     nameRu: 'Таможня',
     mapUrl: 'data/customs/customs.map.json',
@@ -32,6 +36,8 @@ export const MAPS = [
   },
   {
     id: 'woods',
+    blurb: 'Лес, лесопилка, озеро',
+    early: true,
     name: 'Woods',
     nameRu: 'Лес',
     mapUrl: 'data/woods/woods.map.json',
@@ -39,6 +45,8 @@ export const MAPS = [
   },
   {
     id: 'reserve',
+    blurb: 'Военная база и бункеры',
+    early: true,
     name: 'Reserve',
     nameRu: 'Резерв',
     mapUrl: 'data/reserve/reserve.map.json',
@@ -46,6 +54,8 @@ export const MAPS = [
   },
   {
     id: 'lighthouse',
+    blurb: 'Побережье, очистные, маяк',
+    early: true,
     name: 'Lighthouse',
     nameRu: 'Маяк',
     mapUrl: 'data/lighthouse/lighthouse.map.json',
@@ -53,6 +63,8 @@ export const MAPS = [
   },
   {
     id: 'ground-zero',
+    blurb: 'Деловой центр города',
+    early: true,
     name: 'Ground Zero',
     nameRu: 'Эпицентр',
     mapUrl: 'data/ground-zero/ground-zero.map.json',
@@ -60,6 +72,7 @@ export const MAPS = [
   },
   {
     id: 'shoreline',
+    blurb: 'Побережье и санаторий',
     name: 'Shoreline',
     nameRu: 'Берег',
     mapUrl: 'data/shoreline/shoreline.map.json',
