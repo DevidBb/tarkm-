@@ -67,6 +67,13 @@ export class MapScene {
       target: new THREE.Vector3(center.x, baseY, center.z),
       position: new THREE.Vector3(center.x + 140, baseY + 900, center.z + 640),
     };
+    if (this.kind === 'open' && !mapData.map.home) {
+      // Open maps of any size: the whole map in view from a south-east oblique.
+      const size = Math.max(mapData.projection.width, mapData.projection.depth);
+      const gy = mapData.floors[0] && mapData.floors[0].displayY != null ? mapData.floors[0].displayY : 0;
+      this.home.target.set(center.x, gy, center.z);
+      this.home.position.set(center.x + size * 0.12, gy + size * 0.78, center.z + size * 0.6);
+    }
     if (mapData.map.home) {
       // Small maps (Factory) set their own home view: target in scene meters + camera offset from it.
       const { target, offset } = mapData.map.home;
@@ -190,6 +197,7 @@ export class MapScene {
     if (this.kind === 'shoreline') LevelLayer = (await import('./shoreline/ShorelineLayer.js')).ShorelineLayer;
     else if (this.kind === 'factory') LevelLayer = (await import('./factory/FactoryLayer.js')).FactoryLayer;
     else if (this.kind === 'customs') LevelLayer = (await import('./customs/CustomsLayer.js')).CustomsLayer;
+    else if (this.kind === 'open') LevelLayer = (await import('./open/OpenLayer.js')).OpenLayer;
     else LevelLayer = (await import('./interchange/InterchangeLayer.js')).InterchangeLayer;
     if (this.disposed) return;
     this.levels = new LevelLayer(this.scene, this.mapData, this.renderer);

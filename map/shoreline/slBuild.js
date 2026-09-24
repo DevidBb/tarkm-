@@ -66,6 +66,21 @@ export function walkLine(line, step, fn, offset = step / 2) {
   }
 }
 
+// SVG group ids of each part of the open ground. Shoreline's own ids by default; other open maps (Woods, Reserve,
+// Lighthouse, Ground Zero) pass ctx.ids found by class (see map/open/OpenLayer.js).
+const SHORELINE_IDS = {
+  water: ['Water'], docks: ['Docks'], rocks: ['Rocks'], forest: ['Forest'], fences: ['Fences'], powerlines: ['Powerlines'],
+  towers: ['Powerline_Towers'], railroad: ['Railroad'], mines: ['Mines'], roads: ['Roads'], roadsUnpaved: ['Roads_Unpaved'], paths: ['Path'],
+  buildings: [
+    ['Small_Buildings', 'small', 3.1, ['brick', 'panel', 'industrial']],
+    ['Medium_Buildings', 'medium', 6.4, ['panel', 'brick', 'industrial']],
+    ['Terminal', 'terminal', 6.5, ['industrial']],
+  ],
+};
+export const idsOf = (ctx, key) => (ctx.ids && ctx.ids[key]) || SHORELINE_IDS[key] || [];
+export const polysOf = (ctx, key, opts) => idsOf(ctx, key).flatMap((id) => ctx.svg.polygons(id, opts));
+export const strokesOf = (ctx, key) => idsOf(ctx, key).flatMap((id) => ctx.svg.strokes(id));
+
 export function addMesh(parent, bucket, material, name) {
   const mesh = bucket.mesh(material);
   if (mesh) {
@@ -82,7 +97,7 @@ export function carveWater(ctx) {
   const { cols, rows, cell, gx0, gz0, heights } = terrain;
   const waterY = new Float32Array(cols * rows).fill(NaN);
   const surfaces = [];
-  for (const poly of svg.polygons('Water', { minArea: 30 })) {
+  for (const poly of polysOf(ctx, 'water', { minArea: 30 })) {
     const info = ringInfo(poly.outer);
     const flat = info.width >= 20; // lakes and the sea; the narrow river follows the ground
     let level = Infinity;
@@ -256,7 +271,7 @@ export function buildOutside(ctx, water) {
   const flatLevels = water.surfaces.filter((s) => s.flat && Number.isFinite(s.level)).map((s) => s.level);
   const seaLevel = flatLevels.length ? Math.min(...flatLevels) : -66;
   const deck = new MeshBucket();
-  for (const poly of svg.polygons('Docks', { minArea: 4 })) {
+  for (const poly of polysOf(ctx, 'docks', { minArea: 4 })) {
     const deckY = seaLevel + 1.6;
     slab(deck, poly, deckY, C.deck);
     slab(deck, { outer: poly.outer, holes: [] }, deckY - 0.3, C.deckDark, { down: true });
@@ -288,13 +303,15 @@ export function buildOutside(ctx, water) {
   };
   const roofs = new MeshBucket();
   const rb = rng(hashString('shoreline-buildings'));
-  const KINDS = [
-    ['Small_Buildings', 'small', 3.1, ['brick', 'panel', 'industrial']],
-    ['Medium_Buildings', 'medium', 6.4, ['panel', 'brick', 'industrial']],
-    ['Terminal', 'terminal', 6.5, ['industrial']],
-  ];
-  for (const [gid, kind, H, styles] of KINDS) {
+  const KINDS = idsOf(ctx, 'buildings');
+  for (const [gid, kind0, H0, styles] of KINDS) {
     for (const poly of svg.polygons(gid, { minArea: 3 })) {
+      // 'auto': the kind and height from the footprint (open maps without separate building groups)
+      const area0 = ringInfo(poly.outer).area;
+      const auto = kind0 === 'auto' || kind0 === 'auto-city';
+      const kind = !auto ? kind0 : area0 < 160 ? 'small' : area0 < 900 ? 'medium' : 'large';
+      const storey = kind0 === 'auto-city' ? 2 : 1; // Ground Zero: office towers, not village houses
+      const H = !auto ? H0 : (kind === 'small' ? 3.1 : kind === 'medium' ? 6.4 : 9.6) * storey * (kind0 === 'auto-city' && kind === 'large' ? 1.6 : 1);
       const info = ringInfo(poly.outer);
       let low = ground(info.center.x, info.center.z);
       let high = low;
@@ -363,8 +380,8 @@ export function buildOutside(ctx, water) {
 
   const inFootprint = (p) => footprints.some((f) => p.x >= f.bounds.x0 && p.x <= f.bounds.x1 && p.z >= f.bounds.z0 && p.z <= f.bounds.z1 && pointInPolygon(p, f.poly));
   const pathSegs = [];
-  for (const id of ['Roads', 'Roads_Unpaved', 'Path']) {
-    for (const s of svg.strokes(id)) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) pathSegs.push({ a: line[i], b: line[i + 1], width: s.width });
+  for (const s of [...strokesOf(ctx, 'roads'), ...strokesOf(ctx, 'roadsUnpaved'), ...strokesOf(ctx, 'paths')]) {
+    for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) pathSegs.push({ a: line[i], b: line[i + 1], width: s.width });
   }
   const pathGrid = new SegmentGrid(pathSegs, 24);
   const onRoad = (p, pad = 0) => pathGrid.near(p, 14).some((sg) => {
@@ -377,7 +394,7 @@ export function buildOutside(ctx, water) {
 
   // rocks
   const rockGeos = [];
-  for (const poly of svg.polygons('Rocks', { minArea: 2 })) {
+  for (const poly of polysOf(ctx, 'rocks', { minArea: 2 })) {
     const info = ringInfo(poly.outer);
     let low = Infinity;
     for (const p of poly.outer) low = Math.min(low, ground(p.x, p.z));
@@ -406,7 +423,7 @@ export function buildOutside(ctx, water) {
   const treeCrown = L(vegGroup, 'tree-crown', props.treeCrown, 2200);
   const bush = L(vegGroup, 'bush', icProps.bush, 520);
   const rf = rng(hashString('shoreline-forest'));
-  for (const poly of svg.polygons('Forest', { minArea: 40 })) {
+  for (const poly of polysOf(ctx, 'forest', { minArea: 40 })) {
     const { bounds } = ringInfo(poly.outer);
     for (let x = bounds.x0 + 2; x < bounds.x1 && stats.trees < 18000; x += 7) {
       for (let z = bounds.z0 + 2; z < bounds.z1; z += 7) {
@@ -446,7 +463,7 @@ export function buildOutside(ctx, water) {
 
   // fences
   const fence = L(propsGroup, 'fence', props.fenceMetal, 700);
-  for (const s of svg.strokes('Fences')) {
+  for (const s of strokesOf(ctx, 'fences')) {
     for (const line of s.lines) {
       walkLine(line, 2.5, (p, dir) => {
         fence.add(composeMatrix(p.x, ground(p.x, p.z) - 0.05, p.z, alongX(dir)));
@@ -457,10 +474,10 @@ export function buildOutside(ctx, water) {
 
   // power line towers (turned across the line) and wires
   const lineSegs = [];
-  for (const s of svg.strokes('Powerlines')) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) lineSegs.push({ a: line[i], b: line[i + 1] });
+  for (const s of strokesOf(ctx, 'powerlines')) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) lineSegs.push({ a: line[i], b: line[i + 1] });
   const lineGrid = new SegmentGrid(lineSegs, 40);
   const pylon = L(propsGroup, 'pylon', pylonGeometry(), 2200);
-  for (const poly of svg.polygons('Powerline_Towers', { minArea: 1 })) {
+  for (const poly of polysOf(ctx, 'towers', { minArea: 1 })) {
     const c = centroid(poly.outer);
     const near = lineGrid.nearest(c, 30);
     let rot = 0;
@@ -504,7 +521,7 @@ export function buildOutside(ctx, water) {
   const sleeperGeo = new THREE.BoxGeometry(0.26, 0.16, 2.6).translate(0, 0.08, 0);
   sleeperGeo.setAttribute('color', new THREE.Float32BufferAttribute(new Array(sleeperGeo.attributes.position.count * 3).fill(0.42), 3));
   const sleeper = L(propsGroup, 'sleeper', sleeperGeo, 320, materials.metal);
-  for (const s of svg.strokes('Railroad')) {
+  for (const s of strokesOf(ctx, 'railroad')) {
     for (const line of s.lines) {
       for (let i = 0; i < line.length - 1; i += 1) {
         const a = line[i];
@@ -526,7 +543,7 @@ export function buildOutside(ctx, water) {
 
   // minefields: signs along the SVG outlines and at the tarkov.dev minefields
   const mineSign = L(propsGroup, 'sign-mines', props.signMines, 520);
-  for (const poly of svg.polygons('Mines', { minArea: 20 })) {
+  for (const poly of polysOf(ctx, 'mines', { minArea: 20 })) {
     const own = { outer: poly.outer, holes: [] };
     poly.outer.forEach((a, i) => {
       const b = poly.outer[(i + 1) % poly.outer.length];
@@ -550,7 +567,7 @@ export function buildOutside(ctx, water) {
 
   // lamps along paved roads
   const lamp = L(propsGroup, 'lamp', props.lamp, 800);
-  for (const s of svg.strokes('Roads')) {
+  for (const s of strokesOf(ctx, 'roads')) {
     for (const line of s.lines) {
       let side = 1;
       walkLine(line, 55, (p, dir) => {
@@ -566,7 +583,7 @@ export function buildOutside(ctx, water) {
 
   // data: cars at trunk locks and V-Ex, stationary weapons, checkpoint
   const roadSegs = [];
-  for (const id of ['Roads', 'Roads_Unpaved', 'Path']) for (const s of svg.strokes(id)) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) roadSegs.push({ a: line[i], b: line[i + 1] });
+  for (const s of [...strokesOf(ctx, 'roads'), ...strokesOf(ctx, 'roadsUnpaved'), ...strokesOf(ctx, 'paths')]) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) roadSegs.push({ a: line[i], b: line[i + 1] });
   const roadGrid = new SegmentGrid(roadSegs, 24);
   const rc = rng(hashString('shoreline-cars'));
   const placements = [];
@@ -584,8 +601,8 @@ export function buildOutside(ctx, water) {
   // abandoned cars on the roads (decoration; a few of them burn)
   const rw = rng(hashString('shoreline-wrecks'));
   const WRECKS = ['#5b4a3c', '#6e5a45', '#4a4642', '#7a6a55', '#5d3b2e', '#3e4a52'];
-  for (const id of ['Roads', 'Roads_Unpaved']) {
-    for (const s of svg.strokes(id)) {
+  for (const s of [...strokesOf(ctx, 'roads'), ...strokesOf(ctx, 'roadsUnpaved')]) {
+    {
       for (const line of s.lines) {
         walkLine(line, 36, (p, dir) => {
           if (rw() > 0.2) return;
@@ -705,11 +722,17 @@ export async function scatterTrees(ctx, outside) {
   const [coniferTrunk, coniferCrown, treeTrunk, treeCrown] = layers;
   const r = rng(hashString('shoreline-groves'));
   let trees = 0;
-  for (let x = projection.sceneLeft + 4; x < projection.sceneLeft + projection.width && trees < 9000; x += 8) {
-    for (let z = projection.sceneTop + 4; z < projection.sceneTop + projection.depth; z += 8) {
-      const p = { x: x + (r() - 0.5) * 6, z: z + (r() - 0.5) * 6 };
+  // ctx.groves tunes the scatter per map (Woods is a forest, Ground Zero a city).
+  const gv = ctx.groves || {};
+  const maxTrees = gv.max || 9000;
+  const step = gv.step || 8;
+  const floorD = gv.floor != null ? gv.floor : 0.015;
+  const peak = gv.peak || 0.6;
+  for (let x = projection.sceneLeft + 4; x < projection.sceneLeft + projection.width && trees < maxTrees; x += step) {
+    for (let z = projection.sceneTop + 4; z < projection.sceneTop + projection.depth; z += step) {
+      const p = { x: x + (r() - 0.5) * step * 0.75, z: z + (r() - 0.5) * step * 0.75 };
       const n = noise(p.x, p.z);
-      const density = n < 0.5 ? 0.015 : Math.min(0.6, (n - 0.5) * 2.2);
+      const density = n < 0.5 ? floorD : Math.min(peak, floorD + (n - 0.5) * 2.2 * (peak / 0.6));
       if (r() > density || !clear(p, 3) || outside.inWater(p) || outside.inFootprint(p) || outside.onRoad(p, 2.5)) continue;
       const y = ground(p.x, p.z) - 0.1;
       const k = 0.7 + r() * 0.65;

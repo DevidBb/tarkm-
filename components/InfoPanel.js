@@ -181,6 +181,14 @@ function IntroCard({ map, onLocate }) {
         <li>Отмечайте цели галочками: прогресс сохраняется.</li>
       </ol>
       <button type="button" class="btn" onClick=${onLocate}>Locate me</button>
+      ${map && map.map.partialData && html`
+        <div class="partial-note">
+          <div class="partial-note__title">Карта в ранней версии</div>
+          <p>Есть 3D-модель по плану карты, навигатор, спавны ЧВК, зоны боссов, места и тексты квестов. Точек выходов, ключей, лута и квестовых целей пока нет: они придут из tarkov.dev при следующем обновлении данных.</p>
+          ${map.map.partialData.exits && map.map.partialData.exits.length > 0 && html`
+            <div class="subhead">Выходы этой карты</div>
+            <ul class="partial-note__exits">${map.map.partialData.exits.map((e) => html`<li key=${e.key}>${e.nameRu}</li>`)}</ul>`}
+        </div>`}
       ${map && html`
         <div class="subhead">На карте сейчас</div>
         <div class="fields">

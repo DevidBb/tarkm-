@@ -1,2 +1,2 @@
 // Build label shown in the app.
-export const BUILD = '24.09 навигатор';
+export const BUILD = '24.09 новые карты';
