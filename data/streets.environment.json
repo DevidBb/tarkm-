@@ -1,0 +1,1754 @@
+{
+    "format":  "tarkov-map-ai/environment@1",
+    "generatedAt":  "2026-09-13T23:10:34Z",
+    "source":  "tarkov.dev (json.tarkov.dev maps dump + tasks). Vehicle type comes from the source text; vehicle color and heading are not in the data.",
+    "vehicles":  [
+                     {
+                         "id":  "patrol-a-1",
+                         "kind":  "patrol-a",
+                         "position":  {
+                                          "x":  -69.39,
+                                          "y":  3.52,
+                                          "z":  358.46
+                                      },
+                         "source":  "tarkov.dev task \u0027Information Source\u0027: Locate and mark the first Patrol-A armored vehicle with an MS2000 Marker on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "patrol-a-2",
+                         "kind":  "patrol-a",
+                         "position":  {
+                                          "x":  172.48,
+                                          "y":  4.79,
+                                          "z":  416.94
+                                      },
+                         "source":  "tarkov.dev task \u0027Information Source\u0027: Locate and mark the second Patrol-A armored vehicle with an MS2000 Marker on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "ambulance-3",
+                         "kind":  "ambulance",
+                         "position":  {
+                                          "x":  -53.88,
+                                          "y":  2.17,
+                                          "z":  198.96
+                                      },
+                         "source":  "tarkov.dev task \u0027Paramedic\u0027: Locate and obtain the ambulance paramedic\u0027s smartphone on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "ambulance-4",
+                         "kind":  "ambulance",
+                         "position":  {
+                                          "x":  223.66,
+                                          "y":  3.47,
+                                          "z":  369.44
+                                      },
+                         "source":  "tarkov.dev task \u0027Paramedic\u0027: Locate and obtain the ambulance paramedic\u0027s smartphone on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "ambulance-5",
+                         "kind":  "ambulance",
+                         "position":  {
+                                          "x":  -9.28,
+                                          "y":  2.88,
+                                          "z":  340.79
+                                      },
+                         "source":  "tarkov.dev task \u0027Paramedic\u0027: Locate and obtain the ambulance paramedic\u0027s smartphone on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "ambulance-6",
+                         "kind":  "ambulance",
+                         "position":  {
+                                          "x":  83.25,
+                                          "y":  0.48,
+                                          "z":  -10.4
+                                      },
+                         "source":  "tarkov.dev task \u0027Paramedic\u0027: Locate and obtain the ambulance paramedic\u0027s smartphone on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "ambulance-7",
+                         "kind":  "ambulance",
+                         "position":  {
+                                          "x":  311.46,
+                                          "y":  3.4,
+                                          "z":  413.37
+                                      },
+                         "source":  "tarkov.dev task \u0027Paramedic\u0027: Locate and obtain the ambulance paramedic\u0027s smartphone on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "ambulance-8",
+                         "kind":  "ambulance",
+                         "position":  {
+                                          "x":  105.08,
+                                          "y":  -1.61,
+                                          "z":  54.95
+                                      },
+                         "source":  "tarkov.dev task \u0027Paramedic\u0027: Locate and obtain the ambulance paramedic\u0027s smartphone on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "ambulance-9",
+                         "kind":  "ambulance",
+                         "position":  {
+                                          "x":  131.35,
+                                          "y":  3.95,
+                                          "z":  239.26
+                                      },
+                         "source":  "tarkov.dev task \u0027Paramedic\u0027: Locate and obtain the ambulance paramedic\u0027s smartphone on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "ambulance-10",
+                         "kind":  "ambulance",
+                         "position":  {
+                                          "x":  157.92,
+                                          "y":  3.66,
+                                          "z":  455.96
+                                      },
+                         "source":  "tarkov.dev task \u0027Paramedic\u0027: Locate and obtain the ambulance paramedic\u0027s smartphone on Streets of Tarkov"
+                     },
+                     {
+                         "id":  "car-11",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -149.9,
+                                          "y":  4.08,
+                                          "z":  415.15
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-12",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  185.14,
+                                          "y":  5.07,
+                                          "z":  307
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-13",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  98.78,
+                                          "y":  3.8,
+                                          "z":  332.94
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-14",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  100.59,
+                                          "y":  3.62,
+                                          "z":  337.27
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-15",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  193.63,
+                                          "y":  4.59,
+                                          "z":  458.73
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-16",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  192.35,
+                                          "y":  4.41,
+                                          "z":  463.25
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "post-van-17",
+                         "kind":  "post-van",
+                         "position":  {
+                                          "x":  23.2,
+                                          "y":  2.04,
+                                          "z":  107.52
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 2 lock(s)), key: Rus Post car key"
+                     },
+                     {
+                         "id":  "car-18",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -67.94,
+                                          "y":  5.32,
+                                          "z":  53.5
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: USEC cottage second safe key"
+                     },
+                     {
+                         "id":  "car-19",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -77.53,
+                                          "y":  5.4,
+                                          "z":  53.2
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: USEC cottage second safe key"
+                     },
+                     {
+                         "id":  "car-20",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -49.45,
+                                          "y":  5.27,
+                                          "z":  64.03
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: USEC cottage second safe key"
+                     },
+                     {
+                         "id":  "car-21",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  147.1,
+                                          "y":  3.45,
+                                          "z":  -34.92
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: USEC cottage second safe key"
+                     },
+                     {
+                         "id":  "car-22",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  174.02,
+                                          "y":  1.14,
+                                          "z":  163.48
+                                      },
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: USEC cottage second safe key"
+                     },
+                     {
+                         "id":  "taxi-23",
+                         "kind":  "taxi",
+                         "position":  {
+                                          "x":  -2.19,
+                                          "y":  3.2,
+                                          "z":  461.23
+                                      },
+                         "source":  "tarkov.dev extract \u0027Primorsky Ave Taxi V-Ex\u0027"
+                     }
+                 ],
+    "roofPoints":  [
+                       {
+                           "zone":  "ZoneSnipeStilo",
+                           "position":  {
+                                            "x":  -147.78,
+                                            "y":  14.21,
+                                            "z":  -7.23
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeCarShowroom",
+                           "position":  {
+                                            "x":  55.02,
+                                            "y":  11.91,
+                                            "z":  297.38
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeCarShowroom",
+                           "position":  {
+                                            "x":  58.61,
+                                            "y":  11.91,
+                                            "z":  309.91
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeStilo",
+                           "position":  {
+                                            "x":  -161.81,
+                                            "y":  14.22,
+                                            "z":  -4.3
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeCard",
+                           "position":  {
+                                            "x":  41.18,
+                                            "y":  28.33,
+                                            "z":  -20.71
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeCard",
+                           "position":  {
+                                            "x":  43.74,
+                                            "y":  28.33,
+                                            "z":  -17.01
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeStilo",
+                           "position":  {
+                                            "x":  -119.24,
+                                            "y":  14.21,
+                                            "z":  -12.25
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeCinema",
+                           "position":  {
+                                            "x":  -166.71,
+                                            "y":  23.2,
+                                            "z":  390.43
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeCinema",
+                           "position":  {
+                                            "x":  -166.03,
+                                            "y":  23.18,
+                                            "z":  410.85
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeCard",
+                           "position":  {
+                                            "x":  65.73,
+                                            "y":  28.33,
+                                            "z":  -16.06
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeStilo",
+                           "position":  {
+                                            "x":  -132.87,
+                                            "y":  14.21,
+                                            "z":  -10.36
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeBuilding",
+                           "position":  {
+                                            "x":  -24.67,
+                                            "y":  21.14,
+                                            "z":  228.13
+                                        }
+                       },
+                       {
+                           "zone":  "ZoneSnipeSW01",
+                           "position":  {
+                                            "x":  89.28,
+                                            "y":  34.91,
+                                            "z":  101.34
+                                        }
+                       }
+                   ],
+    "emplacements":  [
+                         {
+                             "weapon":  "NSV Utyos 12.7x108 heavy machine gun",
+                             "position":  {
+                                              "x":  58.05,
+                                              "y":  12.81,
+                                              "z":  271.15
+                                          }
+                         },
+                         {
+                             "weapon":  "NSV Utyos 12.7x108 heavy machine gun",
+                             "position":  {
+                                              "x":  73.62,
+                                              "y":  3.74,
+                                              "z":  285.57
+                                          }
+                         },
+                         {
+                             "weapon":  "NSV Utyos 12.7x108 heavy machine gun",
+                             "position":  {
+                                              "x":  200.3,
+                                              "y":  7.86,
+                                              "z":  307.88
+                                          }
+                         },
+                         {
+                             "weapon":  "NSV Utyos 12.7x108 heavy machine gun",
+                             "position":  {
+                                              "x":  85.72,
+                                              "y":  3.76,
+                                              "z":  323.17
+                                          }
+                         },
+                         {
+                             "weapon":  "NSV Utyos 12.7x108 heavy machine gun",
+                             "position":  {
+                                              "x":  47.36,
+                                              "y":  12.71,
+                                              "z":  142.52
+                                          }
+                         },
+                         {
+                             "weapon":  "AGS-30 30x29mm automatic grenade launcher",
+                             "position":  {
+                                              "x":  72.01,
+                                              "y":  19.5,
+                                              "z":  303.83
+                                          }
+                         },
+                         {
+                             "weapon":  "AGS-30 30x29mm automatic grenade launcher",
+                             "position":  {
+                                              "x":  64.72,
+                                              "y":  6.5,
+                                              "z":  266.18
+                                          }
+                         },
+                         {
+                             "weapon":  "AGS-30 30x29mm automatic grenade launcher",
+                             "position":  {
+                                              "x":  80.82,
+                                              "y":  6.62,
+                                              "z":  324.12
+                                          }
+                         },
+                         {
+                             "weapon":  "NSV Utyos 12.7x108 heavy machine gun",
+                             "position":  {
+                                              "x":  -157.62,
+                                              "y":  10.8,
+                                              "z":  -1.44
+                                          }
+                         }
+                     ],
+    "minefields":  [
+                       {
+                           "position":  {
+                                            "x":  90.44,
+                                            "y":  3.27,
+                                            "z":  262.33
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  92.92,
+                                               "y":  3.27,
+                                               "z":  263.15
+                                           },
+                                           {
+                                               "x":  88.83,
+                                               "y":  3.27,
+                                               "z":  260.27
+                                           },
+                                           {
+                                               "x":  87.96,
+                                               "y":  3.27,
+                                               "z":  261.5
+                                           },
+                                           {
+                                               "x":  92.05,
+                                               "y":  3.27,
+                                               "z":  264.38
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  85.24,
+                                            "y":  3.17,
+                                            "z":  263.11
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  82.8,
+                                               "y":  3.17,
+                                               "z":  264.04
+                                           },
+                                           {
+                                               "x":  87.79,
+                                               "y":  3.17,
+                                               "z":  263.69
+                                           },
+                                           {
+                                               "x":  87.69,
+                                               "y":  3.17,
+                                               "z":  262.19
+                                           },
+                                           {
+                                               "x":  82.7,
+                                               "y":  3.17,
+                                               "z":  262.54
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  106.71,
+                                            "y":  3.74,
+                                            "z":  311
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  106.29,
+                                               "y":  3.74,
+                                               "z":  308.42
+                                           },
+                                           {
+                                               "x":  105.63,
+                                               "y":  3.74,
+                                               "z":  313.38
+                                           },
+                                           {
+                                               "x":  107.12,
+                                               "y":  3.74,
+                                               "z":  313.57
+                                           },
+                                           {
+                                               "x":  107.78,
+                                               "y":  3.74,
+                                               "z":  308.62
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  105.06,
+                                            "y":  3.26,
+                                            "z":  326.14
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  106.45,
+                                               "y":  3.26,
+                                               "z":  323.52
+                                           },
+                                           {
+                                               "x":  106.45,
+                                               "y":  3.26,
+                                               "z":  328.76
+                                           },
+                                           {
+                                               "x":  103.66,
+                                               "y":  3.26,
+                                               "z":  328.76
+                                           },
+                                           {
+                                               "x":  103.66,
+                                               "y":  3.26,
+                                               "z":  323.52
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  105.71,
+                                            "y":  3.49,
+                                            "z":  364.56
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  107.02,
+                                               "y":  3.49,
+                                               "z":  361.94
+                                           },
+                                           {
+                                               "x":  107.02,
+                                               "y":  3.49,
+                                               "z":  367.17
+                                           },
+                                           {
+                                               "x":  104.39,
+                                               "y":  3.49,
+                                               "z":  367.17
+                                           },
+                                           {
+                                               "x":  104.39,
+                                               "y":  3.49,
+                                               "z":  361.94
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  101.16,
+                                            "y":  3.24,
+                                            "z":  262.74
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  98.64,
+                                               "y":  3.24,
+                                               "z":  263.41
+                                           },
+                                           {
+                                               "x":  103.64,
+                                               "y":  3.24,
+                                               "z":  263.58
+                                           },
+                                           {
+                                               "x":  103.69,
+                                               "y":  3.24,
+                                               "z":  262.08
+                                           },
+                                           {
+                                               "x":  98.69,
+                                               "y":  3.24,
+                                               "z":  261.91
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  45.95,
+                                            "y":  3.04,
+                                            "z":  265.49
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  47.25,
+                                               "y":  3.04,
+                                               "z":  267.75
+                                           },
+                                           {
+                                               "x":  46.11,
+                                               "y":  3.04,
+                                               "z":  262.88
+                                           },
+                                           {
+                                               "x":  44.65,
+                                               "y":  3.04,
+                                               "z":  263.23
+                                           },
+                                           {
+                                               "x":  45.79,
+                                               "y":  3.04,
+                                               "z":  268.09
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  39.85,
+                                            "y":  3.04,
+                                            "z":  270.91
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  37.27,
+                                               "y":  3.04,
+                                               "z":  270.5
+                                           },
+                                           {
+                                               "x":  41.78,
+                                               "y":  3.04,
+                                               "z":  272.67
+                                           },
+                                           {
+                                               "x":  42.43,
+                                               "y":  3.04,
+                                               "z":  271.31
+                                           },
+                                           {
+                                               "x":  37.92,
+                                               "y":  3.04,
+                                               "z":  269.15
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  105.67,
+                                            "y":  4.04,
+                                            "z":  292.99
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  105.08,
+                                               "y":  4.04,
+                                               "z":  295.53
+                                           },
+                                           {
+                                               "x":  107.57,
+                                               "y":  4.04,
+                                               "z":  291.19
+                                           },
+                                           {
+                                               "x":  106.26,
+                                               "y":  4.04,
+                                               "z":  290.45
+                                           },
+                                           {
+                                               "x":  103.78,
+                                               "y":  4.04,
+                                               "z":  294.79
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  50.11,
+                                            "y":  3.05,
+                                            "z":  267.58
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  47.82,
+                                               "y":  3.05,
+                                               "z":  268.82
+                                           },
+                                           {
+                                               "x":  52.71,
+                                               "y":  3.05,
+                                               "z":  267.81
+                                           },
+                                           {
+                                               "x":  52.41,
+                                               "y":  3.05,
+                                               "z":  266.34
+                                           },
+                                           {
+                                               "x":  47.51,
+                                               "y":  3.05,
+                                               "z":  267.35
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  69.91,
+                                            "y":  3.1,
+                                            "z":  262.09
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  68.08,
+                                               "y":  3.1,
+                                               "z":  263.95
+                                           },
+                                           {
+                                               "x":  72.47,
+                                               "y":  3.1,
+                                               "z":  261.54
+                                           },
+                                           {
+                                               "x":  71.74,
+                                               "y":  3.1,
+                                               "z":  260.23
+                                           },
+                                           {
+                                               "x":  67.36,
+                                               "y":  3.1,
+                                               "z":  262.63
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  62.09,
+                                            "y":  3.08,
+                                            "z":  350.11
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  64.45,
+                                               "y":  3.08,
+                                               "z":  348.99
+                                           },
+                                           {
+                                               "x":  59.51,
+                                               "y":  3.08,
+                                               "z":  349.74
+                                           },
+                                           {
+                                               "x":  59.73,
+                                               "y":  3.08,
+                                               "z":  351.23
+                                           },
+                                           {
+                                               "x":  64.68,
+                                               "y":  3.08,
+                                               "z":  350.48
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  61.03,
+                                            "y":  3.06,
+                                            "z":  263.34
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  58.62,
+                                               "y":  3.06,
+                                               "z":  264.34
+                                           },
+                                           {
+                                               "x":  63.59,
+                                               "y":  3.06,
+                                               "z":  263.84
+                                           },
+                                           {
+                                               "x":  63.44,
+                                               "y":  3.06,
+                                               "z":  262.34
+                                           },
+                                           {
+                                               "x":  58.47,
+                                               "y":  3.06,
+                                               "z":  262.85
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  46.42,
+                                            "y":  2.99,
+                                            "z":  269.78
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  48.86,
+                                               "y":  2.99,
+                                               "z":  268.86
+                                           },
+                                           {
+                                               "x":  43.87,
+                                               "y":  2.99,
+                                               "z":  269.21
+                                           },
+                                           {
+                                               "x":  43.98,
+                                               "y":  2.99,
+                                               "z":  270.71
+                                           },
+                                           {
+                                               "x":  48.96,
+                                               "y":  2.99,
+                                               "z":  270.35
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  105.37,
+                                            "y":  3.95,
+                                            "z":  307.84
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  104.11,
+                                               "y":  3.95,
+                                               "z":  305.55
+                                           },
+                                           {
+                                               "x":  105.16,
+                                               "y":  3.95,
+                                               "z":  310.44
+                                           },
+                                           {
+                                               "x":  106.63,
+                                               "y":  3.95,
+                                               "z":  310.13
+                                           },
+                                           {
+                                               "x":  105.58,
+                                               "y":  3.95,
+                                               "z":  305.24
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  43.73,
+                                            "y":  3.7,
+                                            "z":  267.19
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  46.14,
+                                               "y":  3.7,
+                                               "z":  268.19
+                                           },
+                                           {
+                                               "x":  42.27,
+                                               "y":  3.7,
+                                               "z":  265.03
+                                           },
+                                           {
+                                               "x":  41.32,
+                                               "y":  3.7,
+                                               "z":  266.19
+                                           },
+                                           {
+                                               "x":  45.2,
+                                               "y":  3.7,
+                                               "z":  269.36
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  106.08,
+                                            "y":  3.47,
+                                            "z":  338.29
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  107.5,
+                                               "y":  3.47,
+                                               "z":  335.66
+                                           },
+                                           {
+                                               "x":  107.5,
+                                               "y":  3.47,
+                                               "z":  340.91
+                                           },
+                                           {
+                                               "x":  104.66,
+                                               "y":  3.47,
+                                               "z":  340.91
+                                           },
+                                           {
+                                               "x":  104.66,
+                                               "y":  3.47,
+                                               "z":  335.66
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  44.03,
+                                            "y":  3.05,
+                                            "z":  272.86
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  45.63,
+                                               "y":  3.05,
+                                               "z":  270.8
+                                           },
+                                           {
+                                               "x":  41.56,
+                                               "y":  3.05,
+                                               "z":  273.7
+                                           },
+                                           {
+                                               "x":  42.43,
+                                               "y":  3.05,
+                                               "z":  274.92
+                                           },
+                                           {
+                                               "x":  46.5,
+                                               "y":  3.05,
+                                               "z":  272.03
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  39.01,
+                                            "y":  3.18,
+                                            "z":  272.91
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  41.61,
+                                               "y":  3.18,
+                                               "z":  272.71
+                                           },
+                                           {
+                                               "x":  36.73,
+                                               "y":  3.18,
+                                               "z":  271.64
+                                           },
+                                           {
+                                               "x":  36.41,
+                                               "y":  3.18,
+                                               "z":  273.11
+                                           },
+                                           {
+                                               "x":  41.29,
+                                               "y":  3.18,
+                                               "z":  274.18
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  106.94,
+                                            "y":  4.04,
+                                            "z":  292.78
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  108.26,
+                                               "y":  4.04,
+                                               "z":  295.03
+                                           },
+                                           {
+                                               "x":  107.07,
+                                               "y":  4.04,
+                                               "z":  290.18
+                                           },
+                                           {
+                                               "x":  105.61,
+                                               "y":  4.04,
+                                               "z":  290.53
+                                           },
+                                           {
+                                               "x":  106.8,
+                                               "y":  4.04,
+                                               "z":  295.39
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  41.05,
+                                            "y":  3.05,
+                                            "z":  269.86
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  38.44,
+                                               "y":  3.05,
+                                               "z":  269.78
+                                           },
+                                           {
+                                               "x":  43.19,
+                                               "y":  3.05,
+                                               "z":  271.36
+                                           },
+                                           {
+                                               "x":  43.66,
+                                               "y":  3.05,
+                                               "z":  269.93
+                                           },
+                                           {
+                                               "x":  38.92,
+                                               "y":  3.05,
+                                               "z":  268.36
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  59.92,
+                                            "y":  7.63,
+                                            "z":  323.19
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  61.66,
+                                               "y":  7.63,
+                                               "z":  320.58
+                                           },
+                                           {
+                                               "x":  61.66,
+                                               "y":  7.63,
+                                               "z":  325.8
+                                           },
+                                           {
+                                               "x":  58.19,
+                                               "y":  7.63,
+                                               "z":  325.8
+                                           },
+                                           {
+                                               "x":  58.19,
+                                               "y":  7.63,
+                                               "z":  320.58
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  93.58,
+                                            "y":  3.2,
+                                            "z":  364.78
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  91.01,
+                                               "y":  3.2,
+                                               "z":  364.32
+                                           },
+                                           {
+                                               "x":  95.47,
+                                               "y":  3.2,
+                                               "z":  366.58
+                                           },
+                                           {
+                                               "x":  96.15,
+                                               "y":  3.2,
+                                               "z":  365.24
+                                           },
+                                           {
+                                               "x":  91.69,
+                                               "y":  3.2,
+                                               "z":  362.98
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  42.04,
+                                            "y":  3.02,
+                                            "z":  278.09
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  43.48,
+                                               "y":  3.02,
+                                               "z":  275.91
+                                           },
+                                           {
+                                               "x":  39.64,
+                                               "y":  3.02,
+                                               "z":  279.12
+                                           },
+                                           {
+                                               "x":  40.6,
+                                               "y":  3.02,
+                                               "z":  280.27
+                                           },
+                                           {
+                                               "x":  44.44,
+                                               "y":  3.02,
+                                               "z":  277.07
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  50.7,
+                                            "y":  3.22,
+                                            "z":  329.91
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  53.14,
+                                               "y":  3.22,
+                                               "z":  328.98
+                                           },
+                                           {
+                                               "x":  48.15,
+                                               "y":  3.22,
+                                               "z":  329.34
+                                           },
+                                           {
+                                               "x":  48.26,
+                                               "y":  3.22,
+                                               "z":  330.84
+                                           },
+                                           {
+                                               "x":  53.25,
+                                               "y":  3.22,
+                                               "z":  330.48
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  59.22,
+                                            "y":  8.18,
+                                            "z":  318.42
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  61.85,
+                                               "y":  8.18,
+                                               "z":  316.95
+                                           },
+                                           {
+                                               "x":  61.85,
+                                               "y":  8.18,
+                                               "z":  319.88
+                                           },
+                                           {
+                                               "x":  56.58,
+                                               "y":  8.18,
+                                               "z":  319.88
+                                           },
+                                           {
+                                               "x":  56.58,
+                                               "y":  8.18,
+                                               "z":  316.95
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  94.91,
+                                            "y":  3.67,
+                                            "z":  369.4
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  97.21,
+                                               "y":  3.67,
+                                               "z":  367.06
+                                           },
+                                           {
+                                               "x":  97.21,
+                                               "y":  3.67,
+                                               "z":  371.75
+                                           },
+                                           {
+                                               "x":  92.6,
+                                               "y":  3.67,
+                                               "z":  371.75
+                                           },
+                                           {
+                                               "x":  92.6,
+                                               "y":  3.67,
+                                               "z":  367.06
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  98.25,
+                                            "y":  3.02,
+                                            "z":  365.32
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  100.19,
+                                               "y":  3.02,
+                                               "z":  363.58
+                                           },
+                                           {
+                                               "x":  95.66,
+                                               "y":  3.02,
+                                               "z":  365.71
+                                           },
+                                           {
+                                               "x":  96.3,
+                                               "y":  3.02,
+                                               "z":  367.07
+                                           },
+                                           {
+                                               "x":  100.83,
+                                               "y":  3.02,
+                                               "z":  364.94
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  64.24,
+                                            "y":  3.06,
+                                            "z":  261.51
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  61.63,
+                                               "y":  3.06,
+                                               "z":  261.56
+                                           },
+                                           {
+                                               "x":  66.45,
+                                               "y":  3.06,
+                                               "z":  262.91
+                                           },
+                                           {
+                                               "x":  66.85,
+                                               "y":  3.06,
+                                               "z":  261.46
+                                           },
+                                           {
+                                               "x":  62.04,
+                                               "y":  3.06,
+                                               "z":  260.11
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  46.21,
+                                            "y":  3.04,
+                                            "z":  311.62
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  45.35,
+                                               "y":  3.04,
+                                               "z":  309.16
+                                           },
+                                           {
+                                               "x":  45.57,
+                                               "y":  3.04,
+                                               "z":  314.16
+                                           },
+                                           {
+                                               "x":  47.07,
+                                               "y":  3.04,
+                                               "z":  314.09
+                                           },
+                                           {
+                                               "x":  46.85,
+                                               "y":  3.04,
+                                               "z":  309.09
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  99.63,
+                                            "y":  3.13,
+                                            "z":  368.41
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  102.15,
+                                               "y":  3.13,
+                                               "z":  369.09
+                                           },
+                                           {
+                                               "x":  97.91,
+                                               "y":  3.13,
+                                               "z":  366.45
+                                           },
+                                           {
+                                               "x":  97.11,
+                                               "y":  3.13,
+                                               "z":  367.72
+                                           },
+                                           {
+                                               "x":  101.36,
+                                               "y":  3.13,
+                                               "z":  370.37
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  59.19,
+                                            "y":  8.69,
+                                            "z":  318.84
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  61.83,
+                                               "y":  8.69,
+                                               "z":  317.12
+                                           },
+                                           {
+                                               "x":  61.83,
+                                               "y":  8.69,
+                                               "z":  320.57
+                                           },
+                                           {
+                                               "x":  56.56,
+                                               "y":  8.69,
+                                               "z":  320.57
+                                           },
+                                           {
+                                               "x":  56.56,
+                                               "y":  8.69,
+                                               "z":  317.12
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  103.75,
+                                            "y":  3.58,
+                                            "z":  362.85
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  101.55,
+                                               "y":  3.58,
+                                               "z":  361.47
+                                           },
+                                           {
+                                               "x":  104.83,
+                                               "y":  3.58,
+                                               "z":  365.24
+                                           },
+                                           {
+                                               "x":  105.97,
+                                               "y":  3.58,
+                                               "z":  364.26
+                                           },
+                                           {
+                                               "x":  102.69,
+                                               "y":  3.58,
+                                               "z":  360.49
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  51.77,
+                                            "y":  3.05,
+                                            "z":  327.21
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  53.52,
+                                               "y":  3.05,
+                                               "z":  325.28
+                                           },
+                                           {
+                                               "x":  49.24,
+                                               "y":  3.05,
+                                               "z":  327.86
+                                           },
+                                           {
+                                               "x":  50.02,
+                                               "y":  3.05,
+                                               "z":  329.15
+                                           },
+                                           {
+                                               "x":  54.3,
+                                               "y":  3.05,
+                                               "z":  326.57
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  51.7,
+                                            "y":  3.07,
+                                            "z":  323.7
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  54.26,
+                                               "y":  3.07,
+                                               "z":  324.17
+                                           },
+                                           {
+                                               "x":  49.81,
+                                               "y":  3.07,
+                                               "z":  321.89
+                                           },
+                                           {
+                                               "x":  49.13,
+                                               "y":  3.07,
+                                               "z":  323.23
+                                           },
+                                           {
+                                               "x":  53.58,
+                                               "y":  3.07,
+                                               "z":  325.51
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  40.84,
+                                            "y":  2.95,
+                                            "z":  275.46
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  43.4,
+                                               "y":  2.95,
+                                               "z":  274.95
+                                           },
+                                           {
+                                               "x":  38.42,
+                                               "y":  2.95,
+                                               "z":  274.47
+                                           },
+                                           {
+                                               "x":  38.28,
+                                               "y":  2.95,
+                                               "z":  275.97
+                                           },
+                                           {
+                                               "x":  43.26,
+                                               "y":  2.95,
+                                               "z":  276.45
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  47.45,
+                                            "y":  3.04,
+                                            "z":  318.21
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  49.05,
+                                               "y":  3.04,
+                                               "z":  320.27
+                                           },
+                                           {
+                                               "x":  47.25,
+                                               "y":  3.04,
+                                               "z":  315.6
+                                           },
+                                           {
+                                               "x":  45.85,
+                                               "y":  3.04,
+                                               "z":  316.14
+                                           },
+                                           {
+                                               "x":  47.65,
+                                               "y":  3.04,
+                                               "z":  320.81
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  45.58,
+                                            "y":  3.46,
+                                            "z":  281.88
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  45.44,
+                                               "y":  3.46,
+                                               "z":  279.28
+                                           },
+                                           {
+                                               "x":  44.25,
+                                               "y":  3.46,
+                                               "z":  284.13
+                                           },
+                                           {
+                                               "x":  45.71,
+                                               "y":  3.46,
+                                               "z":  284.49
+                                           },
+                                           {
+                                               "x":  46.9,
+                                               "y":  3.46,
+                                               "z":  279.64
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  48.6,
+                                            "y":  2.99,
+                                            "z":  266.77
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  49.89,
+                                               "y":  2.99,
+                                               "z":  269.04
+                                           },
+                                           {
+                                               "x":  48.76,
+                                               "y":  2.99,
+                                               "z":  264.17
+                                           },
+                                           {
+                                               "x":  47.3,
+                                               "y":  2.99,
+                                               "z":  264.51
+                                           },
+                                           {
+                                               "x":  48.43,
+                                               "y":  2.99,
+                                               "z":  269.38
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  45.62,
+                                            "y":  3.03,
+                                            "z":  299.95
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  45.83,
+                                               "y":  3.03,
+                                               "z":  297.34
+                                           },
+                                           {
+                                               "x":  44.01,
+                                               "y":  3.03,
+                                               "z":  302
+                                           },
+                                           {
+                                               "x":  45.41,
+                                               "y":  3.03,
+                                               "z":  302.55
+                                           },
+                                           {
+                                               "x":  47.23,
+                                               "y":  3.03,
+                                               "z":  297.89
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  44.64,
+                                            "y":  3.11,
+                                            "z":  291.59
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  47.07,
+                                               "y":  3.11,
+                                               "z":  290.62
+                                           },
+                                           {
+                                               "x":  42.09,
+                                               "y":  3.11,
+                                               "z":  291.06
+                                           },
+                                           {
+                                               "x":  42.22,
+                                               "y":  3.11,
+                                               "z":  292.55
+                                           },
+                                           {
+                                               "x":  47.2,
+                                               "y":  3.11,
+                                               "z":  292.12
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  95.64,
+                                            "y":  3.24,
+                                            "z":  262.8
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  93.71,
+                                               "y":  3.24,
+                                               "z":  264.55
+                                           },
+                                           {
+                                               "x":  98.23,
+                                               "y":  3.24,
+                                               "z":  262.41
+                                           },
+                                           {
+                                               "x":  97.58,
+                                               "y":  3.24,
+                                               "z":  261.05
+                                           },
+                                           {
+                                               "x":  93.06,
+                                               "y":  3.24,
+                                               "z":  263.19
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  46.84,
+                                            "y":  2.99,
+                                            "z":  268.69
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  45.37,
+                                               "y":  2.99,
+                                               "z":  270.85
+                                           },
+                                           {
+                                               "x":  49.25,
+                                               "y":  2.99,
+                                               "z":  267.7
+                                           },
+                                           {
+                                               "x":  48.3,
+                                               "y":  2.99,
+                                               "z":  266.53
+                                           },
+                                           {
+                                               "x":  44.42,
+                                               "y":  2.99,
+                                               "z":  269.69
+                                           }
+                                       ]
+                       }
+                   ],
+    "checkpoints":  [
+                        {
+                            "name":  "Expo Checkpoint",
+                            "position":  {
+                                             "x":  213.12,
+                                             "y":  -0.74,
+                                             "z":  -104.96
+                                         }
+                        },
+                        {
+                            "name":  "Scav Checkpoint",
+                            "position":  {
+                                             "x":  211.34,
+                                             "y":  -8.16,
+                                             "z":  82.31
+                                         }
+                        }
+                    ],
+    "manholes":  [
+                     {
+                         "name":  "Sewer Manhole",
+                         "position":  {
+                                          "x":  276.11,
+                                          "y":  5.36,
+                                          "z":  345.39
+                                      }
+                     }
+                 ],
+    "parkingLots":  [
+                        {
+                            "name":  "Cardinal Apartment Complex Parking",
+                            "position":  {
+                                             "x":  104.84,
+                                             "y":  0.13,
+                                             "z":  -161.17
+                                         }
+                        }
+                    ],
+    "btrStops":  [
+                     {
+                         "name":  "Rodina Cinema",
+                         "position":  {
+                                          "x":  -146.5,
+                                          "y":  2.12,
+                                          "z":  402.77
+                                      }
+                     },
+                     {
+                         "name":  "Tram",
+                         "position":  {
+                                          "x":  -225.28,
+                                          "y":  2.13,
+                                          "z":  236.34
+                                      }
+                     },
+                     {
+                         "name":  "Pinewood Hotel",
+                         "position":  {
+                                          "x":  -125.01,
+                                          "y":  0.74,
+                                          "z":  72.01
+                                      }
+                     },
+                     {
+                         "name":  "Old Scav Checkpoint",
+                         "position":  {
+                                          "x":  126.23,
+                                          "y":  -2.56,
+                                          "z":  35.47
+                                      }
+                     },
+                     {
+                         "name":  "Collapsed Crane",
+                         "position":  {
+                                          "x":  207.25,
+                                          "y":  3.2,
+                                          "z":  248.83
+                                      }
+                     },
+                     {
+                         "name":  "City Center",
+                         "position":  {
+                                          "x":  -4.03,
+                                          "y":  2.19,
+                                          "z":  202.88
+                                      }
+                     }
+                 ]
+}

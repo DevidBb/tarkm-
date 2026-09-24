@@ -1,0 +1,409 @@
+{
+    "format":  "tarkov-map-ai/environment@1",
+    "generatedAt":  "2026-09-15T01:01:45Z",
+    "source":  "tarkov.dev (json.tarkov.dev maps dump). Vehicle type and color are not in the data.",
+    "vehicles":  [
+                     {
+                         "id":  "car-1",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  120.52,
+                                          "y":  23.12,
+                                          "z":  264.08
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-2",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  105.96,
+                                          "y":  23.11,
+                                          "z":  215.31
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-3",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  33.72,
+                                          "y":  23.1,
+                                          "z":  303.57
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-4",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -315.7,
+                                          "y":  23.28,
+                                          "z":  273.83
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-5",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  410.39,
+                                          "y":  20.97,
+                                          "z":  -375.86
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-6",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  44.14,
+                                          "y":  23.28,
+                                          "z":  249.9
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-7",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -158.2,
+                                          "y":  23.28,
+                                          "z":  57.22
+                                      },
+                         "floor":  "PARKING",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-8",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -75.42,
+                                          "y":  23.28,
+                                          "z":  -350.62
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-9",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -90.12,
+                                          "y":  23.29,
+                                          "z":  114.83
+                                      },
+                         "floor":  "PARKING",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-10",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -79.73,
+                                          "y":  29.09,
+                                          "z":  -63.5
+                                      },
+                         "floor":  "LEVEL1",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-11",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -379.33,
+                                          "y":  23.3,
+                                          "z":  -207.43
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-12",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -183.07,
+                                          "y":  23.32,
+                                          "z":  -265.18
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-13",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  253.03,
+                                          "y":  23.3,
+                                          "z":  90.26
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev lock (trunk, 1 lock(s)), key: Factory emergency exit key"
+                     },
+                     {
+                         "id":  "car-14",
+                         "kind":  "car",
+                         "position":  {
+                                          "x":  -302.89,
+                                          "y":  21.65,
+                                          "z":  -367.73
+                                      },
+                         "floor":  "STREET",
+                         "source":  "tarkov.dev extract \u0027Power Station V-Ex\u0027"
+                     }
+                 ],
+    "roofPoints":  [
+
+                   ],
+    "emplacements":  [
+                         {
+                             "weapon":  "NSV Utyos 12.7x108 heavy machine gun",
+                             "position":  {
+                                              "x":  -205.5,
+                                              "y":  31.56,
+                                              "z":  -345.19
+                                          },
+                             "floor":  "STREET"
+                         },
+                         {
+                             "weapon":  "NSV Utyos 12.7x108 heavy machine gun",
+                             "position":  {
+                                              "x":  -194.26,
+                                              "y":  31.51,
+                                              "z":  -347.22
+                                          },
+                             "floor":  "STREET"
+                         }
+                     ],
+    "minefields":  [
+                       {
+                           "position":  {
+                                            "x":  588.3,
+                                            "y":  28.42,
+                                            "z":  263.69
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  563.8,
+                                               "y":  28.42,
+                                               "z":  349.88
+                                           },
+                                           {
+                                               "x":  600,
+                                               "y":  28.42,
+                                               "z":  351.41
+                                           },
+                                           {
+                                               "x":  612.8,
+                                               "y":  28.42,
+                                               "z":  177.5
+                                           },
+                                           {
+                                               "x":  576.6,
+                                               "y":  28.42,
+                                               "z":  175.98
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  591.34,
+                                            "y":  28.42,
+                                            "z":  4.94
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  546.78,
+                                               "y":  28.42,
+                                               "z":  64.3
+                                           },
+                                           {
+                                               "x":  646.33,
+                                               "y":  28.42,
+                                               "z":  54.78
+                                           },
+                                           {
+                                               "x":  635.89,
+                                               "y":  28.42,
+                                               "z":  -54.41
+                                           },
+                                           {
+                                               "x":  536.34,
+                                               "y":  28.42,
+                                               "z":  -44.9
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  315.52,
+                                            "y":  37.1,
+                                            "z":  -530.18
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  290.52,
+                                               "y":  37.1,
+                                               "z":  -555.18
+                                           },
+                                           {
+                                               "x":  290.52,
+                                               "y":  37.1,
+                                               "z":  -505.18
+                                           },
+                                           {
+                                               "x":  340.52,
+                                               "y":  37.1,
+                                               "z":  -505.18
+                                           },
+                                           {
+                                               "x":  340.52,
+                                               "y":  37.1,
+                                               "z":  -555.18
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  591.11,
+                                            "y":  28.42,
+                                            "z":  380
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  565.85,
+                                               "y":  28.42,
+                                               "z":  360.48
+                                           },
+                                           {
+                                               "x":  560.78,
+                                               "y":  28.42,
+                                               "z":  389.93
+                                           },
+                                           {
+                                               "x":  616.38,
+                                               "y":  28.42,
+                                               "z":  399.52
+                                           },
+                                           {
+                                               "x":  621.45,
+                                               "y":  28.42,
+                                               "z":  370.07
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  594.33,
+                                            "y":  28.42,
+                                            "z":  -327.4
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  544.33,
+                                               "y":  28.42,
+                                               "z":  -227.4
+                                           },
+                                           {
+                                               "x":  644.33,
+                                               "y":  28.42,
+                                               "z":  -227.4
+                                           },
+                                           {
+                                               "x":  644.33,
+                                               "y":  28.42,
+                                               "z":  -427.4
+                                           },
+                                           {
+                                               "x":  544.33,
+                                               "y":  28.42,
+                                               "z":  -427.4
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  590.42,
+                                            "y":  28.42,
+                                            "z":  -131.68
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  536.07,
+                                               "y":  28.42,
+                                               "z":  -33.98
+                                           },
+                                           {
+                                               "x":  635.97,
+                                               "y":  28.42,
+                                               "z":  -29.58
+                                           },
+                                           {
+                                               "x":  644.77,
+                                               "y":  28.42,
+                                               "z":  -229.39
+                                           },
+                                           {
+                                               "x":  544.86,
+                                               "y":  28.42,
+                                               "z":  -233.79
+                                           }
+                                       ]
+                       },
+                       {
+                           "position":  {
+                                            "x":  592.73,
+                                            "y":  28.42,
+                                            "z":  130.35
+                                        },
+                           "outline":  [
+                                           {
+                                               "x":  576.45,
+                                               "y":  28.42,
+                                               "z":  180.97
+                                           },
+                                           {
+                                               "x":  612.63,
+                                               "y":  28.42,
+                                               "z":  179.66
+                                           },
+                                           {
+                                               "x":  609.01,
+                                               "y":  28.42,
+                                               "z":  79.73
+                                           },
+                                           {
+                                               "x":  572.83,
+                                               "y":  28.42,
+                                               "z":  81.04
+                                           }
+                                       ]
+                       }
+                   ],
+    "checkpoints":  [
+                        {
+                            "name":  "Emercom Checkpoint",
+                            "position":  {
+                                             "x":  -321.56,
+                                             "y":  24.18,
+                                             "z":  266.74
+                                         },
+                            "floor":  "STREET"
+                        }
+                    ],
+    "manholes":  [
+
+                 ],
+    "parkingLots":  [
+
+                    ],
+    "btrStops":  [
+
+                 ]
+}

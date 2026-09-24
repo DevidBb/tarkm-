@@ -1,0 +1,205 @@
+{
+ "format": "tarkov-map-ai/environment@1",
+ "generatedAt": "2026-09-23T12:16:37Z",
+ "source": "tarkov.dev (json.tarkov.dev maps dump). Vehicle type and color are not in the data.",
+ "vehicles": [
+  {
+   "id": "car-1",
+   "kind": "car",
+   "position": {
+    "x": 101.82,
+    "y": 3.45,
+    "z": -5.55
+   },
+   "floor": "OUTSIDE",
+   "source": "tarkov.dev lock (trunk), key: Machinery key"
+  },
+  {
+   "id": "car-2",
+   "kind": "car",
+   "position": {
+    "x": 181.08,
+    "y": -0.71,
+    "z": 213.25
+   },
+   "floor": "OUTSIDE",
+   "source": "tarkov.dev extract 'Dorms V-Ex'"
+  }
+ ],
+ "roofPoints": [],
+ "emplacements": [
+  {
+   "weapon": "NSV Utyos 12.7x108 heavy machine gun",
+   "position": {
+    "x": 188.57,
+    "y": 8.49,
+    "z": -111.26
+   },
+   "floor": "LEVEL2"
+  },
+  {
+   "weapon": "NSV Utyos 12.7x108 heavy machine gun",
+   "position": {
+    "x": 67.7,
+    "y": 8.0,
+    "z": -12.77
+   },
+   "floor": "LEVEL2"
+  },
+  {
+   "weapon": "NSV Utyos 12.7x108 heavy machine gun",
+   "position": {
+    "x": 193.25,
+    "y": 8.76,
+    "z": -132.86
+   },
+   "floor": "LEVEL2"
+  },
+  {
+   "weapon": "AGS-30 30x29mm automatic grenade launcher",
+   "position": {
+    "x": 192.51,
+    "y": 8.6,
+    "z": -100.2
+   },
+   "floor": "LEVEL2"
+  }
+ ],
+ "minefields": [
+  {
+   "position": {
+    "x": 51.1,
+    "y": -8.6,
+    "z": 187.3
+   },
+   "outline": [
+    {
+     "x": 25.85,
+     "y": -8.6,
+     "z": 141.78
+    },
+    {
+     "x": 34.32,
+     "y": -8.6,
+     "z": 236.57
+    },
+    {
+     "x": 76.35,
+     "y": -8.6,
+     "z": 232.82
+    },
+    {
+     "x": 67.88,
+     "y": -8.6,
+     "z": 138.03
+    }
+   ]
+  },
+  {
+   "position": {
+    "x": -17.77,
+    "y": -8.6,
+    "z": 247.47
+   },
+   "outline": [
+    {
+     "x": 23.83,
+     "y": -8.6,
+     "z": 358.96
+    },
+    {
+     "x": 6.32,
+     "y": -8.6,
+     "z": 130.94
+    },
+    {
+     "x": -59.37,
+     "y": -8.6,
+     "z": 135.98
+    },
+    {
+     "x": -41.85,
+     "y": -8.6,
+     "z": 364.01
+    }
+   ]
+  }
+ ],
+ "checkpoints": [
+  {
+   "name": "Old Gas Station Gate",
+   "position": {
+    "x": 300.51,
+    "y": 3.47,
+    "z": -198.52
+   },
+   "floor": "OUTSIDE"
+  },
+  {
+   "name": "Administration Gate",
+   "position": {
+    "x": 664.71,
+    "y": 2.88,
+    "z": -55.33
+   },
+   "floor": "OUTSIDE"
+  },
+  {
+   "name": "Old Road Gate",
+   "position": {
+    "x": 181.77,
+    "y": 1.5,
+    "z": 214.01
+   },
+   "floor": "OUTSIDE"
+  },
+  {
+   "name": "RUAF Roadblock",
+   "position": {
+    "x": -10.25,
+    "y": 1.92,
+    "z": -138.45
+   },
+   "floor": "OUTSIDE"
+  },
+  {
+   "name": "RUAF Roadblock",
+   "position": {
+    "x": -9.44,
+    "y": 1.65,
+    "z": -138.74
+   },
+   "floor": "OUTSIDE"
+  },
+  {
+   "name": "Sniper Roadblock",
+   "position": {
+    "x": 15.08,
+    "y": 0.14,
+    "z": 126.29
+   },
+   "floor": "OUTSIDE"
+  },
+  {
+   "name": "Scav Checkpoint",
+   "position": {
+    "x": 652.08,
+    "y": 1.0,
+    "z": -27.42
+   },
+   "floor": "OUTSIDE"
+  },
+  {
+   "name": "Military Base CP",
+   "position": {
+    "x": 644.88,
+    "y": 2.4,
+    "z": 126.87
+   },
+   "floor": "OUTSIDE"
+  }
+ ],
+ "manholes": [],
+ "parkingLots": [],
+ "btrStops": []
+}

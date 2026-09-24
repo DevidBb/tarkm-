@@ -1,0 +1,68 @@
+{
+ "format": "tarkov-map-ai/environment@1",
+ "generatedAt": "2026-09-21T16:28:26Z",
+ "source": "tarkov.dev (json.tarkov.dev maps dump). Gates = extract positions.",
+ "vehicles": [],
+ "roofPoints": [],
+ "emplacements": [],
+ "minefields": [],
+ "checkpoints": [
+  {
+   "name": "Med Tent Gate",
+   "position": {
+    "x": -17.53,
+    "y": 1.99,
+    "z": -61.27
+   },
+   "floor": "LEVEL1"
+  },
+  {
+   "name": "Gate 3",
+   "position": {
+    "x": 58.71,
+    "y": 1.59,
+    "z": 60.87
+   },
+   "floor": "LEVEL1"
+  },
+  {
+   "name": "Gate 3",
+   "position": {
+    "x": 58.43,
+    "y": 3.17,
+    "z": 63.3
+   },
+   "floor": "LEVEL2"
+  },
+  {
+   "name": "Courtyard Gate",
+   "position": {
+    "x": 23.76,
+    "y": 1.36,
+    "z": 68.94
+   },
+   "floor": "LEVEL1"
+  },
+  {
+   "name": "Gate 2",
+   "position": {
+    "x": 44.89,
+    "y": 0.59,
+    "z": -53.48
+   },
+   "floor": "LEVEL1"
+  },
+  {
+   "name": "Gate 0",
+   "position": {
+    "x": -63.67,
+    "y": 2.85,
+    "z": 55.88
+   },
+   "floor": "LEVEL1"
+  }
+ ],
+ "manholes": [],
+ "parkingLots": [],
+ "btrStops": []
+}

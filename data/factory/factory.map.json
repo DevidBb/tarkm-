@@ -1,0 +1,5667 @@
+{
+ "format": "tarkov-map-ai/map@1",
+ "generatedAt": "2026-09-21T16:28:26Z",
+ "sources": [
+  {
+   "name": "tarkov.dev data (json.tarkov.dev)",
+   "url": "https://tarkov.dev",
+   "license": "tarkov.dev API data, GPL-3.0 project"
+  },
+  {
+   "name": "Factory SVG map (Shebuka)",
+   "url": "https://github.com/the-hideout/tarkov-dev-svg-maps",
+   "license": "CC BY-NC-SA 4.0"
+  }
+ ],
+ "map": {
+  "id": "factory",
+  "kind": "factory",
+  "gameId": "55f2d3fd4bdc2d5f408b4567",
+  "name": "Factory",
+  "nameRu": "Завод",
+  "svg": {
+   "file": "factory/Factory.svg",
+   "width": 130.81831,
+   "height": 141.23242,
+   "buildingsGroup": "Obstacles",
+   "author": "Shebuka",
+   "license": "CC BY-NC-SA 4.0"
+  },
+  "bounds": {
+   "topLeft": {
+    "x": 77,
+    "z": -64.5
+   },
+   "bottomRight": {
+    "x": -65.5,
+    "z": 67.4
+   }
+  },
+  "coordinateRotation": 90,
+  "svgAxes": {
+   "u": {
+    "axis": "z",
+    "from": 67.4,
+    "to": -64.5
+   },
+   "v": {
+    "axis": "x",
+    "from": 77,
+    "to": -65.5
+   }
+  },
+  "environmentFile": "factory/factory.environment.json",
+  "home": {
+   "target": [
+    -5.75,
+    0,
+    1.45
+   ],
+   "offset": [
+    95,
+    150,
+    120
+   ]
+  }
+ },
+ "levels": {
+  "defaultFloor": "OUTSIDE",
+  "order": [
+   "OUTSIDE",
+   "TUNNELS",
+   "LEVEL1",
+   "LEVEL2",
+   "LEVEL3"
+  ],
+  "outsideShows": [
+   "LEVEL1"
+  ],
+  "groups": [
+   {
+    "id": "outside",
+    "name": "Outside",
+    "nameRu": "Завод снаружи",
+    "floors": [
+     "OUTSIDE"
+    ]
+   },
+   {
+    "id": "factory",
+    "name": "Factory",
+    "nameRu": "Цеха",
+    "floors": [
+     "TUNNELS",
+     "LEVEL1",
+     "LEVEL2",
+     "LEVEL3"
+    ],
+    "wholeView": {
+     "id": "FACTORY",
+     "name": "Factory",
+     "nameRu": "Завод изнутри"
+    }
+   }
+  ],
+  "building": {
+   "name": "Factory",
+   "svgGroup": "Ground_Floor",
+   "outlines": [
+    [
+     {
+      "x": 77,
+      "z": -64.5
+     },
+     {
+      "x": -65.5,
+      "z": -64.5
+     },
+     {
+      "x": -65.5,
+      "z": 67.4
+     },
+     {
+      "x": 77,
+      "z": 67.4
+     }
+    ]
+   ],
+   "bands": [
+    {
+     "floor": "TUNNELS",
+     "maxY": -1.0
+    },
+    {
+     "floor": "LEVEL1",
+     "maxY": 3.0
+    },
+    {
+     "floor": "LEVEL2",
+     "maxY": 6.0
+    },
+    {
+     "floor": "LEVEL3",
+     "maxY": null
+    }
+   ]
+  },
+  "source": "tarkov.dev map config height bands (Basement, Second_Floor, Third_Floor); floor heights = most common spawn / loose loot height per floor"
+ },
+ "floors": [
+  {
+   "id": "OUTSIDE",
+   "name": "Outside",
+   "nameRu": "Завод снаружи",
+   "group": "outside",
+   "svgLayer": "Ground_Floor",
+   "minY": null,
+   "maxY": null,
+   "displayY": 0.3
+  },
+  {
+   "id": "TUNNELS",
+   "name": "Tunnels",
+   "nameRu": "Подвал и туннели",
+   "group": "factory",
+   "svgLayer": "Basement",
+   "minY": null,
+   "maxY": -1.0,
+   "displayY": -2.6
+  },
+  {
+   "id": "LEVEL1",
+   "name": "Level 1",
+   "nameRu": "1 этаж: цеха",
+   "group": "factory",
+   "svgLayer": "Ground_Floor",
+   "minY": -1.0,
+   "maxY": 3.0,
+   "displayY": 0.3
+  },
+  {
+   "id": "LEVEL2",
+   "name": "Level 2",
+   "nameRu": "2 этаж",
+   "group": "factory",
+   "svgLayer": "Second_Floor",
+   "minY": 3.0,
+   "maxY": 6.0,
+   "displayY": 4.6
+  },
+  {
+   "id": "LEVEL3",
+   "name": "Level 3",
+   "nameRu": "3 этаж и переходы",
+   "group": "factory",
+   "svgLayer": "Third_Floor",
+   "minY": 6.0,
+   "maxY": null,
+   "displayY": 8.4
+  }
+ ],
+ "locations": [
+  {
+   "id": "office-building",
+   "name": "Office Building",
+   "nameRu": "Офисное здание",
+   "kind": "place",
+   "position": {
+    "x": 21.0,
+    "y": null,
+    "z": 39.0
+   },
+   "floor": null,
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "main-office",
+   "name": "Main Office",
+   "nameRu": "Главный офис",
+   "kind": "place",
+   "position": {
+    "x": 15.5,
+    "y": 9.6,
+    "z": 39.0
+   },
+   "floor": "LEVEL3",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "breach-room",
+   "name": "Breach Room",
+   "nameRu": "Комната с проломом",
+   "kind": "place",
+   "position": {
+    "x": 24.5,
+    "y": 9.6,
+    "z": 39.0
+   },
+   "floor": "LEVEL3",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "locked-office",
+   "name": "Locked Office",
+   "nameRu": "Закрытый офис",
+   "kind": "place",
+   "position": {
+    "x": 30.5,
+    "y": 9.6,
+    "z": 39.0
+   },
+   "floor": "LEVEL3",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "north-stairs",
+   "name": "North Stairs",
+   "nameRu": "Северная лестница",
+   "kind": "place",
+   "position": {
+    "x": 35.0,
+    "y": null,
+    "z": 39.0
+   },
+   "floor": null,
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "south-stairs",
+   "name": "South Stairs",
+   "nameRu": "Южная лестница",
+   "kind": "place",
+   "position": {
+    "x": 9.0,
+    "y": null,
+    "z": 39.0
+   },
+   "floor": null,
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "sky-bridge",
+   "name": "Sky Bridge",
+   "nameRu": "Переход",
+   "kind": "place",
+   "position": {
+    "x": 34.0,
+    "y": 9.6,
+    "z": 26.0
+   },
+   "floor": "LEVEL3",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "connector",
+   "name": "Connector",
+   "nameRu": "Соединительный коридор",
+   "kind": "place",
+   "position": {
+    "x": 29.5,
+    "y": null,
+    "z": 17.0
+   },
+   "floor": null,
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "locker-rooms",
+   "name": "Locker Rooms",
+   "nameRu": "Раздевалки",
+   "kind": "place",
+   "position": {
+    "x": 29.0,
+    "y": 5.8,
+    "z": 41.0
+   },
+   "floor": "LEVEL2",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "sinks",
+   "name": "Sinks",
+   "nameRu": "Умывальники",
+   "kind": "place",
+   "position": {
+    "x": 15.0,
+    "y": 5.8,
+    "z": 41.0
+   },
+   "floor": "LEVEL2",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "hole",
+   "name": "Hole",
+   "nameRu": "Дыра в полу",
+   "kind": "place",
+   "position": {
+    "x": 20.0,
+    "y": 5.8,
+    "z": 42.0
+   },
+   "floor": "LEVEL2",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "platform",
+   "name": "Platform",
+   "nameRu": "Платформа",
+   "kind": "place",
+   "position": {
+    "x": -3.0,
+    "y": 1.5,
+    "z": 37.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "servers",
+   "name": "Servers",
+   "nameRu": "Серверная",
+   "kind": "place",
+   "position": {
+    "x": -21.0,
+    "y": 5.8,
+    "z": 27.0
+   },
+   "floor": "LEVEL2",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "med-tent",
+   "name": "Med Tent",
+   "nameRu": "Медпалатка",
+   "kind": "place",
+   "position": {
+    "x": -18.0,
+    "y": 1.5,
+    "z": -29.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "silos",
+   "name": "Silos",
+   "nameRu": "Силосы",
+   "kind": "place",
+   "position": {
+    "x": 4.5,
+    "y": 1.5,
+    "z": 10.5
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "heli-crash",
+   "name": "Heli Crash",
+   "nameRu": "Упавший вертолёт",
+   "kind": "place",
+   "position": {
+    "x": 30.0,
+    "y": null,
+    "z": -8.5
+   },
+   "floor": null,
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "pit",
+   "name": "Pit",
+   "nameRu": "Яма",
+   "kind": "place",
+   "position": {
+    "x": -1.0,
+    "y": -1.4,
+    "z": 16.0
+   },
+   "floor": "TUNNELS",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "underground-stash",
+   "name": "Underground Stash",
+   "nameRu": "Подземный тайник",
+   "kind": "place",
+   "position": {
+    "x": -2.0,
+    "y": -1.4,
+    "z": -24.5
+   },
+   "floor": "TUNNELS",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "scav-bunker",
+   "name": "Scav Bunker",
+   "nameRu": "Бункер Диких",
+   "kind": "place",
+   "position": {
+    "x": -20.5,
+    "y": 1.5,
+    "z": 23.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "blue-containers",
+   "name": "Blue Containers",
+   "nameRu": "Синие контейнеры",
+   "kind": "place",
+   "position": {
+    "x": -18.0,
+    "y": 1.5,
+    "z": 50.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "wood-room",
+   "name": "Wood Room",
+   "nameRu": "Деревянная комната",
+   "kind": "place",
+   "position": {
+    "x": -45.5,
+    "y": 1.5,
+    "z": 61.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "glass-hall",
+   "name": "Glass Hall",
+   "nameRu": "Стеклянный зал",
+   "kind": "place",
+   "position": {
+    "x": 68.25,
+    "y": 1.5,
+    "z": -20.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "boilers",
+   "name": "Boilers",
+   "nameRu": "Котельная",
+   "kind": "place",
+   "position": {
+    "x": 56.0,
+    "y": 1.5,
+    "z": 5.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "pumping-station",
+   "name": "Pumping Station",
+   "nameRu": "Насосная",
+   "kind": "place",
+   "position": {
+    "x": 41.0,
+    "y": 1.5,
+    "z": -11.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "east-halls",
+   "name": "East Halls",
+   "nameRu": "Восточные залы",
+   "kind": "place",
+   "position": {
+    "x": 44.0,
+    "y": 1.5,
+    "z": -36.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "forklifts",
+   "name": "Forklifts",
+   "nameRu": "Погрузчики",
+   "kind": "place",
+   "position": {
+    "x": 66.0,
+    "y": 1.5,
+    "z": -42.0
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "rafters",
+   "name": "Rafters",
+   "nameRu": "Стропила",
+   "kind": "place",
+   "position": {
+    "x": 18.0,
+    "y": 9.6,
+    "z": 4.0
+   },
+   "floor": "LEVEL3",
+   "source": "tarkov.dev map labels"
+  },
+  {
+   "id": "zone-botzone",
+   "name": "Any scav spawn",
+   "nameRu": "Любой респаун диких",
+   "kind": "zone",
+   "position": {
+    "x": 12.85,
+    "y": -0.06,
+    "z": 5.98
+   },
+   "floor": "LEVEL1",
+   "source": "tarkov.dev spawn zone BotZone (centroid of 34 spawn points)"
+  }
+ ],
+ "markers": [
+  {
+   "id": "extract-gate-m",
+   "type": "extract",
+   "name": "Med Tent Gate",
+   "nameRu": "Ворота у медицинской палатки",
+   "position": {
+    "x": -17.53,
+    "y": 1.99,
+    "z": -61.27
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "faction": "pmc",
+    "gameKey": "Gate m"
+   }
+  },
+  {
+   "id": "extract-cellars",
+   "type": "extract",
+   "name": "Cellars",
+   "nameRu": "Подвалы",
+   "position": {
+    "x": 73.89,
+    "y": -3.29,
+    "z": -29.08
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "faction": "pmc",
+    "gameKey": "Cellars"
+   }
+  },
+  {
+   "id": "extract-gate-3",
+   "type": "extract",
+   "name": "Gate 3",
+   "nameRu": "Ворота 3",
+   "position": {
+    "x": 58.71,
+    "y": 1.59,
+    "z": 60.87
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "faction": "scav",
+    "gameKey": "Gate 3"
+   }
+  },
+  {
+   "id": "extract-gate-3-pmc",
+   "type": "extract",
+   "name": "Gate 3",
+   "nameRu": "Ворота 3",
+   "position": {
+    "x": 58.43,
+    "y": 3.17,
+    "z": 63.3
+   },
+   "floor": "LEVEL2",
+   "meta": {
+    "faction": "pmc",
+    "gameKey": "Gate 3"
+   }
+  },
+  {
+   "id": "extract-factory-secret-ark",
+   "type": "extract",
+   "name": "Smugglers' Passage",
+   "nameRu": "Проход Контрабандистов",
+   "position": {
+    "x": 48.03,
+    "y": -1.61,
+    "z": -28.86
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "faction": "pmc",
+    "gameKey": "factory_secret_ark"
+   }
+  },
+  {
+   "id": "extract-gate-o",
+   "type": "extract",
+   "name": "Courtyard Gate",
+   "nameRu": "Ворота во дворе",
+   "position": {
+    "x": 23.76,
+    "y": 1.36,
+    "z": 68.94
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "faction": "pmc",
+    "gameKey": "Gate_o"
+   }
+  },
+  {
+   "id": "extract-camera-bunker-door",
+   "type": "extract",
+   "name": "Camera Bunker Door",
+   "nameRu": "Бункерная дверь с камерой",
+   "position": {
+    "x": -15.72,
+    "y": -1.65,
+    "z": 40.11
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "faction": "scav",
+    "gameKey": "Camera Bunker Door"
+   }
+  },
+  {
+   "id": "extract-gate-2",
+   "type": "extract",
+   "name": "Gate 2",
+   "nameRu": "Ворота 2",
+   "position": {
+    "x": 44.89,
+    "y": 0.59,
+    "z": -53.48
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "faction": "pmc",
+    "gameKey": "Gate 2"
+   }
+  },
+  {
+   "id": "extract-office-window",
+   "type": "extract",
+   "name": "Office Window",
+   "nameRu": "Офисное окно",
+   "position": {
+    "x": 17.83,
+    "y": 8.73,
+    "z": 39.89
+   },
+   "floor": "LEVEL3",
+   "meta": {
+    "faction": "scav",
+    "gameKey": "Office Window"
+   }
+  },
+  {
+   "id": "extract-gate-0",
+   "type": "extract",
+   "name": "Gate 0",
+   "nameRu": "Ворота 0",
+   "position": {
+    "x": -63.67,
+    "y": 2.85,
+    "z": 55.88
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "faction": "pmc",
+    "gameKey": "Gate 0"
+   }
+  },
+  {
+   "id": "transit-12",
+   "type": "transit",
+   "name": "Transit to Woods",
+   "nameRu": "Переход на Лес",
+   "position": {
+    "x": 24.36,
+    "y": 2.24,
+    "z": 60.22
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "targetMapId": "5704e3c2d2720bac5b8b4567"
+   }
+  },
+  {
+   "id": "transit-13",
+   "type": "transit",
+   "name": "Transit to Customs",
+   "nameRu": "Переход на Таможню",
+   "position": {
+    "x": 17.34,
+    "y": 0.58,
+    "z": -49.62
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "targetMapId": "56f40101d2720b2a4d8b45d6"
+   }
+  },
+  {
+   "id": "transit-14",
+   "type": "transit",
+   "name": "Transit to The Lab",
+   "nameRu": "Переход на Лабораторию",
+   "position": {
+    "x": -27.01,
+    "y": -3.09,
+    "z": -42.75
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "targetMapId": "6a294a5b5eb5f9a1700417b7"
+   }
+  },
+  {
+   "id": "lock-2170d1b52aa6",
+   "type": "key",
+   "name": "Factory emergency exit key",
+   "nameRu": "Ключ от выхода с Завода",
+   "position": {
+    "x": -19.08,
+    "y": 1.45,
+    "z": -48.57
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "lockType": "door",
+    "needsPower": false,
+    "keyId": "5448ba0b4bdc2d02308b456c"
+   }
+  },
+  {
+   "id": "lock-d6cacb05b05c",
+   "type": "key",
+   "name": "Factory emergency exit key",
+   "nameRu": "Ключ от выхода с Завода",
+   "position": {
+    "x": 66.83,
+    "y": -1.61,
+    "z": -29.32
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "lockType": "door",
+    "needsPower": false,
+    "keyId": "5448ba0b4bdc2d02308b456c"
+   }
+  },
+  {
+   "id": "lock-aa4ebab35c88",
+   "type": "key",
+   "name": "Factory emergency exit key",
+   "nameRu": "Ключ от выхода с Завода",
+   "position": {
+    "x": 29.12,
+    "y": 9.08,
+    "z": 36.52
+   },
+   "floor": "LEVEL3",
+   "meta": {
+    "lockType": "door",
+    "needsPower": false,
+    "keyId": "5448ba0b4bdc2d02308b456c"
+   }
+  },
+  {
+   "id": "lock-0b8dbbc9604c",
+   "type": "key",
+   "name": "TerraGroup storage room keycard",
+   "nameRu": "Ключ-карта от склада TerraGroup",
+   "position": {
+    "x": -20.43,
+    "y": -1.52,
+    "z": 44.06
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "lockType": "door",
+    "needsPower": false,
+    "keyId": "66acd6702b17692df20144c0"
+   }
+  },
+  {
+   "id": "boss-bosstagilla-botzone",
+   "type": "boss",
+   "name": "Tagilla",
+   "nameRu": "Тагилла",
+   "position": {
+    "x": 21.42,
+    "y": 1.24,
+    "z": 25.19
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "mob": "bossTagilla",
+    "zone": "BotZone",
+    "zoneName": "Any scav spawn",
+    "zoneNameRu": "Любой респаун диких",
+    "spawnChance": 0.35,
+    "locationChance": 1.0,
+    "positions": [
+     {
+      "x": 31.81,
+      "y": 0.14,
+      "z": 21.2
+     },
+     {
+      "x": 15.25,
+      "y": 4.56,
+      "z": 41.21
+     },
+     {
+      "x": -6.77,
+      "y": 0.17,
+      "z": 10.01
+     },
+     {
+      "x": 36.04,
+      "y": 1.09,
+      "z": 38.35
+     },
+     {
+      "x": 30.76,
+      "y": 0.26,
+      "z": 15.16
+     }
+    ]
+   }
+  },
+  {
+   "id": "spawn-pmc-1",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -45.4,
+    "y": 0.29,
+    "z": 5.58
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "0246436c-7d69-4036-999d-ebcb956970b5",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-2",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 11.22,
+    "y": 0.04,
+    "z": -42.11
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "05e75eb3-eb43-46c6-94d3-59e1e9ba4435",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-3",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 42.43,
+    "y": -2.64,
+    "z": -8.31
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "0a8181f7-c8f0-4db1-8eb2-932dfb3545f3",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-4",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 56.86,
+    "y": 0.26,
+    "z": 52.57
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "0a92f51c-52b4-4e76-b839-f7ce82f2b36b",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-5",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -43.81,
+    "y": 0.29,
+    "z": 6.74
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "120a0777-e825-4de7-a855-c3eaa8eba46b",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-6",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 12.6,
+    "y": 0.04,
+    "z": -42.52
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "13883982-2ab8-4dd5-a9b4-45e2c6d8e1cc",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-7",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 58.18,
+    "y": 0.26,
+    "z": 51.28
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "1a5819f2-ff42-4632-af5e-fe5ea8f886fc",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-8",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 15.7,
+    "y": 4.57,
+    "z": 38.98
+   },
+   "floor": "LEVEL2",
+   "meta": {
+    "sides": "all",
+    "zone": "1c8f1067-d5df-401c-b05a-3c2c6b36ab9a",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-9",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -46.69,
+    "y": 0.29,
+    "z": 8.39
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "1facfcfc-9ee5-4638-83b3-117fce7b3303",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-10",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 70.76,
+    "y": 0.31,
+    "z": -72.8
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "22a7740a-5a91-4bca-af36-668342522b42",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-11",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 31.62,
+    "y": 0.12,
+    "z": 18.28
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "2497205e-6fc4-49cd-a1e3-f46c780e214f",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-12",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 32.27,
+    "y": 0.06,
+    "z": -34.01
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "2a1f1b80-72be-444d-9d8d-5f645a3fc019",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-13",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 57.94,
+    "y": 0.26,
+    "z": 49.65
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "2a5aad92-b5f9-40c0-a380-460247300227",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-14",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -16.91,
+    "y": 0.29,
+    "z": -39.43
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "2e1843a1-fd2a-4ccd-8b38-747c1a70f228",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-15",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -42.44,
+    "y": 0.29,
+    "z": 7.44
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "2eed18b6-9fbb-40de-979f-985f203f251e",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-16",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 27.77,
+    "y": 0.12,
+    "z": 20.57
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "30edcdf0-73e0-4ab5-a9e7-4d24a9a83aa9",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-17",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 71.73,
+    "y": 0.31,
+    "z": -71.41
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "336d3c25-9f38-475f-8eb9-db6393f06b6c",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-18",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -16.98,
+    "y": 0.27,
+    "z": -41.32
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "38a8fe02-f871-4b79-91e5-69c2c68d1bbc",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-19",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 14.64,
+    "y": 4.57,
+    "z": 39.74
+   },
+   "floor": "LEVEL2",
+   "meta": {
+    "sides": "all",
+    "zone": "3906ac26-47d3-4602-8783-049633778a29",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-20",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -22.17,
+    "y": 2.73,
+    "z": 23.77
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "3bcd754a-b299-4d63-9d7f-e4d05c2f13e3",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-21",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -3.29,
+    "y": -3.86,
+    "z": -17.51
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "42c3f263-52c6-428c-b97f-6acd100ec669",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-22",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 12.63,
+    "y": 1.8,
+    "z": 60.15
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "4755c538-4ee5-4125-8cd3-885787da7ad5",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-23",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -16.78,
+    "y": 0.31,
+    "z": -37.43
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "4a4e5ee5-a314-4a78-939d-cf3c05818435",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-24",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 7.9,
+    "y": 0.04,
+    "z": -44.61
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "4bc2255b-75b0-44a3-91ed-c1b35499cbc5",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-25",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -44.19,
+    "y": 1.19,
+    "z": 48.43
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "503cf951-8e80-4ca0-aa2d-993f71a6a4a6",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-26",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -17.69,
+    "y": 0.29,
+    "z": -43.16
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "50560c89-4136-4cfb-b155-485519110c93",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-27",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -42.62,
+    "y": 1.28,
+    "z": 48.35
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "57254982-c470-440d-911a-e8854f42398a",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-28",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -46.27,
+    "y": 0.29,
+    "z": 7.05
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "5be1a535-4865-433c-b645-33c7ff65bd94",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-29",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -5.92,
+    "y": -3.86,
+    "z": -14.18
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "60b47eab-b2a6-4ba2-b30c-fea14a7169bf",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-30",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -0.09,
+    "y": -3.86,
+    "z": -12.23
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "63f705ca-a0db-4f4f-8e50-20d5a97af053",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-31",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 21.4,
+    "y": -2.67,
+    "z": -14.62
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "67fb48f8-0359-458b-876c-2e4963cbd14e",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-32",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 69.99,
+    "y": 0.31,
+    "z": -71.35
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "683f2734-6398-4b77-9bab-b87f3be35938",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-33",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 59.52,
+    "y": -2.64,
+    "z": 6.83
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "6ce1f898-79ff-498e-8b52-fda05d7ee05d",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-34",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 9.99,
+    "y": 0.04,
+    "z": -42.2
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "6d7bf2bb-6211-4495-8509-58ceadea72e0",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-35",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 10.23,
+    "y": 1.14,
+    "z": 58.76
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "6d97a439-de10-42c5-99ef-6cf92e243aca",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-36",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 20.2,
+    "y": -2.67,
+    "z": -16.38
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "6ecc9492-5fbb-43d8-a0c0-8509fa39eb1d",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-37",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -2.81,
+    "y": -2.6,
+    "z": 18.48
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "71c2ba1e-e226-47be-814f-d52ddd931603",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-38",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 2.36,
+    "y": -2.64,
+    "z": 49.41
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "74059b40-4072-495f-a02c-2ffce404d728",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-39",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 41.09,
+    "y": -2.64,
+    "z": -9.55
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "789a1686-f35d-4dc4-b469-0687a4fad804",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-40",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 32.23,
+    "y": 0.06,
+    "z": -31.64
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "7ea1b4b8-a496-4bc0-bf61-e5ba4f3aa1fa",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-41",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 32.67,
+    "y": 0.06,
+    "z": -35.46
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "80532206-b2e1-4578-b559-99eae931a957",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-42",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -4.3,
+    "y": -2.6,
+    "z": 14.32
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "8128ea83-0d4f-4e64-b109-5acc9e477b33",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-43",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 58.41,
+    "y": 0.26,
+    "z": 52.69
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "8429bed9-52e2-4731-a425-4912db8529a9",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-44",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 3.99,
+    "y": -2.64,
+    "z": 50.65
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "85d68e69-87f9-4702-aa92-1d652dc47cf8",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-45",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -44.01,
+    "y": 1.41,
+    "z": 50.14
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "867576c4-1152-48ad-80bf-a802d7318379",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-46",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -19.11,
+    "y": 0.26,
+    "z": -43.17
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "8df78011-1568-4e66-99b8-5c4ed736b99a",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-47",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -1.06,
+    "y": -2.64,
+    "z": -7.05
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "91c08464-492f-443d-8632-54e01d6bdd20",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-48",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 8.5,
+    "y": 0.04,
+    "z": -43.58
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "91ec8f79-6cc4-422d-966f-4cd6a02d5a87",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-49",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 35.35,
+    "y": 0.06,
+    "z": -34.51
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "92822146-7c98-4570-8bde-8d0d042ae3cf",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-50",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -6.69,
+    "y": -2.6,
+    "z": 17.3
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "97998a75-baa4-4b03-ac1f-f86dfbf48d79",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-51",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 18.64,
+    "y": -2.67,
+    "z": -15.66
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "990aa5a0-d549-4479-8af2-a196ddb3bb35",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-52",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 39.64,
+    "y": -2.64,
+    "z": -9.06
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "9a858e10-3752-4543-9550-ddf6bc9b1891",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-53",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 60.09,
+    "y": 0.26,
+    "z": 52.59
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "9dd99893-91c5-4e64-b808-bbe46852022a",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-54",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 30.26,
+    "y": 0.12,
+    "z": 21.7
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "9f14e22f-3971-4440-8f48-c597cc7d9166",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-55",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -0.74,
+    "y": -2.64,
+    "z": 50.57
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "a3a76c4b-983f-4920-9c87-c2705283f5ac",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-56",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -22.17,
+    "y": 2.73,
+    "z": 30.39
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "a5c47219-1ebc-4254-90cb-934d6f9d4790",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-57",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 14.97,
+    "y": 4.57,
+    "z": 35.16
+   },
+   "floor": "LEVEL2",
+   "meta": {
+    "sides": "all",
+    "zone": "a8635306-f041-47fe-bf9b-1f1d528d5d5b",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-58",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 14.86,
+    "y": 4.57,
+    "z": 37.77
+   },
+   "floor": "LEVEL2",
+   "meta": {
+    "sides": "all",
+    "zone": "aacb1cf6-c980-47f0-8ed0-c72f1a236ec1",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-59",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 72.06,
+    "y": 0.31,
+    "z": -73.86
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "ad0cbd99-02ee-4ff1-b799-6b50b8a3fa0f",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-60",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -44.28,
+    "y": 1.34,
+    "z": 46.33
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "adee9078-b5a3-4f9e-b384-e984cbea15fc",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-61",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 34.38,
+    "y": 0.06,
+    "z": -33.25
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "ae4693d5-a309-4cbc-85db-ce8a59cf7ff4",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-62",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 41.17,
+    "y": -2.64,
+    "z": -7.62
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "af816038-d1bd-4fb1-8355-e5adcdd4556e",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-63",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 69.2,
+    "y": 0.31,
+    "z": -73.44
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "afacfed6-7a03-418b-9fca-420590d639c0",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-64",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -42.92,
+    "y": 1.09,
+    "z": 39.1
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "b776e3ed-a02d-4141-8eba-35d4746547ca",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-65",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 12.56,
+    "y": 1.21,
+    "z": 52.73
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "bcae7a9f-8b2f-4a4c-9cb0-589d4a227c70",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-66",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -0.17,
+    "y": -3.86,
+    "z": -14.33
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "be7bf7f0-6892-4d55-b1af-85492250ea55",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-67",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 28.74,
+    "y": 0.12,
+    "z": 17.5
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "c249a42b-3b54-4680-ac4d-2c923ca4f530",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-68",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -6.47,
+    "y": -2.6,
+    "z": 15.79
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "c2d01ce0-e0e4-41af-8311-44dc5cf38a93",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-69",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 38.84,
+    "y": -2.64,
+    "z": -7.7
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "c61cee41-a0f3-470d-9b83-01f2189705fc",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-70",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 14.02,
+    "y": 1.19,
+    "z": 58.12
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "c671337f-e58f-4de6-a387-307d877954a3",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-71",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 58.2,
+    "y": -2.64,
+    "z": 6.16
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "cbe988f1-2264-414f-b070-79434b27a4ca",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-72",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 20.35,
+    "y": -2.67,
+    "z": -13.37
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "d2b48374-53d1-45a7-a3d2-5e1fc58a8499",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-73",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 18.63,
+    "y": -2.67,
+    "z": -14.0
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "d6564897-4b3e-4b7e-9b56-34cb3b9a235d",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-74",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 15.5,
+    "y": 4.57,
+    "z": 36.61
+   },
+   "floor": "LEVEL2",
+   "meta": {
+    "sides": "all",
+    "zone": "e0f65b5b-c67b-4e15-a102-f92bbdf95f65",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-75",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 57.08,
+    "y": -2.64,
+    "z": 7.12
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "e1be22a2-9bba-40b5-a546-3bf6268b60cf",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-76",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 3.71,
+    "y": -2.64,
+    "z": 48.04
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "e1dbe2e4-626f-4205-b71e-5f640eb764ac",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-77",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -22.17,
+    "y": 2.73,
+    "z": 29.19
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "e5cd7bad-0f60-4cc2-bdd9-8a8943232b01",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-78",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 13.76,
+    "y": 1.1,
+    "z": 54.64
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "e60d8dce-ee35-4b30-9c3a-afddf4c5445e",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-79",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -5.58,
+    "y": -2.6,
+    "z": 14.76
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "ea010f6f-4860-4339-b576-09439f8f4c3a",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-80",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 55.52,
+    "y": -2.64,
+    "z": 6.43
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "eb5c4efc-759f-4ff9-8a73-8cd3eb0eca03",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-81",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 31.78,
+    "y": 0.12,
+    "z": 19.45
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "efb39132-1eff-4655-8fb0-d795f8f98eb3",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-82",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -22.17,
+    "y": 2.73,
+    "z": 25.57
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "f0864450-ffa8-4d7e-aa93-59ea6b218641",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-83",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -0.13,
+    "y": -2.64,
+    "z": 48.72
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "f23f74fc-1c16-41b9-aeeb-0ca222222cbc",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-84",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": -22.17,
+    "y": 2.73,
+    "z": 31.53
+   },
+   "floor": "LEVEL1",
+   "meta": {
+    "sides": "all",
+    "zone": "f3c6d9ee-ca4e-44ca-abdf-0622a8249f1d",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  },
+  {
+   "id": "spawn-pmc-85",
+   "type": "spawn",
+   "name": "PMC spawn",
+   "nameRu": "Спавн ЧВК",
+   "position": {
+    "x": 61.53,
+    "y": -2.64,
+    "z": 6.42
+   },
+   "floor": "TUNNELS",
+   "meta": {
+    "sides": "all",
+    "zone": "feea31cd-8a3f-43a5-839f-fd2276a2cce8",
+    "zoneName": null,
+    "zoneNameRu": null
+   }
+  }
+ ],
+ "loot": {
+  "source": "tarkov.dev maps: lootContainers + lootLoose (spawn points, not guaranteed spawns)",
+  "containerTypes": [
+   {
+    "id": "578f87a3245977356274f2cb",
+    "name": "Duffle bag",
+    "nameRu": "Спортивная сумка",
+    "category": "common",
+    "count": 13
+   },
+   {
+    "id": "578f8778245977358849a9b5",
+    "name": "Jacket",
+    "nameRu": "Куртка",
+    "category": "common",
+    "count": 17
+   },
+   {
+    "id": "6582e6d7b14c3f72eb071420",
+    "name": "PMC body",
+    "nameRu": "Труп бойца ЧВК",
+    "category": "common",
+    "count": 3
+   },
+   {
+    "id": "5909e4b686f7747f5b744fa4",
+    "name": "Dead Scav",
+    "nameRu": "Труп дикого",
+    "category": "common",
+    "count": 4
+   },
+   {
+    "id": "578f87ad245977356274f2cc",
+    "name": "Wooden crate",
+    "nameRu": "Деревянный ящик",
+    "category": "common",
+    "count": 64
+   },
+   {
+    "id": "5909d36d86f774660f0bb900",
+    "name": "Grenade box",
+    "nameRu": "Гранатный ящик",
+    "category": "weapon",
+    "count": 10
+   },
+   {
+    "id": "5909d24f86f77466f56e6855",
+    "name": "Medbag",
+    "nameRu": "Медсумка",
+    "category": "medical",
+    "count": 7
+   },
+   {
+    "id": "5909d50c86f774659e6aaebe",
+    "name": "Toolbox",
+    "nameRu": "Ящик для инструментов",
+    "category": "tech",
+    "count": 22
+   },
+   {
+    "id": "5909d76c86f77471e53d2adf",
+    "name": "Weapon box",
+    "nameRu": "Большой оружейный кофр",
+    "category": "weapon",
+    "count": 4
+   },
+   {
+    "id": "5909d5ef86f77467974efbd8",
+    "name": "Weapon box",
+    "nameRu": "Оружейный кофр",
+    "category": "weapon",
+    "count": 9
+   },
+   {
+    "id": "66acff0a1d8e1083b303f5af",
+    "name": "Bank safe",
+    "nameRu": "Банковский сейф",
+    "category": "common",
+    "count": 2
+   },
+   {
+    "id": "578f87b7245977356274f2cd",
+    "name": "Drawer",
+    "nameRu": "Выдвижной ящик",
+    "category": "common",
+    "count": 8
+   },
+   {
+    "id": "5d6fd45b86f774317075ed43",
+    "name": "Technical supply crate",
+    "nameRu": "Ящик техснабжения",
+    "category": "tech",
+    "count": 2
+   },
+   {
+    "id": "578f8782245977354405a1e3",
+    "name": "Safe",
+    "nameRu": "Сейф",
+    "category": "valuables",
+    "count": 2
+   }
+  ],
+  "items": {
+   "5d1b385e86f774252167b98a": {
+    "name": "Water filter",
+    "nameRu": "Водный фильтр"
+   },
+   "59faf7ca86f7740dbe19f6c2": {
+    "name": "Roler Submariner gold wrist watch",
+    "nameRu": "Золотые часы Roler Submariner"
+   },
+   "62a09cfe4f842e1bd12da3e4": {
+    "name": "Golden egg",
+    "nameRu": "Золотое яйцо"
+   },
+   "5734758f24597738025ee253": {
+    "name": "Golden neck chain",
+    "nameRu": "Золотая цепочка"
+   },
+   "59faff1d86f7746c51718c9c": {
+    "name": "Physical Bitcoin",
+    "nameRu": "Монета Биткоина"
+   },
+   "5f745ee30acaeb0d490d8c5b": {
+    "name": "Veritas guitar pick",
+    "nameRu": "Гитарный медиатор Veritas"
+   },
+   "5c1267ee86f77416ec610f72": {
+    "name": "Chain with Prokill medallion",
+    "nameRu": "Цепь с медальоном Prokill"
+   },
+   "62a091170b9d3c46de5b6cf2": {
+    "name": "Axel parrot figurine",
+    "nameRu": "Статуэтка попугая Axel"
+   },
+   "66507eabf5ddb0818b085b68": {
+    "name": "2A2-(b-TG) stimulant injector",
+    "nameRu": "Препарат 2A2-(b-TG)"
+   },
+   "5d235a5986f77443f6329bc6": {
+    "name": "Gold skull ring",
+    "nameRu": "Золотое кольцо с черепом"
+   },
+   "5bc9bdb8d4351e003562b8a1": {
+    "name": "Silver Badge",
+    "nameRu": "Серебряный жетон"
+   },
+   "675a125caf26c56ee109072a": {
+    "name": "Hell or Highwater poster",
+    "nameRu": "Плакат Hell or Highwater"
+   },
+   "675a0d2d57dd12f0260c4a31": {
+    "name": "Exodus poster",
+    "nameRu": "Плакат Исход"
+   },
+   "675a0fbbb98bf391510bafcd": {
+    "name": "Highway poster",
+    "nameRu": "Плакат Дорога"
+   },
+   "675a06b84ff23436160d802f": {
+    "name": "Alex Green poster",
+    "nameRu": "Плакат Alex Green"
+   },
+   "675a202b6aaafea7210915fd": {
+    "name": "The Ambush poster",
+    "nameRu": "Плакат The Ambush"
+   },
+   "675a0eacf905bde03d0f8253": {
+    "name": "Den of Wolves poster",
+    "nameRu": "Плакат Den of Wolves"
+   },
+   "6759e7a44ff23436160d7ff5": {
+    "name": "Girl poster",
+    "nameRu": "Плакат с девушкой"
+   },
+   "675a1e502eac6c76e104ea1e": {
+    "name": "RUN poster",
+    "nameRu": "Плакат RUN"
+   },
+   "6759e6c39422e1708e0e9b81": {
+    "name": "Girl poster",
+    "nameRu": "Плакат с девушкой"
+   },
+   "675a1a244ff23436160d8033": {
+    "name": "Last Flight poster",
+    "nameRu": "Плакат Крайний Рейс"
+   },
+   "675a1c129422e1708e0e9baa": {
+    "name": "Vasily poster",
+    "nameRu": "Плакат Василий"
+   },
+   "6759e61067c8eb5cd10352f1": {
+    "name": "Girl poster",
+    "nameRu": "Плакат с девушкой"
+   },
+   "6759e19a8367ee2b0c0f4b92": {
+    "name": "Girl poster",
+    "nameRu": "Плакат с девушкой"
+   },
+   "675a191f67c8eb5cd1035305": {
+    "name": "Gunfight poster",
+    "nameRu": "Плакат Бой"
+   },
+   "675a04fdb8913ff13e0496bb": {
+    "name": "Killa and Tagilla poster",
+    "nameRu": "Плакат с Киллой и Тагиллой"
+   },
+   "675a1af21474133a0d0bb216": {
+    "name": "Spooky Movie poster",
+    "nameRu": "Плакат Страшный Фильм"
+   },
+   "67f924a9154a04c33b0a3c57": {
+    "name": "Killa fangirl poster",
+    "nameRu": "Плакат с фанаткой Киллы"
+   },
+   "675a0288c3102563bd01c9c3": {
+    "name": "Arena advertisement poster",
+    "nameRu": "Плакат с рекламой Арены"
+   },
+   "675a04c01474133a0d0bb212": {
+    "name": "Bison vs Undertaker poster",
+    "nameRu": "Плакат Гробовщик vs Зубр"
+   },
+   "675a046b8f547d6cae01922e": {
+    "name": "Arena poster",
+    "nameRu": "Плакат с Арены"
+   },
+   "67f924b1b07831a6ef0ce317": {
+    "name": "Unusual leather rig poster",
+    "nameRu": "Плакат с необычной разгрузкой"
+   },
+   "675a081c1474133a0d0bb214": {
+    "name": "Things Sure Are Strange poster",
+    "nameRu": "Плакат Да уж, странные дела конечно"
+   },
+   "675a1f5c1474133a0d0bb218": {
+    "name": "Sharpshooter poster",
+    "nameRu": "Плакат Sharpshooter"
+   },
+   "67f924adb45d94a2600a8cc8": {
+    "name": "Grenade girl poster",
+    "nameRu": "Плакат девушки с гранатой"
+   },
+   "6759e91d8367ee2b0c0f4b94": {
+    "name": "Special girl poster",
+    "nameRu": "Особенный плакат с девушкой"
+   },
+   "675a20c83fb2de89670113b4": {
+    "name": "The Hunted poster",
+    "nameRu": "Плакат The Hunted"
+   },
+   "675a0b8d4ff23436160d8031": {
+    "name": "Geneburn concert advertisement",
+    "nameRu": "Реклама концерта Geneburn"
+   },
+   "5d1b376e86f774252519444e": {
+    "name": "Bottle of Fierce Hatchling moonshine",
+    "nameRu": "Бутылка самогона \"Лютый Топорист\""
+   },
+   "675aaaf674a7619a5304c233": {
+    "name": "Note with code word Ark",
+    "nameRu": "Записка с кодовым словом \"Ковчег\""
+   },
+   "6889e4cd3ff7e9cfbc0c507c": {
+    "name": "Military thumb drive",
+    "nameRu": "Флешка военных"
+   },
+   "590c392f86f77444754deb29": {
+    "name": "SSD drive",
+    "nameRu": "SSD диск"
+   },
+   "590c645c86f77412b01304d9": {
+    "name": "Diary",
+    "nameRu": "Ежедневник"
+   },
+   "590c621186f774138d11ea29": {
+    "name": "Secure Flash drive",
+    "nameRu": "Защищенный флеш-накопитель"
+   },
+   "590c639286f774151567fa95": {
+    "name": "Tech manual",
+    "nameRu": "Техническая документация"
+   },
+   "62a09e73af34e73a266d932a": {
+    "name": "BakeEzy cook book",
+    "nameRu": "Книга рецептов BakeEzy"
+   },
+   "590c651286f7741e566b6461": {
+    "name": "Slim diary",
+    "nameRu": "Тонкий ежедневник"
+   },
+   "61bf7c024770ee6f9c6b8b53": {
+    "name": "Secure magnetic tape cassette",
+    "nameRu": "Защищенная кассета с магнитной пленкой"
+   },
+   "590c37d286f77443be3d7827": {
+    "name": "SAS drive",
+    "nameRu": "SAS диск"
+   },
+   "5d1b371186f774253763a656": {
+    "name": "Expeditionary fuel tank",
+    "nameRu": "Экспедиционная топливная канистра"
+   },
+   "5d1b36a186f7742523398433": {
+    "name": "Metal fuel tank",
+    "nameRu": "Металлическая топливная канистра"
+   },
+   "62a09e974f842e1bd12da3f0": {
+    "name": "Video cassette with the Cyborg Killer movie",
+    "nameRu": "Видеокассета с фильмом \"Киборг-убийца\" из проката \"Проходимец\""
+   },
+   "59e3658a86f7741776641ac4": {
+    "name": "Cat figurine",
+    "nameRu": "Статуэтка кота"
+   },
+   "5bc9bc53d4351e00367fbcee": {
+    "name": "Golden rooster figurine",
+    "nameRu": "Золотой петух"
+   },
+   "591094e086f7747caa7bb2ef": {
+    "name": "Body armor repair kit",
+    "nameRu": "Набор для ремонта бронежилетов"
+   },
+   "5910968f86f77425cf569c32": {
+    "name": "Weapon repair kit",
+    "nameRu": "Набор для ремонта оружия"
+   },
+   "5c12688486f77426843c7d32": {
+    "name": "Paracord",
+    "nameRu": "Моток паракорда"
+   },
+   "573478bc24597738002c6175": {
+    "name": "Horse figurine",
+    "nameRu": "Статуэтка коня"
+   },
+   "590de71386f774347051a052": {
+    "name": "Antique teapot",
+    "nameRu": "Антикварный чайник"
+   },
+   "5af0561e86f7745f5f3ad6ac": {
+    "name": "Portable Powerbank",
+    "nameRu": "Мобильный повербанк"
+   },
+   "590de7e986f7741b096e5f32": {
+    "name": "Antique vase",
+    "nameRu": "Антикварная ваза"
+   },
+   "57347ca924597744596b4e71": {
+    "name": "Graphics card",
+    "nameRu": "Видеокарта"
+   },
+   "66b37ea4c5d72b0277488439": {
+    "name": "Tamatthi kunai knife replica",
+    "nameRu": "Реплика ножа кунай Tamatthi"
+   },
+   "59e3639286f7741777737013": {
+    "name": "Bronze lion figurine",
+    "nameRu": "Бронзовый лев"
+   },
+   "5e54f62086f774219b0f1937": {
+    "name": "Raven figurine",
+    "nameRu": "Статуэтка ворона"
+   },
+   "66b37eb4acff495a29492407": {
+    "name": "Viibiin sneaker",
+    "nameRu": "Кроссовка бренда Viibiin"
+   }
+  },
+  "containers": [
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 27.38,
+    "y": 1.9,
+    "z": 40.12,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 24.07,
+    "y": 1.99,
+    "z": 43.62,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 25.75,
+    "y": 7.18,
+    "z": -3.35,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 29.98,
+    "y": 1.41,
+    "z": -11.98,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 32.57,
+    "y": 0.54,
+    "z": 19.2,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 34.24,
+    "y": 0.26,
+    "z": -31.2,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 25.78,
+    "y": 0.44,
+    "z": -33.32,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 33.22,
+    "y": 3.67,
+    "z": -17.68,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 32.45,
+    "y": 2.18,
+    "z": 45.0,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 33.04,
+    "y": 1.72,
+    "z": 61.18,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": 9.45,
+    "y": 0.33,
+    "z": -41.34,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": -22.13,
+    "y": 0.01,
+    "z": 24.77,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": -18.88,
+    "y": -1.52,
+    "z": 44.05,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 18.72,
+    "y": 9.43,
+    "z": 36.6,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 31.03,
+    "y": 9.35,
+    "z": 36.6,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 73.76,
+    "y": 1.52,
+    "z": -35.0,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 19.13,
+    "y": 9.44,
+    "z": 36.61,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 12.28,
+    "y": 2.21,
+    "z": 34.34,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 27.15,
+    "y": 1.38,
+    "z": 20.44,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 16.82,
+    "y": 1.21,
+    "z": -38.33,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 29.96,
+    "y": 1.32,
+    "z": -34.03,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 14.43,
+    "y": 1.32,
+    "z": -39.1,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 45.32,
+    "y": 5.39,
+    "z": 40.01,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 73.75,
+    "y": 1.51,
+    "z": -35.42,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 16.82,
+    "y": 1.22,
+    "z": -37.91,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 26.33,
+    "y": 2.48,
+    "z": 45.09,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": -46.05,
+    "y": 2.5,
+    "z": 63.68,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 26.33,
+    "y": 2.47,
+    "z": 45.51,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f8778245977358849a9b5",
+    "x": 27.15,
+    "y": 1.37,
+    "z": 20.86,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "6582e6d7b14c3f72eb071420",
+    "x": 22.26,
+    "y": 4.67,
+    "z": 45.84,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "5909e4b686f7747f5b744fa4",
+    "x": 0.05,
+    "y": -2.68,
+    "z": 16.54,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909e4b686f7747f5b744fa4",
+    "x": 1.81,
+    "y": -2.66,
+    "z": 54.11,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "6582e6d7b14c3f72eb071420",
+    "x": 70.85,
+    "y": 0.17,
+    "z": -45.65,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909e4b686f7747f5b744fa4",
+    "x": -4.76,
+    "y": -2.68,
+    "z": 16.81,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "6582e6d7b14c3f72eb071420",
+    "x": 22.78,
+    "y": 8.22,
+    "z": 35.88,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "5909e4b686f7747f5b744fa4",
+    "x": -18.9,
+    "y": 0.02,
+    "z": 21.94,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 97.36,
+    "y": 0.18,
+    "z": 22.79,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 32.68,
+    "y": 0.46,
+    "z": 22.02,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 8.3,
+    "y": 2.33,
+    "z": 49.58,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 8.42,
+    "y": 2.31,
+    "z": 50.1,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": -3.82,
+    "y": -3.39,
+    "z": -13.08,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": -13.23,
+    "y": -2.89,
+    "z": -12.53,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": -5.56,
+    "y": -2.71,
+    "z": -28.27,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": -22.78,
+    "y": -3.47,
+    "z": -21.98,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": 30.37,
+    "y": 3.69,
+    "z": -31.6,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": -40.85,
+    "y": 7.6,
+    "z": 62.96,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": 36.0,
+    "y": 8.86,
+    "z": 17.42,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": 25.25,
+    "y": 7.73,
+    "z": -30.74,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": 38.72,
+    "y": 5.23,
+    "z": 40.33,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "5909d36d86f774660f0bb900",
+    "x": 44.55,
+    "y": 4.06,
+    "z": 29.77,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "5909d24f86f77466f56e6855",
+    "x": -15.42,
+    "y": 1.11,
+    "z": -27.63,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d24f86f77466f56e6855",
+    "x": -19.69,
+    "y": 1.12,
+    "z": -27.04,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d24f86f77466f56e6855",
+    "x": -14.94,
+    "y": 0.9,
+    "z": -29.06,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d24f86f77466f56e6855",
+    "x": 27.42,
+    "y": 4.5,
+    "z": -35.57,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "5909d24f86f77466f56e6855",
+    "x": 28.8,
+    "y": 4.65,
+    "z": -29.17,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "5909d24f86f77466f56e6855",
+    "x": 29.12,
+    "y": 4.57,
+    "z": -17.83,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "5909d24f86f77466f56e6855",
+    "x": -19.4,
+    "y": -2.49,
+    "z": 47.47,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 30.33,
+    "y": -1.22,
+    "z": -12.01,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 30.08,
+    "y": -1.21,
+    "z": -8.69,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 36.81,
+    "y": 0.34,
+    "z": -12.57,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 18.21,
+    "y": 1.36,
+    "z": -13.62,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 25.75,
+    "y": 1.69,
+    "z": 39.26,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 18.78,
+    "y": 2.68,
+    "z": 43.71,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 20.78,
+    "y": 1.25,
+    "z": 34.76,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 42.89,
+    "y": 0.3,
+    "z": -7.17,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 38.66,
+    "y": 0.34,
+    "z": -13.39,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 42.44,
+    "y": -2.41,
+    "z": -15.09,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 32.26,
+    "y": 1.44,
+    "z": 15.73,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": -23.76,
+    "y": -3.32,
+    "z": -26.67,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 62.3,
+    "y": -0.0,
+    "z": -12.54,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": -18.41,
+    "y": -1.75,
+    "z": 46.73,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 1.13,
+    "y": -2.37,
+    "z": 51.21,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 15.33,
+    "y": -1.37,
+    "z": 38.49,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": -4.52,
+    "y": 1.42,
+    "z": -38.42,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 53.97,
+    "y": 0.45,
+    "z": 21.73,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d76c86f77471e53d2adf",
+    "x": -5.32,
+    "y": 1.43,
+    "z": 48.8,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d76c86f77471e53d2adf",
+    "x": 6.13,
+    "y": 1.62,
+    "z": 50.91,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d76c86f77471e53d2adf",
+    "x": 69.82,
+    "y": 0.43,
+    "z": 41.74,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d76c86f77471e53d2adf",
+    "x": 19.41,
+    "y": 2.24,
+    "z": -36.96,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d5ef86f77467974efbd8",
+    "x": -21.26,
+    "y": 1.48,
+    "z": 0.49,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d5ef86f77467974efbd8",
+    "x": 25.98,
+    "y": 0.15,
+    "z": -18.79,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d5ef86f77467974efbd8",
+    "x": -22.81,
+    "y": 7.6,
+    "z": -3.17,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "5909d5ef86f77467974efbd8",
+    "x": 51.5,
+    "y": 7.61,
+    "z": -29.76,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "5909d5ef86f77467974efbd8",
+    "x": 1.92,
+    "y": 1.46,
+    "z": -16.93,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d5ef86f77467974efbd8",
+    "x": 20.73,
+    "y": 1.57,
+    "z": 22.61,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d5ef86f77467974efbd8",
+    "x": 22.92,
+    "y": 7.41,
+    "z": 15.86,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "5909d5ef86f77467974efbd8",
+    "x": 13.66,
+    "y": 1.16,
+    "z": 30.7,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d5ef86f77467974efbd8",
+    "x": 1.57,
+    "y": 1.13,
+    "z": 23.52,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "66acff0a1d8e1083b303f5af",
+    "x": -23.73,
+    "y": -2.18,
+    "z": 46.64,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "66acff0a1d8e1083b303f5af",
+    "x": -20.83,
+    "y": -2.18,
+    "z": 48.52,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 42.13,
+    "y": 0.49,
+    "z": -50.29,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": 59.77,
+    "y": 0.29,
+    "z": -39.88,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": -30.32,
+    "y": 0.49,
+    "z": 10.09,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5909d50c86f774659e6aaebe",
+    "x": -45.33,
+    "y": -1.26,
+    "z": 44.23,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87b7245977356274f2cd",
+    "x": 11.67,
+    "y": 8.9,
+    "z": 36.9,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87b7245977356274f2cd",
+    "x": 11.67,
+    "y": 8.9,
+    "z": 36.9,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87b7245977356274f2cd",
+    "x": 11.67,
+    "y": 8.9,
+    "z": 36.9,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87b7245977356274f2cd",
+    "x": 11.67,
+    "y": 8.9,
+    "z": 36.9,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87b7245977356274f2cd",
+    "x": 11.49,
+    "y": 8.9,
+    "z": 41.18,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87b7245977356274f2cd",
+    "x": 11.49,
+    "y": 8.9,
+    "z": 41.18,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87b7245977356274f2cd",
+    "x": 11.49,
+    "y": 8.9,
+    "z": 41.18,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87b7245977356274f2cd",
+    "x": 11.49,
+    "y": 8.9,
+    "z": 41.18,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "5d6fd45b86f774317075ed43",
+    "x": -18.66,
+    "y": 0.96,
+    "z": -16.0,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "5d6fd45b86f774317075ed43",
+    "x": -8.18,
+    "y": -2.94,
+    "z": -35.19,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f8782245977354405a1e3",
+    "x": 21.11,
+    "y": 8.38,
+    "z": 40.67,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f8782245977354405a1e3",
+    "x": 12.25,
+    "y": 1.3,
+    "z": 38.75,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87a3245977356274f2cb",
+    "x": -47.22,
+    "y": 1.15,
+    "z": 60.08,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 6.02,
+    "y": 7.77,
+    "z": 63.73,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -4.32,
+    "y": 4.11,
+    "z": 35.11,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -23.63,
+    "y": 1.43,
+    "z": 57.39,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -9.85,
+    "y": 1.42,
+    "z": 65.52,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 1.87,
+    "y": 1.61,
+    "z": 60.98,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -2.85,
+    "y": 1.43,
+    "z": 44.9,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -25.65,
+    "y": 1.42,
+    "z": 66.62,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -40.82,
+    "y": 7.86,
+    "z": 50.18,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -9.96,
+    "y": 0.4,
+    "z": 38.19,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 8.01,
+    "y": 1.38,
+    "z": 32.34,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 3.73,
+    "y": 1.21,
+    "z": 26.03,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -19.11,
+    "y": 3.1,
+    "z": 26.79,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -20.82,
+    "y": 3.1,
+    "z": 27.47,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 34.44,
+    "y": 1.35,
+    "z": 33.75,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 35.79,
+    "y": 1.33,
+    "z": 19.85,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 25.26,
+    "y": 0.41,
+    "z": 17.7,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 0.67,
+    "y": 1.38,
+    "z": 10.45,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -24.35,
+    "y": 0.61,
+    "z": 10.55,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 36.47,
+    "y": 0.4,
+    "z": 8.9,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 19.42,
+    "y": 0.41,
+    "z": 10.3,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 31.2,
+    "y": 0.41,
+    "z": -0.27,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -22.28,
+    "y": 1.25,
+    "z": 17.62,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 17.92,
+    "y": 1.23,
+    "z": -29.63,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 2.22,
+    "y": 7.68,
+    "z": -18.83,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 34.77,
+    "y": 3.67,
+    "z": -8.21,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 11.07,
+    "y": 0.41,
+    "z": -19.3,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -8.34,
+    "y": 1.48,
+    "z": -36.02,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 25.63,
+    "y": 7.49,
+    "z": -35.57,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -12.58,
+    "y": 0.4,
+    "z": -6.51,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 33.36,
+    "y": 3.97,
+    "z": -24.57,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 55.72,
+    "y": 4.47,
+    "z": 2.85,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 66.68,
+    "y": 7.65,
+    "z": -28.47,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 67.22,
+    "y": 7.65,
+    "z": 40.93,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 55.44,
+    "y": -0.51,
+    "z": -22.18,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 56.64,
+    "y": 0.4,
+    "z": 24.79,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 58.37,
+    "y": -0.49,
+    "z": -6.63,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 26.5,
+    "y": 1.36,
+    "z": 45.51,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 15.68,
+    "y": 4.92,
+    "z": 35.38,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 32.92,
+    "y": 5.79,
+    "z": 47.53,
+    "floor": "LEVEL2"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 32.1,
+    "y": 8.45,
+    "z": 38.89,
+    "floor": "LEVEL3"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 14.44,
+    "y": 1.38,
+    "z": 40.35,
+    "floor": "LEVEL1"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 36.18,
+    "y": -2.29,
+    "z": 35.1,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 9.67,
+    "y": -2.29,
+    "z": 40.82,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 47.09,
+    "y": -2.28,
+    "z": 13.41,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 70.04,
+    "y": -2.27,
+    "z": 13.39,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 55.79,
+    "y": -2.29,
+    "z": 3.61,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 64.55,
+    "y": -2.29,
+    "z": -30.85,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 48.05,
+    "y": -1.19,
+    "z": -20.93,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 53.9,
+    "y": -1.19,
+    "z": -17.7,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 14.11,
+    "y": -1.22,
+    "z": -25.71,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 30.33,
+    "y": -2.26,
+    "z": -33.92,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 17.97,
+    "y": -1.32,
+    "z": -32.68,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 34.03,
+    "y": -2.29,
+    "z": -25.83,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 13.88,
+    "y": -1.32,
+    "z": 1.35,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 26.29,
+    "y": -1.32,
+    "z": 1.07,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 19.68,
+    "y": -2.29,
+    "z": -10.2,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 8.24,
+    "y": -1.3,
+    "z": -0.6,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": -16.17,
+    "y": -2.38,
+    "z": -31.56,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 2.8,
+    "y": -3.51,
+    "z": -23.79,
+    "floor": "TUNNELS"
+   },
+   {
+    "type": "578f87ad245977356274f2cc",
+    "x": 3.38,
+    "y": -3.47,
+    "z": -8.66,
+    "floor": "TUNNELS"
+   }
+  ],
+  "loose": [
+   {
+    "x": -18.93,
+    "y": -1.59,
+    "z": 45.8,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": -18.87,
+    "y": -0.93,
+    "z": 44.48,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": -23.59,
+    "y": -1.4,
+    "z": 47.97,
+    "floor": "TUNNELS",
+    "items": [
+     "59faf7ca86f7740dbe19f6c2",
+     "62a09cfe4f842e1bd12da3e4",
+     "5734758f24597738025ee253",
+     "59faff1d86f7746c51718c9c",
+     "5f745ee30acaeb0d490d8c5b",
+     "5c1267ee86f77416ec610f72",
+     "62a091170b9d3c46de5b6cf2",
+     "66507eabf5ddb0818b085b68",
+     "5d235a5986f77443f6329bc6",
+     "5bc9bdb8d4351e003562b8a1"
+    ]
+   },
+   {
+    "x": 37.09,
+    "y": -1.53,
+    "z": 40.08,
+    "floor": "TUNNELS",
+    "items": [
+     "675a125caf26c56ee109072a",
+     "675a0d2d57dd12f0260c4a31",
+     "675a0fbbb98bf391510bafcd",
+     "675a06b84ff23436160d802f",
+     "675a202b6aaafea7210915fd",
+     "675a0eacf905bde03d0f8253",
+     "6759e7a44ff23436160d7ff5",
+     "675a1e502eac6c76e104ea1e",
+     "6759e6c39422e1708e0e9b81",
+     "675a1a244ff23436160d8033",
+     "675a1c129422e1708e0e9baa",
+     "6759e61067c8eb5cd10352f1",
+     "6759e19a8367ee2b0c0f4b92",
+     "675a191f67c8eb5cd1035305",
+     "675a04fdb8913ff13e0496bb",
+     "675a1af21474133a0d0bb216",
+     "67f924a9154a04c33b0a3c57",
+     "675a0288c3102563bd01c9c3",
+     "675a04c01474133a0d0bb212",
+     "675a046b8f547d6cae01922e",
+     "67f924b1b07831a6ef0ce317",
+     "675a081c1474133a0d0bb214",
+     "675a1f5c1474133a0d0bb218",
+     "67f924adb45d94a2600a8cc8",
+     "6759e91d8367ee2b0c0f4b94",
+     "675a20c83fb2de89670113b4"
+    ]
+   },
+   {
+    "x": 41.58,
+    "y": 2.17,
+    "z": -51.5,
+    "floor": "LEVEL1",
+    "items": [
+     "6759e19a8367ee2b0c0f4b92",
+     "675a1a244ff23436160d8033",
+     "6759e7a44ff23436160d7ff5",
+     "675a0288c3102563bd01c9c3",
+     "675a0fbbb98bf391510bafcd",
+     "675a1c129422e1708e0e9baa",
+     "675a0d2d57dd12f0260c4a31",
+     "675a125caf26c56ee109072a",
+     "675a0b8d4ff23436160d8031",
+     "675a1af21474133a0d0bb216",
+     "675a191f67c8eb5cd1035305",
+     "675a046b8f547d6cae01922e",
+     "675a06b84ff23436160d802f",
+     "6759e6c39422e1708e0e9b81",
+     "675a1e502eac6c76e104ea1e",
+     "675a0eacf905bde03d0f8253",
+     "6759e61067c8eb5cd10352f1",
+     "675a081c1474133a0d0bb214",
+     "675a20c83fb2de89670113b4",
+     "675a04c01474133a0d0bb212",
+     "675a1f5c1474133a0d0bb218",
+     "675a202b6aaafea7210915fd",
+     "67f924adb45d94a2600a8cc8",
+     "675a04fdb8913ff13e0496bb",
+     "67f924a9154a04c33b0a3c57",
+     "6759e91d8367ee2b0c0f4b94"
+    ]
+   },
+   {
+    "x": -19.64,
+    "y": 0.8,
+    "z": 21.96,
+    "floor": "LEVEL1",
+    "items": [
+     "6759e61067c8eb5cd10352f1",
+     "675a046b8f547d6cae01922e",
+     "675a1f5c1474133a0d0bb218",
+     "675a191f67c8eb5cd1035305",
+     "675a1c129422e1708e0e9baa",
+     "6759e19a8367ee2b0c0f4b92",
+     "675a06b84ff23436160d802f",
+     "675a0fbbb98bf391510bafcd",
+     "675a0d2d57dd12f0260c4a31",
+     "675a1af21474133a0d0bb216",
+     "6759e6c39422e1708e0e9b81",
+     "675a081c1474133a0d0bb214",
+     "675a04c01474133a0d0bb212",
+     "675a125caf26c56ee109072a",
+     "675a0eacf905bde03d0f8253",
+     "675a0288c3102563bd01c9c3",
+     "6759e7a44ff23436160d7ff5",
+     "675a1a244ff23436160d8033",
+     "675a202b6aaafea7210915fd",
+     "67f924b1b07831a6ef0ce317",
+     "675a1e502eac6c76e104ea1e",
+     "675a20c83fb2de89670113b4",
+     "675a0b8d4ff23436160d8031",
+     "6759e91d8367ee2b0c0f4b94",
+     "5d1b376e86f774252519444e"
+    ]
+   },
+   {
+    "x": -41.31,
+    "y": 2.44,
+    "z": 62.78,
+    "floor": "LEVEL1",
+    "items": [
+     "6759e7a44ff23436160d7ff5",
+     "6759e61067c8eb5cd10352f1",
+     "6759e19a8367ee2b0c0f4b92",
+     "6759e6c39422e1708e0e9b81",
+     "675a0eacf905bde03d0f8253",
+     "675a1af21474133a0d0bb216",
+     "675a191f67c8eb5cd1035305",
+     "675a1c129422e1708e0e9baa",
+     "675a125caf26c56ee109072a",
+     "675a04c01474133a0d0bb212",
+     "675a06b84ff23436160d802f",
+     "675a1a244ff23436160d8033",
+     "675a0d2d57dd12f0260c4a31",
+     "675a0fbbb98bf391510bafcd",
+     "675a081c1474133a0d0bb214",
+     "675a20c83fb2de89670113b4",
+     "675a1e502eac6c76e104ea1e",
+     "675a202b6aaafea7210915fd",
+     "67f924adb45d94a2600a8cc8",
+     "675a1f5c1474133a0d0bb218",
+     "675a0288c3102563bd01c9c3",
+     "675a046b8f547d6cae01922e",
+     "675a0b8d4ff23436160d8031"
+    ]
+   },
+   {
+    "x": 23.55,
+    "y": 9.48,
+    "z": 36.53,
+    "floor": "LEVEL3",
+    "items": [
+     "675a1c129422e1708e0e9baa",
+     "675a0d2d57dd12f0260c4a31",
+     "6759e61067c8eb5cd10352f1",
+     "675a191f67c8eb5cd1035305",
+     "675a1a244ff23436160d8033",
+     "675a1af21474133a0d0bb216",
+     "6759e19a8367ee2b0c0f4b92",
+     "675a06b84ff23436160d802f",
+     "675a202b6aaafea7210915fd",
+     "675a0288c3102563bd01c9c3",
+     "675a0eacf905bde03d0f8253",
+     "6759e7a44ff23436160d7ff5",
+     "6759e6c39422e1708e0e9b81",
+     "675a046b8f547d6cae01922e",
+     "675a0b8d4ff23436160d8031",
+     "675a0fbbb98bf391510bafcd",
+     "675a125caf26c56ee109072a",
+     "67f924b1b07831a6ef0ce317",
+     "675a1f5c1474133a0d0bb218",
+     "675a04c01474133a0d0bb212",
+     "67f924a9154a04c33b0a3c57",
+     "675a1e502eac6c76e104ea1e",
+     "675a081c1474133a0d0bb214",
+     "67f924adb45d94a2600a8cc8",
+     "675a20c83fb2de89670113b4"
+    ]
+   },
+   {
+    "x": 30.98,
+    "y": 2.22,
+    "z": 43.31,
+    "floor": "LEVEL1",
+    "items": [
+     "675a191f67c8eb5cd1035305",
+     "6759e61067c8eb5cd10352f1",
+     "675a125caf26c56ee109072a",
+     "675a06b84ff23436160d802f",
+     "675a0288c3102563bd01c9c3",
+     "675a1c129422e1708e0e9baa",
+     "6759e6c39422e1708e0e9b81",
+     "675a0d2d57dd12f0260c4a31",
+     "675a1af21474133a0d0bb216",
+     "675a1a244ff23436160d8033",
+     "6759e7a44ff23436160d7ff5",
+     "675a0eacf905bde03d0f8253",
+     "675a0fbbb98bf391510bafcd",
+     "6759e19a8367ee2b0c0f4b92",
+     "67f924b1b07831a6ef0ce317",
+     "675a202b6aaafea7210915fd",
+     "675a1e502eac6c76e104ea1e",
+     "67f924adb45d94a2600a8cc8",
+     "675a1f5c1474133a0d0bb218",
+     "675a04c01474133a0d0bb212",
+     "675a046b8f547d6cae01922e",
+     "675a081c1474133a0d0bb214",
+     "6759e91d8367ee2b0c0f4b94",
+     "67f924a9154a04c33b0a3c57",
+     "675a0b8d4ff23436160d8031",
+     "675a20c83fb2de89670113b4",
+     "675aaaf674a7619a5304c233",
+     "6889e4cd3ff7e9cfbc0c507c",
+     "590c392f86f77444754deb29",
+     "590c645c86f77412b01304d9",
+     "590c621186f774138d11ea29",
+     "590c639286f774151567fa95",
+     "62a09e73af34e73a266d932a",
+     "590c651286f7741e566b6461",
+     "61bf7c024770ee6f9c6b8b53",
+     "590c37d286f77443be3d7827"
+    ]
+   },
+   {
+    "x": 33.03,
+    "y": 2.71,
+    "z": 60.52,
+    "floor": "LEVEL1",
+    "items": [
+     "675a1a244ff23436160d8033",
+     "6759e19a8367ee2b0c0f4b92",
+     "675a0eacf905bde03d0f8253",
+     "675a125caf26c56ee109072a",
+     "675a06b84ff23436160d802f",
+     "675a1af21474133a0d0bb216",
+     "675a191f67c8eb5cd1035305",
+     "675a081c1474133a0d0bb214",
+     "675a0d2d57dd12f0260c4a31",
+     "675a0fbbb98bf391510bafcd",
+     "675a04c01474133a0d0bb212",
+     "675a1f5c1474133a0d0bb218",
+     "6759e6c39422e1708e0e9b81",
+     "6759e7a44ff23436160d7ff5",
+     "6759e61067c8eb5cd10352f1",
+     "675a1c129422e1708e0e9baa",
+     "675a202b6aaafea7210915fd",
+     "675a046b8f547d6cae01922e",
+     "675a0b8d4ff23436160d8031",
+     "67f924adb45d94a2600a8cc8",
+     "675a0288c3102563bd01c9c3",
+     "675a1e502eac6c76e104ea1e",
+     "6759e91d8367ee2b0c0f4b94"
+    ]
+   },
+   {
+    "x": 31.59,
+    "y": 1.41,
+    "z": 22.5,
+    "floor": "LEVEL1",
+    "items": [
+     "6759e19a8367ee2b0c0f4b92",
+     "675a0fbbb98bf391510bafcd",
+     "6759e6c39422e1708e0e9b81",
+     "675a125caf26c56ee109072a",
+     "675a1f5c1474133a0d0bb218",
+     "675a046b8f547d6cae01922e",
+     "675a1af21474133a0d0bb216",
+     "6759e7a44ff23436160d7ff5",
+     "675a0eacf905bde03d0f8253",
+     "675a1c129422e1708e0e9baa",
+     "6759e61067c8eb5cd10352f1",
+     "675a1a244ff23436160d8033",
+     "675a0d2d57dd12f0260c4a31",
+     "675a202b6aaafea7210915fd",
+     "675a06b84ff23436160d802f",
+     "675a20c83fb2de89670113b4",
+     "675a1e502eac6c76e104ea1e",
+     "675a04c01474133a0d0bb212",
+     "675a0288c3102563bd01c9c3",
+     "675a191f67c8eb5cd1035305",
+     "67f924b1b07831a6ef0ce317",
+     "6759e91d8367ee2b0c0f4b94",
+     "675a081c1474133a0d0bb214",
+     "67f924adb45d94a2600a8cc8",
+     "675a0b8d4ff23436160d8031"
+    ]
+   },
+   {
+    "x": -24.87,
+    "y": -1.13,
+    "z": 46.11,
+    "floor": "TUNNELS",
+    "items": [
+     "6759e61067c8eb5cd10352f1",
+     "675a06b84ff23436160d802f",
+     "6759e6c39422e1708e0e9b81",
+     "675a125caf26c56ee109072a",
+     "675a1a244ff23436160d8033",
+     "675a1c129422e1708e0e9baa",
+     "675a191f67c8eb5cd1035305",
+     "675a0288c3102563bd01c9c3",
+     "675a0fbbb98bf391510bafcd",
+     "675a0eacf905bde03d0f8253",
+     "675a1f5c1474133a0d0bb218",
+     "675a1af21474133a0d0bb216",
+     "675a0d2d57dd12f0260c4a31",
+     "675a04c01474133a0d0bb212",
+     "6759e7a44ff23436160d7ff5",
+     "675a046b8f547d6cae01922e",
+     "6759e19a8367ee2b0c0f4b92",
+     "675a081c1474133a0d0bb214",
+     "6759e91d8367ee2b0c0f4b94",
+     "67f924adb45d94a2600a8cc8",
+     "675a1e502eac6c76e104ea1e",
+     "675a202b6aaafea7210915fd",
+     "67f924b1b07831a6ef0ce317",
+     "675a04fdb8913ff13e0496bb",
+     "675a0b8d4ff23436160d8031",
+     "675a20c83fb2de89670113b4"
+    ]
+   },
+   {
+    "x": 31.07,
+    "y": 0.5,
+    "z": -31.17,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b376e86f774252519444e"
+    ]
+   },
+   {
+    "x": -2.13,
+    "y": -1.22,
+    "z": 17.33,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": -3.71,
+    "y": -1.22,
+    "z": 18.32,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 34.72,
+    "y": 1.7,
+    "z": 15.69,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": -5.73,
+    "y": -1.22,
+    "z": 14.92,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 24.11,
+    "y": 2.48,
+    "z": 41.65,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": -5.5,
+    "y": -2.83,
+    "z": -29.11,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": -8.65,
+    "y": -3.12,
+    "z": -10.01,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": -14.13,
+    "y": -3.07,
+    "z": -28.36,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 31.04,
+    "y": 1.47,
+    "z": -2.4,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 10.78,
+    "y": 0.57,
+    "z": -16.91,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": -21.52,
+    "y": 1.66,
+    "z": -0.66,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 11.58,
+    "y": 2.16,
+    "z": 37.15,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 11.62,
+    "y": 2.83,
+    "z": 40.04,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 11.42,
+    "y": 2.12,
+    "z": 43.15,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 26.2,
+    "y": 4.87,
+    "z": -22.71,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": 28.82,
+    "y": 9.38,
+    "z": 40.12,
+    "floor": "LEVEL3",
+    "items": [
+     "5d1b376e86f774252519444e"
+    ]
+   },
+   {
+    "x": 26.16,
+    "y": 4.83,
+    "z": -18.66,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": 27.81,
+    "y": 1.98,
+    "z": 39.68,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": 27.48,
+    "y": 1.47,
+    "z": 38.14,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": 26.15,
+    "y": 8.27,
+    "z": -3.63,
+    "floor": "LEVEL3",
+    "items": [
+     "590c392f86f77444754deb29",
+     "6889e4cd3ff7e9cfbc0c507c",
+     "590c639286f774151567fa95",
+     "675aaaf674a7619a5304c233",
+     "590c621186f774138d11ea29",
+     "590c37d286f77443be3d7827",
+     "62a09e73af34e73a266d932a",
+     "62a09e974f842e1bd12da3f0",
+     "590c651286f7741e566b6461",
+     "590c645c86f77412b01304d9",
+     "61bf7c024770ee6f9c6b8b53"
+    ]
+   },
+   {
+    "x": 27.73,
+    "y": 2.23,
+    "z": 42.93,
+    "floor": "LEVEL1",
+    "items": [
+     "675aaaf674a7619a5304c233",
+     "6889e4cd3ff7e9cfbc0c507c",
+     "590c392f86f77444754deb29",
+     "590c645c86f77412b01304d9",
+     "590c639286f774151567fa95",
+     "62a09e73af34e73a266d932a",
+     "590c37d286f77443be3d7827",
+     "590c621186f774138d11ea29",
+     "62a09e974f842e1bd12da3f0"
+    ]
+   },
+   {
+    "x": -22.37,
+    "y": -1.55,
+    "z": 44.36,
+    "floor": "TUNNELS",
+    "items": [
+     "590c651286f7741e566b6461",
+     "590c392f86f77444754deb29",
+     "675aaaf674a7619a5304c233",
+     "6889e4cd3ff7e9cfbc0c507c",
+     "61bf7c024770ee6f9c6b8b53",
+     "590c621186f774138d11ea29",
+     "590c639286f774151567fa95",
+     "62a09e974f842e1bd12da3f0",
+     "62a09e73af34e73a266d932a",
+     "590c645c86f77412b01304d9",
+     "590c37d286f77443be3d7827"
+    ]
+   },
+   {
+    "x": 34.04,
+    "y": 1.41,
+    "z": -35.9,
+    "floor": "LEVEL1",
+    "items": [
+     "5734758f24597738025ee253",
+     "62a09cfe4f842e1bd12da3e4",
+     "5bc9bdb8d4351e003562b8a1",
+     "59faf7ca86f7740dbe19f6c2",
+     "59faff1d86f7746c51718c9c",
+     "5d235a5986f77443f6329bc6"
+    ]
+   },
+   {
+    "x": 34.34,
+    "y": 1.31,
+    "z": -32.18,
+    "floor": "LEVEL1",
+    "items": [
+     "5734758f24597738025ee253",
+     "5f745ee30acaeb0d490d8c5b",
+     "5bc9bdb8d4351e003562b8a1",
+     "62a09cfe4f842e1bd12da3e4"
+    ]
+   },
+   {
+    "x": 32.57,
+    "y": 1.08,
+    "z": 18.39,
+    "floor": "LEVEL1",
+    "items": [
+     "59e3658a86f7741776641ac4",
+     "5bc9bc53d4351e00367fbcee"
+    ]
+   },
+   {
+    "x": 9.24,
+    "y": 4.85,
+    "z": 16.79,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": -6.16,
+    "y": 4.85,
+    "z": 17.6,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": -5.95,
+    "y": -1.22,
+    "z": 17.16,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 58.18,
+    "y": -0.25,
+    "z": -9.78,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 59.95,
+    "y": -0.25,
+    "z": -9.78,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 59.95,
+    "y": -0.25,
+    "z": -13.43,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 58.03,
+    "y": -0.25,
+    "z": -13.43,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 69.66,
+    "y": 0.41,
+    "z": 31.45,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 69.66,
+    "y": 0.41,
+    "z": 25.16,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 69.66,
+    "y": 0.41,
+    "z": 22.89,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 68.53,
+    "y": 0.75,
+    "z": 19.11,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": -33.89,
+    "y": 1.7,
+    "z": 66.75,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": -27.52,
+    "y": 1.7,
+    "z": 66.75,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": -19.87,
+    "y": 1.7,
+    "z": 66.75,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": -41.81,
+    "y": 1.7,
+    "z": 66.75,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 61.66,
+    "y": 2.35,
+    "z": 22.81,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 72.65,
+    "y": 1.85,
+    "z": -40.2,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": -32.96,
+    "y": 3.67,
+    "z": 58.13,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 22.46,
+    "y": 2.18,
+    "z": -22.5,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 21.65,
+    "y": 2.18,
+    "z": -31.84,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 13.69,
+    "y": 2.18,
+    "z": -28.83,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 17.69,
+    "y": 2.18,
+    "z": -13.47,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 55.49,
+    "y": 5.57,
+    "z": 0.51,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 59.1,
+    "y": 5.27,
+    "z": 1.02,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433",
+     "591094e086f7747caa7bb2ef",
+     "5910968f86f77425cf569c32"
+    ]
+   },
+   {
+    "x": 58.55,
+    "y": 5.57,
+    "z": 9.31,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 54.4,
+    "y": 5.57,
+    "z": 9.31,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": -39.23,
+    "y": 1.78,
+    "z": 5.61,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": -43.91,
+    "y": 1.78,
+    "z": 5.01,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 21.43,
+    "y": 1.63,
+    "z": 43.08,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 41.4,
+    "y": 1.14,
+    "z": -10.84,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 41.84,
+    "y": 0.68,
+    "z": -8.66,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "591094e086f7747caa7bb2ef"
+    ]
+   },
+   {
+    "x": 39.64,
+    "y": 1.14,
+    "z": -11.5,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 38.61,
+    "y": -1.63,
+    "z": -7.97,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 38.25,
+    "y": -1.85,
+    "z": -9.23,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 40.5,
+    "y": -1.85,
+    "z": -7.58,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 42.23,
+    "y": -1.85,
+    "z": -7.48,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 42.46,
+    "y": -1.15,
+    "z": -12.24,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b371186f774253763a656",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 29.21,
+    "y": 4.9,
+    "z": -29.25,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b385e86f774252167b98a",
+     "5c12688486f77426843c7d32",
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": 29.87,
+    "y": 4.36,
+    "z": -29.77,
+    "floor": "LEVEL2",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "5d1b385e86f774252167b98a",
+     "5c12688486f77426843c7d32",
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": 2.43,
+    "y": -2.95,
+    "z": -14.94,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b385e86f774252167b98a",
+     "5c12688486f77426843c7d32",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 3.49,
+    "y": -3.12,
+    "z": -11.62,
+    "floor": "TUNNELS",
+    "items": [
+     "5c12688486f77426843c7d32",
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": 209.99,
+    "y": -2.14,
+    "z": -188.08,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175",
+     "59e3658a86f7741776641ac4",
+     "5734758f24597738025ee253",
+     "5d1b36a186f7742523398433",
+     "62a09cfe4f842e1bd12da3e4",
+     "5d1b371186f774253763a656"
+    ]
+   },
+   {
+    "x": 263.79,
+    "y": 2.96,
+    "z": -165.16,
+    "floor": "LEVEL1",
+    "items": [
+     "5d1b36a186f7742523398433",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 270.11,
+    "y": 2.12,
+    "z": -168.52,
+    "floor": "LEVEL1",
+    "items": [
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 263.96,
+    "y": 2.49,
+    "z": -148.01,
+    "floor": "LEVEL1",
+    "items": [
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 269.81,
+    "y": -0.36,
+    "z": -123.64,
+    "floor": "LEVEL1",
+    "items": [
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 258.34,
+    "y": 5.73,
+    "z": -149.9,
+    "floor": "LEVEL2",
+    "items": [
+     "5910968f86f77425cf569c32"
+    ]
+   },
+   {
+    "x": 239.97,
+    "y": -2.07,
+    "z": -172.08,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175",
+     "62a091170b9d3c46de5b6cf2",
+     "5f745ee30acaeb0d490d8c5b"
+    ]
+   },
+   {
+    "x": 243.32,
+    "y": -1.31,
+    "z": -180.46,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175",
+     "590de71386f774347051a052"
+    ]
+   },
+   {
+    "x": 239.2,
+    "y": -2.02,
+    "z": -169.72,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175",
+     "59e3658a86f7741776641ac4",
+     "5af0561e86f7745f5f3ad6ac"
+    ]
+   },
+   {
+    "x": 274.88,
+    "y": 5.35,
+    "z": -139.63,
+    "floor": "LEVEL2",
+    "items": [
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 252.31,
+    "y": -1.31,
+    "z": -128.2,
+    "floor": "TUNNELS",
+    "items": [
+     "5d235a5986f77443f6329bc6",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 264.54,
+    "y": 2.64,
+    "z": -175.93,
+    "floor": "LEVEL1",
+    "items": [
+     "573478bc24597738002c6175",
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": 241.75,
+    "y": 2.75,
+    "z": -200.74,
+    "floor": "LEVEL1",
+    "items": [
+     "573478bc24597738002c6175",
+     "5f745ee30acaeb0d490d8c5b",
+     "59e3658a86f7741776641ac4",
+     "5734758f24597738025ee253"
+    ]
+   },
+   {
+    "x": 198.3,
+    "y": -1.64,
+    "z": -224.96,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 254.43,
+    "y": -1.12,
+    "z": -184.96,
+    "floor": "TUNNELS",
+    "items": [
+     "5af0561e86f7745f5f3ad6ac",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 247.67,
+    "y": -1.4,
+    "z": -197.84,
+    "floor": "TUNNELS",
+    "items": [
+     "590de7e986f7741b096e5f32",
+     "573478bc24597738002c6175",
+     "5734758f24597738025ee253",
+     "59e3658a86f7741776641ac4"
+    ]
+   },
+   {
+    "x": 272.71,
+    "y": -0.38,
+    "z": -140.67,
+    "floor": "LEVEL1",
+    "items": [
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 265.15,
+    "y": -0.49,
+    "z": -112.77,
+    "floor": "LEVEL1",
+    "items": [
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 254.56,
+    "y": -1.36,
+    "z": -205.79,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175",
+     "5734758f24597738025ee253",
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": 260.42,
+    "y": 6.35,
+    "z": -159.36,
+    "floor": "LEVEL3",
+    "items": [
+     "573478bc24597738002c6175",
+     "5af0561e86f7745f5f3ad6ac"
+    ]
+   },
+   {
+    "x": 268.68,
+    "y": -0.67,
+    "z": -111.22,
+    "floor": "LEVEL1",
+    "items": [
+     "5c12688486f77426843c7d32",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 209.69,
+    "y": -1.34,
+    "z": -217.02,
+    "floor": "TUNNELS",
+    "items": [
+     "5af0561e86f7745f5f3ad6ac",
+     "5d1b385e86f774252167b98a",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 215.16,
+    "y": -2.28,
+    "z": -187.65,
+    "floor": "TUNNELS",
+    "items": [
+     "5af0561e86f7745f5f3ad6ac",
+     "5734758f24597738025ee253",
+     "59e3658a86f7741776641ac4",
+     "57347ca924597744596b4e71",
+     "5d1b385e86f774252167b98a",
+     "5c12688486f77426843c7d32",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 256.65,
+    "y": -1.57,
+    "z": -172.86,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 264.06,
+    "y": -1.55,
+    "z": -175.28,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175",
+     "62a091170b9d3c46de5b6cf2"
+    ]
+   },
+   {
+    "x": 260.04,
+    "y": 5.68,
+    "z": -165.79,
+    "floor": "LEVEL2",
+    "items": [
+     "59e3658a86f7741776641ac4",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 256.86,
+    "y": 6.43,
+    "z": -161.53,
+    "floor": "LEVEL3",
+    "items": [
+     "5bc9bdb8d4351e003562b8a1",
+     "5d1b36a186f7742523398433",
+     "590de7e986f7741b096e5f32",
+     "5f745ee30acaeb0d490d8c5b",
+     "62a091170b9d3c46de5b6cf2",
+     "5d1b371186f774253763a656",
+     "57347ca924597744596b4e71",
+     "66b37ea4c5d72b0277488439",
+     "59e3639286f7741777737013",
+     "59faf7ca86f7740dbe19f6c2",
+     "5e54f62086f774219b0f1937",
+     "590de71386f774347051a052",
+     "5bc9bc53d4351e00367fbcee",
+     "5d235a5986f77443f6329bc6"
+    ]
+   },
+   {
+    "x": 253.8,
+    "y": 6.63,
+    "z": -153.34,
+    "floor": "LEVEL3",
+    "items": [
+     "5734758f24597738025ee253",
+     "5bc9bc53d4351e00367fbcee",
+     "5c12688486f77426843c7d32",
+     "5d1b36a186f7742523398433",
+     "5d1b385e86f774252167b98a",
+     "5af0561e86f7745f5f3ad6ac",
+     "59e3639286f7741777737013",
+     "62a091170b9d3c46de5b6cf2",
+     "59e3658a86f7741776641ac4",
+     "59faf7ca86f7740dbe19f6c2",
+     "573478bc24597738002c6175",
+     "62a09cfe4f842e1bd12da3e4"
+    ]
+   },
+   {
+    "x": 248.32,
+    "y": -0.71,
+    "z": -114.92,
+    "floor": "LEVEL1",
+    "items": [
+     "62a09cfe4f842e1bd12da3e4",
+     "59e3658a86f7741776641ac4",
+     "5d1b385e86f774252167b98a",
+     "5c12688486f77426843c7d32",
+     "5af0561e86f7745f5f3ad6ac",
+     "62a091170b9d3c46de5b6cf2",
+     "5d1b371186f774253763a656",
+     "66b37eb4acff495a29492407",
+     "573478bc24597738002c6175",
+     "590de7e986f7741b096e5f32",
+     "5734758f24597738025ee253"
+    ]
+   },
+   {
+    "x": 228.39,
+    "y": -1.62,
+    "z": -158.68,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175",
+     "5af0561e86f7745f5f3ad6ac",
+     "59e3658a86f7741776641ac4",
+     "5734758f24597738025ee253"
+    ]
+   },
+   {
+    "x": 218.7,
+    "y": -1.26,
+    "z": -151.54,
+    "floor": "TUNNELS",
+    "items": [
+     "5c12688486f77426843c7d32",
+     "5af0561e86f7745f5f3ad6ac",
+     "5734758f24597738025ee253",
+     "5d1b385e86f774252167b98a"
+    ]
+   },
+   {
+    "x": 238.37,
+    "y": -1.28,
+    "z": -174.04,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 230.67,
+    "y": -1.44,
+    "z": -120.27,
+    "floor": "TUNNELS",
+    "items": [
+     "5c12688486f77426843c7d32",
+     "59e3658a86f7741776641ac4",
+     "5af0561e86f7745f5f3ad6ac",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 243.66,
+    "y": -1.7,
+    "z": -135.56,
+    "floor": "TUNNELS",
+    "items": [
+     "573478bc24597738002c6175",
+     "59e3658a86f7741776641ac4"
+    ]
+   },
+   {
+    "x": 245.54,
+    "y": -0.91,
+    "z": -131.83,
+    "floor": "LEVEL1",
+    "items": [
+     "573478bc24597738002c6175",
+     "5c12688486f77426843c7d32",
+     "5af0561e86f7745f5f3ad6ac"
+    ]
+   },
+   {
+    "x": 241.01,
+    "y": 1.03,
+    "z": -120.84,
+    "floor": "LEVEL1",
+    "items": [
+     "59e3639286f7741777737013",
+     "573478bc24597738002c6175",
+     "5d235a5986f77443f6329bc6"
+    ]
+   },
+   {
+    "x": 254.85,
+    "y": -1.16,
+    "z": -115.05,
+    "floor": "TUNNELS",
+    "items": [
+     "5af0561e86f7745f5f3ad6ac",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 263.51,
+    "y": -0.09,
+    "z": -116.28,
+    "floor": "LEVEL1",
+    "items": [
+     "5c12688486f77426843c7d32",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 254.75,
+    "y": -2.05,
+    "z": -182.09,
+    "floor": "TUNNELS",
+    "items": [
+     "57347ca924597744596b4e71",
+     "573478bc24597738002c6175"
+    ]
+   },
+   {
+    "x": 263.39,
+    "y": 6.21,
+    "z": -110.56,
+    "floor": "LEVEL3",
+    "items": [
+     "573478bc24597738002c6175",
+     "5c12688486f77426843c7d32",
+     "59e3658a86f7741776641ac4",
+     "5d1b36a186f7742523398433"
+    ]
+   },
+   {
+    "x": 32.4,
+    "y": 4.99,
+    "z": -21.41,
+    "floor": "LEVEL2",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": 33.0,
+    "y": 4.99,
+    "z": -24.2,
+    "floor": "LEVEL2",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": -42.8,
+    "y": 2.48,
+    "z": 59.82,
+    "floor": "LEVEL1",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": 28.31,
+    "y": 4.44,
+    "z": -35.63,
+    "floor": "LEVEL2",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": -19.91,
+    "y": 0.97,
+    "z": -26.56,
+    "floor": "LEVEL1",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": -15.5,
+    "y": 0.81,
+    "z": -25.37,
+    "floor": "LEVEL1",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": -19.65,
+    "y": 0.82,
+    "z": -25.03,
+    "floor": "LEVEL1",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": -15.8,
+    "y": 0.54,
+    "z": -30.51,
+    "floor": "LEVEL1",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": 38.61,
+    "y": 5.82,
+    "z": 40.71,
+    "floor": "LEVEL2",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": 5.84,
+    "y": 8.76,
+    "z": 55.9,
+    "floor": "LEVEL3",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": -19.42,
+    "y": 1.14,
+    "z": 24.13,
+    "floor": "LEVEL1",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": 18.81,
+    "y": 5.66,
+    "z": 39.89,
+    "floor": "LEVEL2",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": -11.99,
+    "y": -1.71,
+    "z": 40.06,
+    "floor": "TUNNELS",
+    "items": [
+     "5d1b376e86f774252519444e",
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": 6.86,
+    "y": 8.39,
+    "z": 59.09,
+    "floor": "LEVEL3",
+    "items": [
+     "5d1b376e86f774252519444e"
+    ]
+   },
+   {
+    "x": 4.49,
+    "y": -0.74,
+    "z": 66.67,
+    "floor": "LEVEL1",
+    "items": [
+     "573478bc24597738002c6175",
+     "59e3658a86f7741776641ac4"
+    ]
+   },
+   {
+    "x": 6.59,
+    "y": 8.39,
+    "z": 61.12,
+    "floor": "LEVEL3",
+    "items": [
+     "66507eabf5ddb0818b085b68"
+    ]
+   },
+   {
+    "x": 16.17,
+    "y": 5.66,
+    "z": 48.22,
+    "floor": "LEVEL2",
+    "items": [
+     "66507eabf5ddb0818b085b68",
+     "5d1b376e86f774252519444e"
+    ]
+   },
+   {
+    "x": 22.96,
+    "y": 8.49,
+    "z": 2.86,
+    "floor": "LEVEL3",
+    "items": [
+     "591094e086f7747caa7bb2ef"
+    ]
+   },
+   {
+    "x": 17.52,
+    "y": 5.07,
+    "z": 47.55,
+    "floor": "LEVEL2",
+    "items": [
+     "591094e086f7747caa7bb2ef"
+    ]
+   },
+   {
+    "x": 1.66,
+    "y": -3.56,
+    "z": -28.43,
+    "floor": "TUNNELS",
+    "items": [
+     "591094e086f7747caa7bb2ef"
+    ]
+   },
+   {
+    "x": 36.69,
+    "y": 1.3,
+    "z": 9.95,
+    "floor": "LEVEL1",
+    "items": [
+     "591094e086f7747caa7bb2ef",
+     "5910968f86f77425cf569c32"
+    ]
+   },
+   {
+    "x": -3.32,
+    "y": 2.04,
+    "z": 43.96,
+    "floor": "LEVEL1",
+    "items": [
+     "5910968f86f77425cf569c32"
+    ]
+   },
+   {
+    "x": -18.7,
+    "y": 3.58,
+    "z": 27.54,
+    "floor": "LEVEL2",
+    "items": [
+     "5910968f86f77425cf569c32"
+    ]
+   },
+   {
+    "x": 69.85,
+    "y": 1.02,
+    "z": -42.85,
+    "floor": "LEVEL1",
+    "items": [
+     "5910968f86f77425cf569c32"
+    ]
+   },
+   {
+    "x": 36.05,
+    "y": 0.97,
+    "z": 20.19,
+    "floor": "LEVEL1",
+    "items": [
+     "5910968f86f77425cf569c32"
+    ]
+   }
+  ]
+ }
+}
