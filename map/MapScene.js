@@ -4,7 +4,7 @@
 
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/controls/OrbitControls.js/+esm';
-import { CSS2DRenderer } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/renderers/CSS2DRenderer.js/+esm';
+import { CSS2DRenderer, CSS2DObject } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/renderers/CSS2DRenderer.js/+esm';
 import { FloorLayers } from './floorLayers.js';
 import { Buildings } from './buildings.js';
 import { MarkerLayer } from './markers.js';
@@ -26,7 +26,8 @@ export function webglAvailable() {
 }
 
 export class MapScene {
-  constructor(container, mapData, { onSelect, onRoute }) {
+  constructor(container, mapData, { onSelect, onRoute, onNavState = null }) {
+    this.onNavState = onNavState;
     this.container = container;
     this.mapData = mapData;
     // 'city' (Streets: floor planes + 3D city) or 'interchange' (separate street / mall-level models).
@@ -104,17 +105,27 @@ export class MapScene {
 
     // A click (not a drag) on the canvas selects the nearest visible loot point.
     const canvas = this.renderer.domElement;
-    canvas.addEventListener('pointerdown', (ev) => { this.pressAt = ev.button === 0 ? { x: ev.clientX, y: ev.clientY } : null; });
+    canvas.addEventListener('pointerdown', (ev) => { this.pressAt = ev.button === 0 ? { x: ev.clientX, y: ev.clientY } : null; if (this.preview) this.stopPreview(); });
     canvas.addEventListener('pointerup', (ev) => {
       const press = this.pressAt;
       this.pressAt = null;
       if (!press || Math.hypot(ev.clientX - press.x, ev.clientY - press.y) > 5) return;
       const rect = canvas.getBoundingClientRect();
+      if (this.pick) {
+        const point = this.pickGround(ev.clientX - rect.left, ev.clientY - rect.top, rect.width, rect.height);
+        if (point) {
+          const done = this.pick;
+          this.setPickMode(null);
+          done(point);
+        }
+        return;
+      }
       const hit = this.loot.pick(ev.clientX - rect.left, ev.clientY - rect.top, this.camera, rect.width, rect.height);
       if (hit) onSelect(hit.id);
     });
 
     this.clock = new THREE.Clock();
+    window.__tarkovScene = this; // console / test access
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(container);
     this.resize();
@@ -140,21 +151,31 @@ export class MapScene {
     }
     if (this.kind !== 'city') {
       await this.loadLevels(doc, environment);
-      return;
+    } else {
+      this.city.build(doc, environment)
+        .then((stats) => {
+          console.info('[city]', stats);
+          this.syncBuildings();
+        })
+        .catch((err) => console.error('[city] build failed, schematic buildings stay on', err));
     }
-    this.city.build(doc, environment)
-      .then((stats) => {
-        console.info('[city]', stats);
-        this.syncBuildings();
-      })
-      .catch((err) => console.error('[city] build failed, schematic buildings stay on', err));
+    if (this.disposed) return;
+    this.navState = 'building';
+    if (this.onNavState) this.onNavState(this.navState);
     Navigator.build({ svgDoc: doc, mapData: this.mapData, environment })
       .then((nav) => {
-        console.info('[nav]', nav.stats);
+        if (this.disposed) return;
+        console.info('[nav]', JSON.stringify(nav.stats));
         this.navigator = nav;
+        this.navState = 'ready';
         this.markers.setNavigator(nav);
+        if (this.onNavState) this.onNavState(this.navState, nav);
       })
-      .catch((err) => console.error('[nav] build failed, routes stay straight lines', err));
+      .catch((err) => {
+        console.error('[nav] build failed, routes stay straight lines', err);
+        this.navState = 'failed';
+        if (this.onNavState) this.onNavState(this.navState);
+      });
   }
 
   // Interchange: the 3D model module is fetched only now, when this map is opened.
@@ -277,6 +298,143 @@ export class MapScene {
     if (r) this.flyTo(this.markers.playerAnchor(r), distance);
   }
 
+  // ---------------------------------------------------------------- navigator
+
+  setRouteEnds(start, target) { this.markers.setRouteEnds({ start, target }); }
+  setSafeMode(safe) { this.markers.setSafeMode(safe); }
+  setActiveStep(k) { this.markers.setActiveStep(k); }
+
+  // Next click on the map (not a drag) picks a point on the ground of the shown level; callback gets
+  // { position (game), floor, sceneY }.
+  setPickMode(callback) {
+    this.pick = callback || null;
+    this.renderer.domElement.classList.toggle('is-picking', Boolean(this.pick));
+  }
+
+  // Ground under a screen point: the plane of the shown floor, or the relief (ray marched against heightAt).
+  pickGround(x, y, width, height) {
+    const ndc = new THREE.Vector2((x / width) * 2 - 1, -(y / height) * 2 + 1);
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(ndc, this.camera);
+    const { projection, levels } = this.mapData;
+    const building = levels && this.activeFloor !== levels.defaultFloor && this.mapData.floors.some((f) => f.id === this.activeFloor);
+    let floor = this.activeFloor;
+    if (levels && !building) floor = levels.defaultFloor;
+    const o = ray.ray.origin;
+    const d = ray.ray.direction;
+    let hit = null;
+    if (projection.heightAt && !building) {
+      // March from the camera until the ray dips under the relief, then refine.
+      let prev = 0;
+      for (let t = 0; t < 6000; t += 4) {
+        const px = o.x + d.x * t;
+        const pz = o.z + d.z * t;
+        if (o.y + d.y * t <= projection.heightAt(px, pz)) {
+          let lo = prev;
+          let hi = t;
+          for (let k = 0; k < 20; k += 1) {
+            const mid = (lo + hi) / 2;
+            if (o.y + d.y * mid <= projection.heightAt(o.x + d.x * mid, o.z + d.z * mid)) hi = mid;
+            else lo = mid;
+          }
+          hit = new THREE.Vector3(o.x + d.x * hi, o.y + d.y * hi, o.z + d.z * hi);
+          break;
+        }
+        prev = t;
+      }
+    } else {
+      const planeY = this.kind === 'city' ? (floor === 'GROUND' || floor === '1F' ? projection.groundY : projection.floorPlaneY(floor)) : projection.floorPlaneY(floor);
+      const view = levels ? levelViewFor(this.mapData, this.activeFloor) : null;
+      const yy = planeY + (view ? view.offsetFor(floor) : 0);
+      if (Math.abs(d.y) > 1e-6) {
+        const t = (yy - o.y) / d.y;
+        if (t > 0) hit = new THREE.Vector3(o.x + d.x * t, yy, o.z + d.z * t);
+      }
+    }
+    if (!hit) return null;
+    const position = { x: -hit.x, y: null, z: hit.z };
+    if (!projection.isInside(position, 0)) return null;
+    return { position, floor, sceneY: hit.y };
+  }
+
+  // Camera to a manoeuvre point, looking along the direction of travel (like a navigator's step view).
+  focusManeuver(m, distance = 70) {
+    if (!m || !m.at) return;
+    const target = new THREE.Vector3(m.at.x, m.at.y != null ? m.at.y : this.home.target.y, m.at.z);
+    let back = new THREE.Vector3(0.3, 0, 1);
+    if (m.heading != null) back = new THREE.Vector3(-Math.cos(m.heading), 0, -Math.sin(m.heading));
+    const pos = target.clone().add(back.multiplyScalar(distance * 0.75)).add(new THREE.Vector3(0, distance * 0.7, 0));
+    this.startFlight(target, pos);
+  }
+
+  // Route preview: the camera rides along the route behind a moving marker.
+  startPreview(onEnd = null, onProgress = null) {
+    const built = this.markers.routeBuilt;
+    if (!built || built.path.length < 2) return false;
+    const path = built.path;
+    const cum = [0];
+    for (let i = 1; i < path.length; i += 1) cum.push(cum[i - 1] + path[i].distanceTo(path[i - 1]));
+    const total = cum[cum.length - 1];
+    const el = document.createElement('div');
+    el.className = 'ride';
+    el.innerHTML = '<span class="ride__dot"></span>';
+    const marker = new CSS2DObject(el);
+    this.scene.add(marker);
+    this.flight = null;
+    // ~22 s for a long route, never slower than 18 m/s or faster than 70 m/s.
+    const speed = Math.min(70, Math.max(18, total / 22));
+    this.preview = { path, cum, total, s: 0, speed, marker, onEnd, onProgress, lastReport: -1 };
+    return true;
+  }
+
+  stopPreview() {
+    const p = this.preview;
+    if (!p) return;
+    this.scene.remove(p.marker);
+    if (p.marker.element && p.marker.element.parentNode) p.marker.element.parentNode.removeChild(p.marker.element);
+    this.preview = null;
+    if (p.onEnd) p.onEnd();
+  }
+
+  stepPreview(dt) {
+    const p = this.preview;
+    p.s = Math.min(p.total, p.s + p.speed * dt);
+    if (p.onProgress && Math.floor(p.s / 5) !== p.lastReport) {
+      p.lastReport = Math.floor(p.s / 5);
+      p.onProgress(p.s / p.total);
+    }
+    const at = (s) => {
+      let i = 1;
+      while (i < p.cum.length - 1 && p.cum[i] < s) i += 1;
+      const a = p.path[i - 1];
+      const b = p.path[i];
+      const seg = p.cum[i] - p.cum[i - 1] || 1;
+      return a.clone().lerp(b, Math.min(1, Math.max(0, (s - p.cum[i - 1]) / seg)));
+    };
+    const here = at(p.s);
+    const ahead = at(Math.min(p.total, p.s + 25));
+    p.marker.position.copy(here);
+    const dir = ahead.clone().sub(here);
+    dir.y = 0;
+    if (dir.lengthSq() < 0.01) dir.copy(p.lastDir || new THREE.Vector3(0, 0, -1));
+    dir.normalize();
+    p.lastDir = dir;
+    const want = here.clone().add(dir.clone().multiplyScalar(-55)).add(new THREE.Vector3(0, 42, 0));
+    const k = 1 - Math.exp(-dt * 3);
+    this.controls.target.lerp(here.clone().add(dir.clone().multiplyScalar(12)), k);
+    this.camera.position.lerp(want, k);
+    if (p.s >= p.total) this.stopPreview();
+  }
+
+  // Routes from the route start to every extract of a side, nearest first.
+  routesToExtracts(from, filter) {
+    if (!this.navigator) return [];
+    const targets = this.mapData.entities
+      .filter((e) => (e.type === 'extract' || e.type === 'transit') && e.position && filter(e))
+      .map((e) => ({ id: e.id, position: e.position, floor: e.floor, name: e.nameRu || e.name, entity: e }));
+    return this.navigator.routeToMany(from.position, targets, { fromFloor: from.floor });
+  }
+
   resetView() {
     this.startFlight(this.home.target.clone(), this.home.position.clone());
   }
@@ -302,7 +460,8 @@ export class MapScene {
     if (this.buildings) this.buildings.update(dt);
     if (this.city) this.city.update(dt, this.camera, this.controls.target);
     if (this.levels) this.levels.update(dt, this.camera);
-    this.markers.update(dt);
+    this.markers.update(dt, this.camera);
+    if (this.preview) this.stepPreview(dt);
     this.renderer.render(this.scene, this.camera);
     this.labels.render(this.scene, this.camera);
   }

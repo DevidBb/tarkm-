@@ -20,6 +20,8 @@ import { BottomBar } from './BottomBar.js';
 import { FloorRail } from './FloorRail.js';
 import { FiltersMenu } from './FiltersMenu.js';
 import { LocateDialog } from './LocateDialog.js';
+import { NavPanel, ManeuverBanner } from './NavPanel.js';
+import { displayName, MARKER_TYPES } from '../services/markerTypes.js';
 
 const IMAGE_NAME = /\.(png|jpe?g|webp|gif|bmp)$/i;
 const EMPTY_PROGRESS = new Map();
@@ -118,6 +120,16 @@ export function App({ mapSwitcher = null, mapDef = null } = {}) {
   const [evalState, setEvalState] = useState(IDLE_EVAL);
   const [evalShot, setEvalShot] = useState(null); // last screenshot given to "Оценить": { url, name }
   const [routeInfo, setRouteInfo] = useState(null);
+  // Navigator: custom start / target points, point picking, active manoeuvre, safe mode, ride preview, exits.
+  const [navOpen, setNavOpen] = useState(false);
+  const [routeStart, setRouteStart] = useState(null);
+  const [routeTargetPin, setRouteTargetPin] = useState(null);
+  const [pickMode, setPickMode] = useState(null);
+  const [activeStep, setActiveStep] = useState(1);
+  const [safeMode, setSafeMode] = useState(false);
+  const [previewing, setPreviewing] = useState(false);
+  const [navState, setNavState] = useState('idle');
+  const [exits, setExits] = useState({ side: 'pmc', phase: 'idle', list: [] });
   const marketPromiseRef = useRef(null);
   const evalAbortRef = useRef(null);
   const imageTargetRef = useRef(null);
@@ -180,7 +192,11 @@ export function App({ mapSwitcher = null, mapDef = null } = {}) {
     }
     let scene;
     try {
-      scene = new MapScene(viewportRef.current, map, { onSelect: (id) => selectHandlerRef.current(id), onRoute: (info) => setRouteInfo(info) });
+      scene = new MapScene(viewportRef.current, map, {
+        onSelect: (id) => selectHandlerRef.current(id),
+        onRoute: (info) => setRouteInfo(info),
+        onNavState: (state) => setNavState(state),
+      });
     } catch (e) {
       setSceneError(`3D-сцена не запустилась: ${e.message}`);
       return undefined;
@@ -265,6 +281,16 @@ export function App({ mapSwitcher = null, mapDef = null } = {}) {
   }, [api]);
 
   selectHandlerRef.current = (id) => {
+    if (pickMode === 'from' && map) {
+      const e = map.byId.get(id) || questPointsById.get(id);
+      if (e && e.position) {
+        setRouteStart({ position: e.position, floor: e.floor, label: displayName(e), kind: 'entity' });
+        cancelPick();
+        return;
+      }
+    }
+    if (pickMode) cancelPick();
+    setRouteTargetPin(null);
     const point = questPointsById.get(id);
     if (point) {
       setSelectedQuestId(point.meta.questId);
@@ -537,7 +563,13 @@ export function App({ mapSwitcher = null, mapDef = null } = {}) {
       const file = Array.from(ev.dataTransfer.files).find((f) => f.type.startsWith('image/') || IMAGE_NAME.test(f.name));
       if (file) imageTargetRef.current(file);
     };
-    const onKey = (ev) => { if (ev.key === 'Escape') { setFiltersOpen(false); setLocate((s) => ({ ...s, open: false })); } };
+    const onKey = (ev) => {
+      if (ev.key !== 'Escape') return;
+      setFiltersOpen(false);
+      setLocate((s) => ({ ...s, open: false }));
+      setPickMode(null);
+      if (sceneRef.current) { sceneRef.current.setPickMode(null); sceneRef.current.stopPreview(); }
+    };
     window.addEventListener('paste', onPaste);
     window.addEventListener('dragover', onDragOver);
     window.addEventListener('dragleave', onDragLeave);
@@ -551,6 +583,115 @@ export function App({ mapSwitcher = null, mapDef = null } = {}) {
       window.removeEventListener('keydown', onKey);
     };
   }, [api, runLocate]);
+
+  // ------------------------------------------------------------ navigator
+  const cancelPick = useCallback(() => {
+    setPickMode(null);
+    if (sceneRef.current) sceneRef.current.setPickMode(null);
+  }, []);
+  const startPick = useCallback((mode) => {
+    if (!sceneRef.current) return;
+    if (pickMode === mode) { cancelPick(); return; }
+    setNavOpen(true);
+    setPickMode(mode);
+    sceneRef.current.setPickMode((pt) => {
+      setPickMode(null);
+      const floorName = map ? (floorLabel(map, pt.floor) || {}).nameRu : null;
+      if (mode === 'from') setRouteStart({ ...pt, label: 'Точка на карте', sub: floorName, kind: 'point' });
+      else setRouteTargetPin({ id: 'pin:to', type: 'pin', name: 'Точка на карте', ...pt, sub: floorName });
+    });
+  }, [pickMode, map, cancelPick]);
+
+  useEffect(() => { if (sceneRef.current) sceneRef.current.setRouteEnds(routeStart, routeTargetPin); }, [routeStart, routeTargetPin, map]);
+  useEffect(() => { if (sceneRef.current) sceneRef.current.setSafeMode(safeMode); }, [safeMode, map, navState]);
+  useEffect(() => { if (sceneRef.current) sceneRef.current.setActiveStep(activeStep); }, [activeStep, routeInfo]);
+  const routeKey = routeInfo ? `${routeInfo.targetId}|${routeInfo.fromLabel}|${routeInfo.safe}|${Math.round(routeInfo.length || 0)}` : null;
+  useEffect(() => { setActiveStep(1); }, [routeKey]);
+  // A new start makes the nearest-exit list stale.
+  const startKey = routeStart ? `${routeStart.position.x}:${routeStart.position.z}` : player ? `${player.position.x}:${player.position.z}` : 'none';
+  useEffect(() => { setExits((x) => ({ ...x, phase: 'idle', list: [] })); }, [startKey, safeMode, navState]);
+  useEffect(() => { if (routeInfo && routeInfo.length != null && (routeStart || routeTargetPin)) setNavOpen(true); }, [routeKey]);
+
+  const routeFromPoint = routeStart || (player ? { position: player.position, floor: player.floor } : null);
+  const runExits = useCallback((side) => {
+    const scene = sceneRef.current;
+    if (!scene || !routeFromPoint) return;
+    setExits({ side, phase: 'busy', list: [] });
+    setTimeout(() => {
+      const filter = (e) => {
+        const f = e.meta && e.meta.faction;
+        if (e.type === 'transit') return side === 'pmc';
+        return side === 'pmc' ? f !== 'scav' : f !== 'pmc';
+      };
+      const list = scene.routesToExtracts(routeFromPoint, filter).slice(0, 8);
+      setExits({ side, phase: 'done', list });
+    }, 40);
+  }, [routeFromPoint]);
+
+  const stepTo = useCallback((k) => {
+    if (!routeInfo || !routeInfo.maneuvers) return;
+    const kk = Math.max(0, Math.min(routeInfo.maneuvers.length - 1, k));
+    setActiveStep(kk);
+    if (sceneRef.current) sceneRef.current.focusManeuver(routeInfo.maneuvers[kk]);
+  }, [routeInfo]);
+
+  const togglePreview = useCallback(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+    if (previewing) { scene.stopPreview(); return; }
+    const list = routeInfo && routeInfo.maneuvers;
+    const onProgress = (f) => {
+      if (!list || !routeInfo.length) return;
+      const d = f * routeInfo.length;
+      let k = 1;
+      while (k < list.length - 1 && list[k].dist <= d) k += 1;
+      setActiveStep(k);
+    };
+    if (scene.startPreview(() => setPreviewing(false), onProgress)) setPreviewing(true);
+  }, [previewing, routeInfo]);
+
+  const closeNav = useCallback(() => {
+    cancelPick();
+    if (sceneRef.current) sceneRef.current.stopPreview();
+    setNavOpen(false);
+    setRouteStart(null);
+    setRouteTargetPin(null);
+    setSelectedId(null);
+  }, [cancelPick]);
+
+  const swapEnds = useCallback(() => {
+    if (!map) return;
+    const target = routeTargetPin || (selectedId ? map.byId.get(selectedId) || questPointsById.get(selectedId) : null);
+    const from = routeStart || (player ? { position: player.position, floor: player.floor, label: 'Моя позиция', kind: 'player' } : null);
+    if (!target || !from) return;
+    setRouteStart({ position: target.position, floor: target.floor, sceneY: target.sceneY, label: target.type === 'pin' ? 'Точка на карте' : displayName(target), kind: 'point' });
+    setSelectedId(null);
+    setRouteTargetPin({ id: 'pin:to', type: 'pin', position: from.position, floor: from.floor, sceneY: from.sceneY, name: from.label || 'Точка на карте' });
+  }, [map, routeTargetPin, selectedId, routeStart, player, questPointsById]);
+
+  const routeFromEntity = useCallback((id) => {
+    const e = map && (map.byId.get(id) || questPointsById.get(id));
+    if (!e) return;
+    setRouteStart({ position: e.position, floor: e.floor, label: displayName(e), kind: 'entity' });
+    setSelectedId(null);
+    setNavOpen(true);
+  }, [map, questPointsById]);
+
+  const routeToEntity = useCallback((id) => {
+    setRouteTargetPin(null);
+    setNavOpen(true);
+    focusEntity(id);
+  }, [focusEntity]);
+
+  const selectedTarget = map && selectedId ? map.byId.get(selectedId) || questPointsById.get(selectedId) : null;
+  const startInfo = routeStart
+    ? { title: routeStart.label || 'Точка на карте', sub: routeStart.sub || (routeStart.kind === 'entity' ? 'Старт от маркера' : 'Старт поставлен на карте'), custom: true }
+    : player ? { title: 'Моя позиция', sub: player.place ? `LOCATE ME · ${displayName(player.place)}` : 'LOCATE ME', custom: false } : null;
+  const targetInfo = routeTargetPin
+    ? { title: 'Точка на карте', sub: routeTargetPin.sub || null }
+    : selectedTarget ? { title: displayName(selectedTarget), sub: (MARKER_TYPES[selectedTarget.type] || {}).single || null } : null;
+  const showNav = Boolean(map) && (navOpen || Boolean(routeStart) || Boolean(routeTargetPin));
+  const bannerRoute = showNav && routeInfo && routeInfo.length != null ? routeInfo : null;
 
   const stepOrder = floorStepOrder(map);
   const stepFloor = (delta) => setFloor((f) => stepOrder[Math.min(stepOrder.length - 1, Math.max(0, stepOrder.indexOf(f) + delta))]);
@@ -618,7 +759,12 @@ export function App({ mapSwitcher = null, mapDef = null } = {}) {
           <div class="viewport__tools">
             <button type="button" class="chip-btn" onClick=${() => sceneRef.current && sceneRef.current.resetView()}>Вся карта</button>
             ${player && html`<button type="button" class="chip-btn chip-btn--player" onClick=${() => sceneRef.current && sceneRef.current.flyToPlayer()}>К моей позиции</button>`}
+            <button type="button" class=${`chip-btn chip-btn--route${showNav ? ' is-on' : ''}`} onClick=${() => (showNav ? closeNav() : setNavOpen(true))} aria-pressed=${showNav}>
+              ${showNav ? 'Скрыть маршрут' : 'Маршрут'}
+            </button>
           </div>
+          ${bannerRoute && html`<${ManeuverBanner} route=${bannerRoute} step=${activeStep} onStep=${stepTo} onClose=${closeNav} previewing=${previewing} onPreview=${togglePreview} />`}
+          ${pickMode && html`<div class="pick-hint"><b>${pickMode === 'from' ? 'Старт' : 'Финиш'}:</b> нажмите на карту${pickMode === 'from' ? ' или на маркер' : ''}. <span>Esc — отмена</span></div>`}
           ${map && html`
             <div class="quickfilters" role="group" aria-label="Быстрые фильтры">
               ${QUICK_FILTERS.map((row) => {
@@ -643,6 +789,16 @@ export function App({ mapSwitcher = null, mapDef = null } = {}) {
           guide=${guide} progressEntry=${selectedQuest ? progress.get(selectedQuest.id) : null} selectedObjectiveId=${selectedObjectiveId}
           questsGeneratedAt=${questsData ? questsData.generatedAt : null} nearbyObjectives=${nearbyObjectives} hasActiveQuests=${activeQuestIds.length > 0}
           onFocus=${focusEntity} onClearSelection=${() => setSelectedId(null)} routeInfo=${routeInfo}
+          onRouteTo=${routeToEntity} onRouteFrom=${routeFromEntity}
+          navPanel=${showNav ? html`
+            <${NavPanel}
+              route=${routeInfo} navState=${navState} startInfo=${startInfo} targetInfo=${targetInfo} pickMode=${pickMode} safe=${safeMode}
+              activeStep=${activeStep} previewing=${previewing} exits=${exits}
+              onPickStart=${() => startPick('from')} onPickTarget=${() => startPick('to')}
+              onClearStart=${() => setRouteStart(null)} onClearTarget=${() => { setRouteTargetPin(null); setSelectedId(null); }}
+              onSwap=${swapEnds} onSafe=${setSafeMode} onStep=${stepTo} onPreview=${togglePreview} onClose=${closeNav}
+              onExitsSide=${(side) => runExits(side)} onExitsRun=${() => runExits(exits.side)} onChooseExit=${routeToEntity}
+            />` : null}
           onFlyToPlayer=${() => sceneRef.current && sceneRef.current.flyToPlayer()}
           onChooseCandidate=${chooseCandidate} onLocate=${() => setLocate((s) => ({ ...s, open: true }))}
           onSetQuestStatus=${setQuestStatus} onToggleObjective=${toggleObjective} onFocusQuestPoints=${focusQuestPoints}

@@ -19,6 +19,27 @@ export const GLYPHS = {
   camera: `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5.6 3.2l1-1.6h2.8l1 1.6H14a1 1 0 0 1 1 1v8.2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4.2a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8.2" r="2.7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`,
 };
 
+// Navigator manoeuvre arrows (24x24, currentColor): what the route asks you to do at a point.
+const arrow = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+export const MANEUVER_ICONS = {
+  start: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.5" fill="none" stroke="currentColor" stroke-width="2.6"/><circle cx="12" cy="12" r="2.6" fill="currentColor"/></svg>`,
+  straight: arrow('M12 20V4M6 10l6-6 6 6'),
+  'slight-left': arrow('M15 21v-7.5L8 6.5M8 13V6.5h6.5'),
+  'slight-right': arrow('M9 21v-7.5l7-7M16 13V6.5H9.5'),
+  left: arrow('M17 21v-8a4 4 0 0 0-4-4H5M9 5L5 9l4 4'),
+  right: arrow('M7 21v-8a4 4 0 0 1 4-4h8M15 5l4 4-4 4'),
+  'sharp-left': arrow('M17 4v9L7 20M7 14v6h6'),
+  'sharp-right': arrow('M7 4v9l10 7M17 14v6h-6'),
+  uturn: arrow('M16 21V9a4 4 0 0 0-8 0v8M4.5 13.5 8 17l3.5-3.5'),
+  enter: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 4h6v16h-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M3 12h11M10 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  exit: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4H5v16h6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M9 12h12M17 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  up: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h5v-5h5v-5h5V5h3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M6 11V4M3 7l3-3 3 3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  down: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h5v5h5v5h5v5h3" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M19 3v7M16 7l3 3 3-3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  arrive: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M6 4h13l-3 4.5 3 4.5H6z" fill="currentColor"/></svg>`,
+  gap: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h4M10 12h4M16 12h4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`,
+  fence: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V7l2-3 2 3v13M15 20V7l2-3 2 3v13M3 10h18M3 16h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>`,
+};
+
 export const MARKER_TYPES = {
   objective: { label: 'Цели квестов', single: 'Цель квеста', color: '#e5a13a', glyph: 'objective' },
   item: { label: 'Места квестовых предметов', single: 'Место предмета', color: '#d58f4e', glyph: 'item' },
@@ -34,6 +55,7 @@ export const MARKER_TYPES = {
   switch: { label: 'Переключатели', single: 'Переключатель', color: '#7fd3ff', glyph: 'switch' },
   spawn: { label: 'Спавны ЧВК', single: 'Спавн ЧВК', color: '#b6e36b', glyph: 'spawn' },
   player: { label: 'Вы здесь', single: 'Вы здесь', color: '#3d9bff', glyph: 'player' },
+  pin: { label: 'Точка на карте', single: 'Точка на карте', color: '#3d9bff', glyph: 'place' },
 };
 
 export const FACTION_LABELS = { pmc: 'ЧВК', scav: 'Дикий', shared: 'Общий (ЧВК + Дикий)' };
