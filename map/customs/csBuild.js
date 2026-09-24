@@ -426,7 +426,7 @@ export function buildOutside(ctx, water) {
           const q = off(p, { x: dir.z, z: -dir.x }, shoulder);
           if (inWater(q) || inFootprint(q)) return;
           const heading = alongX(dir) + (rc() < 0.5 ? Math.PI : 0) + (rc() - 0.5) * 0.9;
-          placements.push({ x: q.x, y: ground(q.x, q.z), z: q.z, heading, model: pick(rc, [...CAR_MODELS, 'van', 'truck']), paint: rc() < 0.7 ? pick(rc, WRECK) : pick(rc, CAR_PAINTS) });
+          placements.push({ x: q.x, y: ground(q.x, q.z), z: q.z, heading, model: pick(rc, [...CAR_MODELS, 'van', 'truck']), paint: rc() < 0.7 ? pick(rc, WRECK) : pick(rc, CAR_PAINTS), wreck: true });
           stats.wrecks += 1;
         }, 15);
       }
@@ -453,7 +453,7 @@ export function buildOutside(ctx, water) {
     const y = v.position.y != null ? Math.max(ground(p.x, p.z) - 0.3, v.position.y - 0.9) : ground(p.x, p.z);
     placements.push({ x: p.x, y, z: p.z, heading, model: pick(rc, CAR_MODELS), paint: pick(rc, CAR_PAINTS) });
   }
-  layers.push(...buildCars(carGroup, placements, ctx));
+  layers.push(...buildCars(carGroup, placements, ctx, { share: 0.3, max: 9, onlyWrecks: true }));
   stats.cars = placements.length;
   const sandbags = L(propsGroup, 'sandbags', props.sandbags, 600);
   const gun = L(propsGroup, 'gun', props.gun, 400);

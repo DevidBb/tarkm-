@@ -6,6 +6,7 @@ import { CSS2DObject } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples
 import { GLYPHS, MARKER_TYPES, displayName } from '../services/markerTypes.js';
 import { sameBand, distanceBetween, formatMeters } from '../services/coords.js';
 import { buildRoute } from './route.js';
+import { formatDuration } from './nav/maneuvers.js';
 
 const PLAYER_COLOR = 0x3d9bff;
 const CANDIDATE_COLOR = 0xe5a13a;
@@ -40,6 +41,11 @@ export class MarkerLayer {
     this.playerGroup = null;
     this.candidateGroup = null;
     this.routeGroup = null;
+    this.routeBuilt = null;
+    this.routeStart = null; // { position, floor, label } - a start other than the player
+    this.routeTarget = null; // { id, type: 'pin', position, floor, name } - a target point picked on the map
+    this.activeStep = -1;
+    this.pinGroup = null;
     scene.add(this.group);
     for (const entity of mapData.entities) this.createMarker(entity);
   }
@@ -73,6 +79,7 @@ export class MarkerLayer {
     for (const item of this.items.values()) item.object.position.copy(this.anchorOf(item.entity));
     if (this.visibility) this.applyVisibility(this.visibility);
     this.setPlayer(this.playerArg);
+    this.drawPins();
   }
 
   createMarker(entity) {
@@ -273,49 +280,117 @@ export class MarkerLayer {
     for (const m of this.routeMaterials) m.resolution.set(width, height);
   }
 
-  update(dt) {
-    if (this.routeFlow) this.routeFlow.dashOffset -= dt * 7;
+  update(dt, camera) {
+    if (this.routeFlow) this.routeFlow.dashOffset -= dt * 9;
+    if (this.routeBuilt && camera) this.routeBuilt.update(camera);
+  }
+
+  // Start of the route: the player (LOCATE ME) unless a start point is set.
+  routeFrom() {
+    if (this.routeStart) return { position: this.routeStart.position, floor: this.routeStart.floor, anchor: this.pointAnchor(this.routeStart), label: this.routeStart.label };
+    if (this.playerResult) return { position: this.playerResult.position, floor: this.playerResult.floor, anchor: this.playerAnchor(this.playerResult).add(new THREE.Vector3(0, 1, 0)), label: 'Вы' };
+    return null;
+  }
+
+  routeTo() {
+    if (this.routeTarget) return { entity: this.routeTarget, anchor: this.pointAnchor(this.routeTarget) };
+    const item = this.items.get(this.selectedId);
+    return item ? { entity: item.entity, anchor: this.anchorOf(item.entity) } : null;
+  }
+
+  // Scene anchor of a point picked on the map (its y is the picked scene height, or the ground).
+  pointAnchor(p) {
+    const { projection } = this.mapData;
+    const s = { x: -p.position.x, z: p.position.z };
+    let y = p.sceneY;
+    if (y == null) y = p.position.y != null ? p.position.y : projection.heightAt ? projection.heightAt(s.x, s.z) : projection.groundY;
+    return new THREE.Vector3(s.x, y + 0.6 + this.levelOffset(p.floor), s.z);
+  }
+
+  setRouteEnds({ start, target }) {
+    this.routeStart = start || null;
+    this.routeTarget = target || null;
+    this.drawPins();
+    this.updateRoute();
+  }
+
+  drawPins() {
+    if (this.pinGroup) disposeObject(this.pinGroup);
+    this.pinGroup = null;
+    const pins = [];
+    if (this.routeStart) pins.push({ p: this.routeStart, kind: 'start', text: this.routeStart.label || 'Старт' });
+    if (this.routeTarget) pins.push({ p: this.routeTarget, kind: 'finish', text: this.routeTarget.name || 'Финиш' });
+    if (!pins.length) return;
+    const group = new THREE.Group();
+    for (const { p, kind, text } of pins) {
+      const el = document.createElement('div');
+      el.className = `navpin navpin--${kind}`;
+      el.innerHTML = `<span class="navpin__head"><i>${kind === 'start' ? 'A' : 'B'}</i></span><span class="navpin__label">${escapeHtml(text)}</span>`;
+      const obj = new CSS2DObject(el);
+      obj.position.copy(this.pointAnchor(p));
+      group.add(obj);
+    }
+    this.group.add(group);
+    this.pinGroup = group;
+  }
+
+  setActiveStep(k) {
+    this.activeStep = k;
+    if (!this.routeBuilt) return;
+    for (const l of this.routeBuilt.labels) l.el.classList.toggle('is-active', l.step === k);
+  }
+
+  setSafeMode(safe) {
+    if (this.navigator) this.navigator.setSafeMode(safe);
+    this.routeKey = null;
+    this.updateRoute();
   }
 
   emitRoute(info) {
     const steps = info && info.steps ? info.steps.map((s) => s.text).join('/') : '';
-    const key = info ? `${info.targetId}|${Math.round(info.length || 0)}|${Math.round(info.straight)}|${info.outside}|${steps}` : 'none';
+    const key = info ? `${info.targetId}|${info.fromLabel}|${Math.round(info.length || 0)}|${Math.round(info.straight)}|${info.outside}|${info.safe}|${steps}` : 'none';
     if (key === this.routeKey) return;
     this.routeKey = key;
     if (this.onRoute) this.onRoute(info);
   }
 
-  // Walking route along streets and yards when the navigator is ready; a straight line otherwise.
+  // Walking route along roads, yards and through buildings when the navigator is ready; a straight line otherwise.
   updateRoute() {
     if (this.routeGroup) disposeObject(this.routeGroup);
+    if (this.routeBuilt) this.routeBuilt.dispose();
     this.routeGroup = null;
+    this.routeBuilt = null;
     this.routeMaterials = [];
     this.routeFlow = null;
-    const target = this.items.get(this.selectedId);
-    if (!this.playerResult || !target) {
+    const start = this.routeFrom();
+    const target = this.routeTo();
+    if (!start || !target) {
       this.emitRoute(null);
       return;
     }
-
-    const from = this.playerAnchor(this.playerResult).add(new THREE.Vector3(0, 1, 0));
-    const to = this.anchorOf(target.entity);
+    const from = start.anchor;
+    const to = target.anchor;
+    const entity = target.entity;
+    const targetName = entity.type === 'pin' ? entity.name : displayName(entity);
     const group = new THREE.Group();
     const nav = this.navigator
-      ? this.navigator.route(this.playerResult.position, target.entity.position, { fromFloor: this.playerResult.floor, toFloor: target.entity.floor })
+      ? this.navigator.route(start.position, entity.position, { fromFloor: start.floor, toFloor: entity.floor, targetName })
       : null;
     const el = document.createElement('div');
     el.className = 'route-label';
     let labelAt;
+    const base = { targetId: entity.id, targetName, fromLabel: start.label, safe: Boolean(this.navigator && this.navigator.safe) };
 
     if (nav && nav.points.length >= 2) {
-      const built = buildRoute({ points: nav.points, y: nav.y != null ? nav.y : this.mapData.projection.groundY + 0.4, from, to, resolution: this.resolution });
+      const built = buildRoute({ route: nav, y: this.mapData.projection.groundY + 0.4, from, to, resolution: this.resolution, activeStep: this.activeStep });
       group.add(built.group);
+      this.routeBuilt = built;
       this.routeMaterials = built.materials;
       this.routeFlow = built.flow;
       const outside = nav.reached && nav.endGap <= 2.5;
-      el.textContent = `${formatMeters(nav.length)} по маршруту${outside ? '' : ` + ${formatMeters(nav.endGap)} до цели`} · по прямой ${formatMeters(nav.straight)}`;
+      el.innerHTML = `<b>${formatMeters(nav.length)}</b><span>${formatDuration(nav.eta.sprint)} бегом</span>`;
       labelAt = built.mid.add(new THREE.Vector3(0, 4, 0));
-      // Entrances and stairs along the route.
+      // Entrances, stairs and fence gaps along the route.
       for (const wp of nav.waypoints || []) {
         const chip = document.createElement('div');
         chip.className = `route-wp route-wp--${wp.kind}`;
@@ -324,7 +399,10 @@ export class MarkerLayer {
         obj.position.set(wp.x, wp.y + 2.5, wp.z);
         group.add(obj);
       }
-      this.emitRoute({ targetId: this.selectedId, length: nav.length, straight: nav.straight, endGap: nav.endGap, outside, steps: nav.steps });
+      this.emitRoute({
+        ...base, length: nav.length, straight: nav.straight, endGap: nav.endGap, outside, steps: nav.steps, maneuvers: nav.maneuvers,
+        eta: nav.eta, fromFloor: nav.fromFloor, toFloor: nav.toFloor, reached: nav.reached,
+      });
     } else {
       const line = new THREE.Line(
         new THREE.BufferGeometry().setFromPoints([from, to]),
@@ -333,10 +411,10 @@ export class MarkerLayer {
       line.computeLineDistances();
       line.renderOrder = 45;
       group.add(line);
-      const { meters, is3d } = distanceBetween(this.playerResult.position, target.entity.position);
-      el.textContent = `${formatMeters(meters)} по прямой${is3d ? '' : ' (без высоты)'}`;
+      const { meters, is3d } = distanceBetween(start.position, entity.position);
+      el.innerHTML = `<b>${formatMeters(meters)}</b><span>по прямой${is3d ? '' : ' (без высоты)'}</span>`;
       labelAt = from.clone().lerp(to, 0.5);
-      this.emitRoute({ targetId: this.selectedId, length: null, straight: meters, endGap: null, outside: false });
+      this.emitRoute({ ...base, length: null, straight: meters, endGap: null, outside: false, unreachable: Boolean(this.navigator) });
     }
 
     const label = new CSS2DObject(el);

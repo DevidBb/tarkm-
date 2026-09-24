@@ -80,6 +80,7 @@ export class ShorelineLayer {
     const crop = { x: Math.min(...xs) - 12, y: Math.min(...ys) - 12, w: Math.max(...xs) - Math.min(...xs) + 24, h: Math.max(...ys) - Math.min(...ys) + 24 };
 
     const ctx = {
+      fx: this.fx || null,
       svg,
       projection,
       terrain,

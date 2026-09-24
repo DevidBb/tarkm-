@@ -60,7 +60,7 @@ function typeFields(e) {
   }
 }
 
-function EntityCard({ entity, player, routeInfo, onFocus, onClear }) {
+function EntityCard({ entity, player, routeInfo, onFocus, onClear, onRouteTo, onRouteFrom, navShown }) {
   const route = routeInfo && routeInfo.targetId === entity.id && routeInfo.length != null ? routeInfo : null;
   const type = MARKER_TYPES[entity.type];
   const dist = player ? distanceBetween(player.position, entity.position) : null;
@@ -81,9 +81,11 @@ function EntityCard({ entity, player, routeInfo, onFocus, onClear }) {
         ${route && html`<${Field} label="По маршруту" mono>${formatMeters(route.length)}${route.outside ? '' : ` + ${formatMeters(route.endGap)} до цели`}<//>`}
         ${dist && html`<${Field} label="Distance" mono>${formatMeters(dist.meters)} по прямой${dist.is3d ? '' : ' (без высоты)'}<//>`}
       </div>
-      ${route && html`<${RouteSteps} steps=${route.steps} />`}
-      <div class="card__actions">
-        <button type="button" class="btn" onClick=${() => onFocus(entity.id)}>Показать на карте</button>
+      ${route && !navShown && html`<${RouteSteps} steps=${route.steps} />`}
+      <div class="card__actions card__actions--wrap">
+        <button type="button" class="btn btn--player" onClick=${() => onRouteTo(entity.id)}>Маршрут сюда</button>
+        <button type="button" class="btn btn--ghost" onClick=${() => onRouteFrom(entity.id)}>Отсюда</button>
+        <button type="button" class="btn btn--ghost" onClick=${() => onFocus(entity.id)}>На карте</button>
       </div>
     </section>
   `;
@@ -179,6 +181,14 @@ function IntroCard({ map, onLocate }) {
         <li>Отмечайте цели галочками: прогресс сохраняется.</li>
       </ol>
       <button type="button" class="btn" onClick=${onLocate}>Locate me</button>
+      ${map && map.map.partialData && html`
+        <div class="partial-note">
+          <div class="partial-note__title">Карта в ранней версии</div>
+          <p>Есть 3D-модель по плану карты, навигатор, спавны ЧВК, зоны боссов, места и тексты квестов. Точек выходов, ключей, лута и квестовых целей пока нет: они придут из tarkov.dev при следующем обновлении данных.</p>
+          ${map.map.partialData.exits && map.map.partialData.exits.length > 0 && html`
+            <div class="subhead">Выходы этой карты</div>
+            <ul class="partial-note__exits">${map.map.partialData.exits.map((e) => html`<li key=${e.key}>${e.nameRu}</li>`)}</ul>`}
+        </div>`}
       ${map && html`
         <div class="subhead">На карте сейчас</div>
         <div class="fields">
@@ -201,11 +211,13 @@ export function InfoPanel(props) {
   const {
     map, selected, player, uncertain, guide, progressEntry, selectedObjectiveId, questsGeneratedAt, nearbyObjectives, hasActiveQuests, routeInfo,
     onFocus, onClearSelection, onFlyToPlayer, onChooseCandidate, onLocate, onSetQuestStatus, onToggleObjective, onFocusQuestPoints, onCloseQuest,
+    onRouteTo, onRouteFrom, navPanel,
   } = props;
   return html`
     <aside class="info" aria-label="Информация">
+      ${navPanel}
       ${uncertain && html`<${UncertainCard} uncertain=${uncertain} onChoose=${onChooseCandidate} />`}
-      ${selected && html`<${EntityCard} entity=${selected} player=${player} routeInfo=${routeInfo} onFocus=${onFocus} onClear=${onClearSelection} />`}
+      ${selected && html`<${EntityCard} entity=${selected} player=${player} routeInfo=${routeInfo} onFocus=${onFocus} onClear=${onClearSelection} onRouteTo=${onRouteTo} onRouteFrom=${onRouteFrom} navShown=${Boolean(navPanel)} />`}
       ${guide && html`
         <${QuestCard}
           guide=${guide} progressEntry=${progressEntry} selectedObjectiveId=${selectedObjectiveId} generatedAt=${questsGeneratedAt} player=${player} routeInfo=${routeInfo}
@@ -216,7 +228,7 @@ export function InfoPanel(props) {
           map=${map} player=${player} onFocus=${onFocus} onFlyToPlayer=${onFlyToPlayer} compact=${Boolean(selected || guide)}
           nearbyObjectives=${nearbyObjectives} hasActiveQuests=${hasActiveQuests} onFocusQuestPoints=${onFocusQuestPoints}
         />`}
-      ${!uncertain && !selected && !player && !guide && html`<${IntroCard} map=${map} onLocate=${onLocate} />`}
+      ${!uncertain && !selected && !player && !guide && !navPanel && html`<${IntroCard} map=${map} onLocate=${onLocate} />`}
     </aside>
   `;
 }
