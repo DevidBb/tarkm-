@@ -516,7 +516,8 @@ function floorHeight(ctx, id, poly) {
   let high = -Infinity;
   for (const p of poly.outer) high = Math.max(high, ground(p.x, p.z));
   const base = high + 0.15;
-  const fallback = { UNDERGROUND: base - 3.4, LEVEL1: base, LEVEL2: base + 3.3, LEVEL3: base + 6.6 }[id];
+  const def = (ctx.levelDefs || CUSTOMS_LEVELS)[id] || {};
+  const fallback = def.offset != null ? base + def.offset : { UNDERGROUND: base - 3.4, LEVEL1: base, LEVEL2: base + 3.3, LEVEL3: base + 6.6 }[id];
   if (!ys.length) return fallback;
   ys.sort((a, c) => a - c);
   // loose loot lies on the floor, containers stand on it: the lower quartile is the floor
@@ -546,23 +547,25 @@ function stairs(bucket, poly, rise) {
 
 export function buildLevel(ctx, id) {
   const { svg, heights, materials } = ctx;
-  const def = CUSTOMS_LEVELS[id];
+  // ctx.levelDefs / ctx.levelOrder: the levels of another map built the same way (the open maps' bunkers and storeys)
+  const def = (ctx.levelDefs || CUSTOMS_LEVELS)[id];
+  const order = ctx.levelOrder || ORDER;
   const base = heights[id];
   const group = new THREE.Group();
   group.name = id;
   const walls = new THREE.Group();
   group.add(walls);
-  const floors = polygonsExcept(svg, def.floors, def.locked, { minArea: 1.5 });
+  const floors = [].concat(def.floors).flatMap((fid) => polygonsExcept(svg, fid, def.locked, { minArea: 1.5 }));
   const stats = { floorParts: floors.length, partitions: 0, blocks: 0, voids: 0, locked: 0, stairs: 0 };
   const floorB = new MeshBucket(ctx.planUvFor ? ctx.planUvFor(id) : ctx.planUv);
   const under = new MeshBucket();
   const wallB = new MeshBucket();
   const lockedB = new MeshBucket();
   const stairB = new MeshBucket();
-  const bunker = id === 'UNDERGROUND';
+  const bunker = def.bunker != null ? def.bunker : id === 'UNDERGROUND';
   const hi = bunker ? C.bunker : C.wall;
   const lo = bunker ? C.bunkerLow : C.wallLow;
-  const next = ORDER[ORDER.indexOf(id) + 1];
+  const next = order[order.indexOf(id) + 1];
   const slabs = [];
   for (const poly of floors) {
     const y = floorHeight(ctx, id, poly) - base; // local height inside the level group
@@ -628,7 +631,7 @@ export function buildLevel(ctx, id) {
   abs.name = `${id}-props`;
   abs.position.y = -base;
   group.add(abs);
-  const guess = { UNDERGROUND: -3.4, LEVEL1: 0.15, LEVEL2: 3.45, LEVEL3: 6.75 }[id];
+  const guess = def.offset != null ? def.offset : { UNDERGROUND: -3.4, LEVEL1: 0.15, LEVEL2: 3.45, LEVEL3: 6.75 }[id];
   const groundAt = (x, z) => {
     const y = levelAt({ x, z });
     return y == null ? ctx.ground(x, z) + guess : y + base + 0.02;

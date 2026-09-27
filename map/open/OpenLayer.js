@@ -6,7 +6,9 @@
 
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
 import { createSvgReader } from '../interchange/icSvg.js';
-import { rasterSvg } from '../interchange/icTextures.js';
+import { rasterSvg, planUv } from '../interchange/icTextures.js';
+import { buildLevel } from '../customs/csBuild.js';
+import { levelViewFor, buildingFloors } from '../../services/levels.js';
 import { interchangeModels } from '../interchange/icModels.js';
 import { propModels, vehicleModels } from '../city/models.js';
 import { carveWater, buildOutside, scatterTrees } from '../shoreline/slBuild.js';
@@ -26,6 +28,15 @@ const CSS_GROUND = [
   '.danger{fill:#b3261e;fill-opacity:.12;stroke:#b3261e;stroke-opacity:.35;stroke-dasharray:none}', '.stairs{fill:none}',
   '.shadow{filter:none}', '.task{fill:none}', '.floor{fill:none}', '.locked{fill:none}', '.trees *{fill:#3d5033}',
 ].join('');
+
+// Plans of the levels under and above the ground (Reserve bunkers, Ground Zero garage and storeys).
+const CSS_PLAN = [
+  '.floor{fill:#bdb7ab}', '.locked{fill:#7a3b33}', '.stairs{fill:#c9a53a}', '.shadow{filter:none}', '.cement{fill:#aaa69c}',
+  '.tarmac{fill:#64676a}', '.gravel{fill:#8a7a5e}', '.building{fill:#8f8a80}', '.land{fill:#7d8a62}', '.water{fill:#4d6a78}',
+].join('');
+const LEVEL_ORDER = ['UNDERGROUND', 'LEVEL1', 'LEVEL2', 'LEVEL3'];
+const LOW_WALLS = 0.28;
+const GHOST_OPACITY = 0.28;
 
 // Per map: ground colour, how dense the scattered groves are, building heights (city = Ground Zero towers).
 const PROFILES = {
@@ -108,6 +119,8 @@ export class OpenLayer {
     this.mode = mapData.defaultFloor;
     this.flags = { vehicles: true, streetProps: true };
     this.heights = Object.fromEntries(mapData.floors.map((f) => [f.id, f.displayY]));
+    this.levels = new Map();
+    this.wallScale = 1;
     this.ready = false;
   }
 
@@ -154,6 +167,30 @@ export class OpenLayer {
     };
     ctx.roundBuilding = roundBuildingHook(ctx, ctx.landmarkGeos);
     this.ctx = ctx;
+    // Levels besides the ground, built like Customs' (plan slabs, walls from the outlines) when first shown.
+    const { width: SW, height: SH } = this.mapData.map.svg;
+    const full = { x: 0, y: 0, w: SW, h: SH };
+    ctx.levelDefs = {};
+    for (const f of this.mapData.floors) {
+      if (f.id === this.mapData.defaultFloor || !f.svgLayer || !svgDoc.querySelector(`[id="${f.svgLayer}"]`)) continue;
+      ctx.levelDefs[f.id] = { floors: f.svgLayer, locked: [], ladders: [], layer: f.svgLayer, storey: f.id === 'UNDERGROUND' ? 3.4 : 3.3, offset: f.offset != null ? f.offset : null };
+    }
+    ctx.levelOrder = LEVEL_ORDER.filter((id) => ctx.levelDefs[id]);
+    const crops = {};
+    for (const [id, def] of Object.entries(ctx.levelDefs)) {
+      materials.plan[id] = new THREE.MeshLambertMaterial({ vertexColors: true, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
+      const pts = svg.polygons(def.floors, { minArea: 1 }).flatMap((q) => q.outer).map((q) => svg.toSvg(q));
+      if (!pts.length) continue;
+      const xs = pts.map((q) => q.x);
+      const ys = pts.map((q) => q.y);
+      const x = Math.max(0, Math.min(...xs) - 8);
+      const y = Math.max(0, Math.min(...ys) - 8);
+      crops[id] = { x, y, w: Math.min(SW, Math.max(...xs) + 8) - x, h: Math.min(SH, Math.max(...ys) + 8) - y };
+    }
+    const uvs = Object.fromEntries(Object.entries(crops).map(([id, c]) => [id, planUv(projection, c)]));
+    ctx.planUvFor = (id) => uvs[id] || planUv(projection, full);
+    this.levelCrops = crops;
+    this.svgDoc = svgDoc;
     const water = carveWater(ctx);
     this.outside = buildOutside(ctx, water);
     this.root.add(this.outside.group);
@@ -194,6 +231,7 @@ export class OpenLayer {
       .catch((e) => console.warn('[open] ground texture', e));
     this.ready = true;
     this.applyFlags();
+    this.setMode(this.mode);
     return {
       ms: Math.round(performance.now() - t0),
       ids: Object.fromEntries(Object.entries(ctx.ids).filter(([, v]) => Array.isArray(v)).map(([k, v]) => [k, v.length])),
@@ -203,13 +241,72 @@ export class OpenLayer {
       landmarks,
       boulders: spots.length,
       stones: stones.length,
+      levels: Object.keys(ctx.levelDefs),
       outside: this.outside.stats,
     };
   }
 
-  setMode(mode) { this.mode = mode; }
+  // A level is built (and its plan rasterized) the first time it is shown.
+  ensureLevel(id) {
+    const def = this.ctx && this.ctx.levelDefs[id];
+    if (!this.levels.has(id) && def) {
+      const t = performance.now();
+      const built = buildLevel(this.ctx, id);
+      built.group.visible = false;
+      built.walls.scale.y = this.wallScale;
+      this.root.add(built.group);
+      this.levels.set(id, built);
+      const crop = this.levelCrops[id] || { x: 0, y: 0, w: this.mapData.map.svg.width, h: this.mapData.map.svg.height };
+      const pxPerUnit = Math.min(6, 3600 / Math.max(crop.w, crop.h));
+      rasterSvg(this.svgDoc, { layers: [def.layer], css: CSS_PLAN, crop, pxPerUnit, anisotropy: this.ctx.anisotropy })
+        .then(({ texture }) => {
+          this.materials.plan[id].map = texture;
+          this.materials.plan[id].needsUpdate = true;
+        })
+        .catch((e) => console.warn(`[open] ${id} plan texture`, e));
+      console.info(`[open] ${id} built in ${Math.round(performance.now() - t)} ms`, JSON.stringify(built.stats));
+    }
+    return this.levels.get(id) || null;
+  }
 
-  setWallMode() {}
+  // Inside modes: the relief stays as a faint see-through context over the bunkers and garages.
+  ghostGround(on) {
+    const m = this.materials.terrain;
+    if (m.transparent === on) return;
+    m.transparent = on;
+    m.opacity = on ? GHOST_OPACITY : 1;
+    m.depthWrite = !on;
+    m.needsUpdate = true;
+    this.materials.water.opacity = on ? GHOST_OPACITY : 0.88;
+  }
+
+  setMode(mode) {
+    this.mode = mode;
+    if (!this.ready) return;
+    const floors = buildingFloors(this.mapData);
+    if (!floors.length) return;
+    const outside = mode === this.mapData.defaultFloor;
+    const view = levelViewFor(this.mapData, mode);
+    // inside: only the (see-through) relief and water of the outside stay; "All floors" lifts levels apart, without them
+    for (const child of this.outside.group.children) {
+      const ground = child.name === 'terrain' || child.name === 'water';
+      child.visible = outside || (ground && !view.exploded);
+    }
+    if (outside) this.applyFlags();
+    this.ghostGround(!outside);
+    for (const id of floors) {
+      const show = !outside && view.visible.has(id);
+      const level = show ? this.ensureLevel(id) : this.levels.get(id);
+      if (!level) continue;
+      level.group.visible = show;
+      level.group.position.y = this.heights[id] + (view.exploded ? view.offsetFor(id) : 0);
+    }
+  }
+
+  setWallMode(mode) {
+    this.wallScale = mode === 'low' ? LOW_WALLS : 1;
+    for (const level of this.levels.values()) level.walls.scale.y = this.wallScale;
+  }
 
   setFlags(filters) {
     this.flags = { vehicles: filters.vehicles !== false, streetProps: filters.streetProps !== false };
@@ -217,14 +314,17 @@ export class OpenLayer {
   }
 
   applyFlags() {
-    if (!this.outside) return;
+    if (!this.outside || this.mode !== this.mapData.defaultFloor) return;
     this.outside.cars.visible = this.flags.vehicles;
     this.outside.props.visible = this.flags.streetProps;
   }
 
   update(dt, camera) {
-    if (!this.ready || !this.outside.group.visible) return;
-    for (const layer of this.outside.layers) layer.update(camera.position);
+    if (!this.ready) return;
+    for (const part of [this.outside, ...this.levels.values()]) {
+      if (!part || !part.group.visible) continue;
+      for (const layer of part.layers) layer.update(camera.position);
+    }
   }
 
   dispose() {

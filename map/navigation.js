@@ -373,7 +373,9 @@ export class Navigator {
           }
           if (role !== 'ignore') spec.groups.push({ el, role, ground, floorId: id });
         };
-        for (const child of root.children) visit(child, []);
+        // a layer drawn as bare shapes (Reserve's Bunkers) is one group itself
+        if ([...root.children].some((c) => c.localName === 'g')) for (const child of root.children) visit(child, []);
+        else visit(root, []);
       }
       specs.push(spec);
     });
@@ -490,6 +492,7 @@ export class Navigator {
       stairs: stairs.length,
       portals: this.portalCount,
       flights: this.flights || 0,
+      tips: this.tips || 0,
       assumedEntrances: opened,
     };
   }
@@ -714,6 +717,70 @@ export class Navigator {
       }
     }
     if (this.profile.portals === 'interchange') await this.interchangePortals(svgDoc);
+    if (this.profile.portals === 'tips') this.tipPortals();
+  }
+
+  // Open maps' bunkers, garages and upper storeys: their plans draw no stairs to the ground. The way between them is
+  // taken at the dead ends of tunnels and corridors and at small end rooms, where stairwells and ramps are in the game,
+  // to the layer right above (or below) toward the ground. An approximation: the exact stairs are not in the data.
+  tipPortals() {
+    const byRank = new Map(this.layers.map((l) => [l.rank, l]));
+    // two scales: narrow ways (corridors, stairwell rooms) and wide ones (car ramps, road tunnels)
+    // (the wide scale only on open passages, not in rooms: a bunker's rooms are not car ramps)
+    const scales = [{ radius: 5, wide: 3.5, nearWall: Infinity, open: false }, { radius: 16, wide: 12, nearWall: 3, open: true }].map((sc) => {
+      const R = Math.max(3, Math.round(sc.radius / this.cell));
+      const disk = [];
+      for (let dr = -R; dr <= R; dr += 1) for (let dc = -R; dc <= R; dc += 1) if (dr * dr + dc * dc <= R * R) disk.push([dr, dc]);
+      return { R, disk, wide: (sc.wide * 2) / this.cell, nearWall: sc.nearWall, open: sc.open };
+    });
+    const cost = (STAIR_BASE + STAIR_PER_STOREY + 6) / this.cell;
+    let count = 0;
+    for (const layer of this.layers) {
+      if (layer.street) continue;
+      const toward = byRank.get(layer.rank < 0 ? layer.rank + 1 : layer.rank - 1) || this.streetLayer;
+      const { walk, cols, rows, dist, n } = layer;
+      const tips = [];
+      for (const { R, disk, wide: wideMax, nearWall, open } of scales) {
+        for (let i = 0; i < n; i += 1) {
+          if (!walk[i] || dist[i] > Math.min(R, nearWall) || (open && layer.indoor[i])) continue; // deep inside a room: not an end
+          const r0 = (i / cols) | 0;
+          const c0 = i - r0 * cols;
+          let cnt = 0;
+          let sx = 0;
+          let sz = 0;
+          let wide = 0;
+          for (const [dr, dc] of disk) {
+            const r = r0 + dr;
+            const c = c0 + dc;
+            if (r < 0 || c < 0 || r >= rows || c >= cols) continue;
+            const j = r * cols + c;
+            if (!walk[j]) continue;
+            cnt += 1;
+            sx += dc;
+            sz += dr;
+            if (dist[j] > wide) wide = dist[j];
+          }
+          const frac = cnt / disk.length;
+          const lean = Math.hypot(sx, sz) / (cnt || 1) / R;
+          // the end of a way (corridor, ramp, tunnel, small end room); corners of big rooms have wide space next to them
+          if (frac < 0.42 && lean > 0.3 && wide <= wideMax) tips.push({ i, frac });
+        }
+      }
+      tips.sort((a, b) => a.frac - b.frac);
+      const chosen = [];
+      for (const t of tips) {
+        const p = this.centerOf(layer, t.i);
+        if (chosen.some((q) => Math.hypot(q.x - p.x, q.z - p.z) < 14)) continue;
+        const up = this.snap(toward, p, 10) || (toward !== this.streetLayer ? this.snap(this.streetLayer, p, 10) : null);
+        if (!up) continue;
+        chosen.push(p);
+        this.addPortal(layer, t.i, up.layer, up.i, cost);
+        (this.tipNodes || (this.tipNodes = [])).push({ layer, i: t.i }, { layer: up.layer, i: up.i });
+        count += 1;
+        if (chosen.length >= 40) break;
+      }
+    }
+    this.tips = count;
   }
 
   // Interchange: ramps, outside stairs and escalators as drawn on its plan (the same reading the 3D model uses).
@@ -1433,6 +1500,7 @@ export class Navigator {
       targetName,
       targetFloor: this.floorName(toLayer, true),
       fenceCrossings,
+      guessedStairs: this.profile.portals === 'tips',
     });
     const dy = fromGame.y != null && toGame.y != null ? fromGame.y - toGame.y : 0;
     return {
@@ -1477,6 +1545,18 @@ export class Navigator {
       img.data[o + 1] = rgb[1];
       img.data[o + 2] = rgb[2];
       img.data[o + 3] = 255;
+    }
+    for (const t of this.tipNodes || []) {
+      if (t.layer !== layer) continue;
+      const r0 = (t.i / layer.cols) | 0;
+      const c0 = t.i - r0 * layer.cols;
+      for (let r = r0 - 2; r <= r0 + 2; r += 1) {
+        for (let c = c0 - 2; c <= c0 + 2; c += 1) {
+          if (r < 0 || c < 0 || r >= layer.rows || c >= layer.cols) continue;
+          const o = (r * layer.cols + c) * 4;
+          img.data[o] = 0; img.data[o + 1] = 255; img.data[o + 2] = 255;
+        }
+      }
     }
     ctx.putImageData(img, 0, 0);
     return canvas.toDataURL('image/png');

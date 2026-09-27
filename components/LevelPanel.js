@@ -29,7 +29,9 @@ export function LevelPanel({ map, floor, onChange, entities, wallMode, onWallMod
           ${g.floors.length > 1 && whole && button(whole.id, whole.name, `${whole.nameRu}: все уровни на своих высотах`, 0)}
           ${[...g.floors].reverse().map((id) => {
             const f = byId.get(id);
-            return button(id, SHORT[id] || (f ? f.name : id), f ? f.nameRu : id, counts[id]);
+            // open maps name their levels themselves (Bunkers, Garage); the others use the short game names
+            const label = map.map.kind === 'open' && f ? f.name : SHORT[id] || (f ? f.name : id);
+            return button(id, label, f ? f.nameRu : id, counts[id]);
           })}
           ${g.floors.length > 1 && button(ALL_FLOORS, 'All floors', 'Все уровни здания сразу, разнесённые по высоте', 0)}
         </div>`)}

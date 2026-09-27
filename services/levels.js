@@ -8,7 +8,13 @@ export const ALL_FLOORS = 'ALL';
 export const EXPLODE_GAP = 24; // m added between building levels in "All floors"
 export const MALL_VIEW = 'MALL'; // id of the whole-building view when the map data names none (Interchange)
 
-export const buildingGroup = (mapData) => (mapData && mapData.levels ? mapData.levels.groups.find((g) => g.floors.length > 1) || null : null);
+// The group of inside levels: the one with several floors, else a single-level group besides the outside
+// (Reserve: the bunkers).
+export const buildingGroup = (mapData) => {
+  if (!mapData || !mapData.levels) return null;
+  const { groups, defaultFloor } = mapData.levels;
+  return groups.find((g) => g.floors.length > 1) || groups.find((g) => g.floors.length === 1 && g.floors[0] !== defaultFloor) || null;
+};
 export const buildingFloors = (mapData) => {
   const g = buildingGroup(mapData);
   return g ? g.floors : [];

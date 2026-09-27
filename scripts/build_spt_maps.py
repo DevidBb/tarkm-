@@ -51,7 +51,7 @@ LABELS_RU = {
     'Railroad Bridge': 'Ж/д мост', 'Airfield': 'Аэродром', 'Command Bunker': 'Командный бункер', 'Swimming Pool': 'Бассейн',
     'Warehouses': 'Склады', 'Storage': 'Склад', 'Checkpoint Fence Tower': 'Вышка у КПП',
     'K Buildings': 'Корпуса К', 'White Queen': 'Белый ферзь', 'White Rook': 'Белая ладья', 'Train Station': 'Ж/д вокзал', 'E1 Bunkers': 'Бункеры E1',
-    'E2 Bunkers': 'Бункеры E2', 'д - Warehouse Bunkers': 'Складские бункеры (Д)', 'Garage': 'Гараж', 'Mechanic': 'Мастерская', 'Gas Station': 'Заправка',
+    'E2 Bunkers': 'Бункеры E2', 'Warehouse Bunkers': 'Складские бункеры', 'Garage': 'Гараж', 'Mechanic': 'Мастерская', 'Gas Station': 'Заправка',
     'Shipping Yard': 'Контейнерная площадка', 'K1': 'К1', 'K2': 'К2', 'K3': 'К3', 'K4': 'К4', 'K5': 'К5', 'K6': 'К6', 'Tarmac': 'Плац',
     'Drug Lab': 'Нарколаборатория', 'Plant 1': 'Цех 1', 'Plant 2': 'Цех 2', 'Plant 3': 'Цех 3', 'Pipes': 'Трубы', 'Gunner Nest': 'Пулемётное гнездо',
     'Convenience': 'Магазин', 'Red Brick': 'Красный кирпичный дом', 'Hillside': 'Дома на склоне', 'Boathouses': 'Лодочные сараи', 'Dead Tree': 'Сухое дерево',
@@ -84,6 +84,48 @@ OBJECTIVE_TYPE = {
     'FindItem': 'findItem', 'HandoverItem': 'giveItem', 'CounterCreator': 'visit', 'LeaveItemAtLocation': 'plantItem', 'PlaceBeacon': 'mark',
     'WeaponAssembly': 'buildWeapon', 'Skill': 'skill', 'TraderLoyalty': 'traderLevel', 'Quest': 'taskStatus', 'SellItemToTrader': 'sellItem',
 }
+
+
+# Levels besides the ground: SVG layer -> (floor id, name, Russian name, fallback height relative to the ground, m).
+# Heights and areas of each layer come from tarkov.dev's map config (layers[].extents).
+LEVEL_FLOORS = {
+    'reserve': {
+        'group': {'id': 'bunkers', 'name': 'Bunkers', 'nameRu': 'Бункеры', 'wholeView': {'id': 'INSIDE', 'name': 'Bunkers', 'nameRu': 'Все бункеры'}},
+        'layers': {'Bunkers': ('UNDERGROUND', 'Bunkers', 'Бункеры и тоннели', -8.0)},
+    },
+    'ground-zero': {
+        'group': {'id': 'buildings', 'name': 'Buildings', 'nameRu': 'Здания изнутри', 'wholeView': {'id': 'INSIDE', 'name': 'Inside', 'nameRu': 'Все этажи изнутри'}},
+        'layers': {
+            'Underground_Level': ('UNDERGROUND', 'Garage', 'Подземная парковка', -8.7),
+            'First_Floor': ('LEVEL1', 'Level 1', '1 этаж зданий', 0.15),
+            'Second_Floor': ('LEVEL2', 'Level 2', '2 этаж', 5.3),
+            'Third_Floor': ('LEVEL3', 'Level 3', '3 этаж и выше', 10.0),
+        },
+    },
+}
+
+
+def svg_layers(path):
+    import re
+    text = open(path, encoding='utf-8').read()
+    return set(re.findall(r'<g[^>]*\sid="([^"]+)"', text))
+
+
+def extents_of(layer):
+    """tarkov.dev layer extents as [{minY, maxY, rect{x0,x1,z0,z1}, name}] in game coordinates (no bounds = whole map)."""
+    out = []
+    for e in layer.get('extents', []):
+        lo, hi = e['height']
+        rects = e.get('bounds') or [[[-1e5, -1e5], [1e5, 1e5], 'all']]
+        for (a, b, *name) in rects:
+            out.append({'minY': lo, 'maxY': hi, 'name': name[0] if name else '',
+                        'rect': {'x0': min(a[0], b[0]), 'x1': max(a[0], b[0]), 'z0': min(a[1], b[1]), 'z1': max(a[1], b[1])}})
+    return out
+
+
+def in_rect(p, e):
+    q = e['rect']
+    return q['x0'] <= p['x'] <= q['x1'] and q['z0'] <= p['z'] <= q['z1'] and e['minY'] <= p['y'] < e['maxY']
 
 
 def load(path):
@@ -119,24 +161,65 @@ def main():
         b = tm.get('svgBounds') or tm['bounds']
         bounds = {'topLeft': {'x': b[0][0], 'z': b[0][1]}, 'bottomRight': {'x': b[1][0], 'z': b[1][1]}}
         base = load(os.path.join(DB, 'locations', cfg['spt'], 'base.json'))
+        # layers of the tarkov.dev config: floors we draw (their SVG layer exists) and building storeys we only know by height
+        present = svg_layers(os.path.join(SVG_DIR, cfg['svg']))
+        level_cfg = LEVEL_FLOORS.get(map_id, {'layers': {}})
+        floor_ext = []  # (floor id, extent)
+        other_ext = []
+        for layer in tm.get('layers', []):
+            svg_layer = layer.get('svgLayer')
+            fl = level_cfg['layers'].get(svg_layer) if svg_layer in present else None
+            for e in extents_of(layer):
+                (floor_ext.append((fl[0], e)) if fl else other_ext.append(e))
 
         # spawn points: PMC spawns as markers; every point's height feeds the relief
         markers = []
         samples = []
         zones = defaultdict(list)
         n_pmc = 0
+        points = []
+        for sp in base['SpawnPointParams']:
+            p = sp['Position']
+            if abs(p['x']) < 0.01 and abs(p['z']) < 0.01:
+                continue
+            points.append({'x': round(p['x'], 2), 'y': round(p['y'], 2), 'z': round(p['z'], 2)})
+        # A point inside a layer's area and height band is on that layer only if it is clearly off the ground there:
+        # the ground being the median of the nearby points that no layer claims.
+        free = [q for q in points if not any(in_rect(q, e) for _, e in floor_ext) and not any(in_rect(q, e) for e in other_ext)]
+
+        def surface(q):
+            near = [f['y'] for f in free if (f['x'] - q['x']) ** 2 + (f['z'] - q['z']) ** 2 < 70 ** 2]
+            return median(near) if len(near) >= 3 else None
+
+        def level_of(q):
+            for fid, e in floor_ext:
+                if in_rect(q, e):
+                    g = surface(q)
+                    if g is None or (q['y'] < g - 2.5 if fid == 'UNDERGROUND' else q['y'] > g + 2.0):
+                        return fid
+            for e in other_ext:
+                if in_rect(q, e):
+                    g = surface(q)
+                    if g is None or q['y'] > g + 2.0:
+                        return 'STOREY'  # an upper storey of a building: not the ground, no floor of ours
+            return 'OUTSIDE'
+
+        floor_counts = defaultdict(int)
         for sp in base['SpawnPointParams']:
             p = sp['Position']
             pos = {'x': round(p['x'], 2), 'y': round(p['y'], 2), 'z': round(p['z'], 2)}
             if abs(pos['x']) < 0.01 and abs(pos['z']) < 0.01:
                 continue
-            samples.append([pos['x'], pos['y'], pos['z']])
+            lvl = level_of(pos)
+            floor_counts[lvl] += 1
+            if lvl == 'OUTSIDE':
+                samples.append([pos['x'], pos['y'], pos['z']])
             cats = sp.get('Categories') or []
             sides = [s.lower() for s in (sp.get('Sides') or [])]
             if 'Player' in cats and ('pmc' in sides or 'all' in sides):
                 n_pmc += 1
                 markers.append({
-                    'id': f'spawn-pmc-{n_pmc}', 'type': 'spawn', 'name': 'PMC spawn', 'nameRu': 'Спавн ЧВК', 'position': pos, 'floor': 'OUTSIDE',
+                    'id': f'spawn-pmc-{n_pmc}', 'type': 'spawn', 'name': 'PMC spawn', 'nameRu': 'Спавн ЧВК', 'position': pos, 'floor': lvl if lvl != 'STOREY' else 'OUTSIDE',
                     'meta': {'sides': 'all' if 'all' in sides else 'pmc', 'zone': sp.get('Id'), 'zoneName': sp.get('BotZoneName') or None, 'zoneNameRu': None},
                 })
             if sp.get('BotZoneName'):
@@ -158,7 +241,8 @@ def main():
                 name, name_ru = BOSSES[mob]
                 pretty = zone.replace('Zone', '').replace('_', ' ').strip()
                 markers.append({
-                    'id': f'boss-{mob.lower()}-{zone.lower()}', 'type': 'boss', 'name': name, 'nameRu': name_ru, 'position': c, 'floor': 'OUTSIDE',
+                    'id': f'boss-{mob.lower()}-{zone.lower()}', 'type': 'boss', 'name': name, 'nameRu': name_ru, 'position': c,
+                    'floor': (lambda l: l if l != 'STOREY' else 'OUTSIDE')(level_of(c)),
                     'meta': {'mob': mob, 'zone': zone, 'zoneName': pretty, 'zoneNameRu': None, 'spawnChance': round(bs.get('BossChance', 0) / 100, 2),
                              'locationChance': round(1 / len(zone_list), 2), 'positions': pts[:40]},
                 })
@@ -167,12 +251,34 @@ def main():
         locations = []
         for k, lab in enumerate(tm.get('labels', [])):
             text = lab['text']
+            import re
+            text = re.sub(r'^[А-Яа-я]\s*-\s*', '', text)  # "д - Warehouse Bunkers" in the source
             locations.append({
                 'id': f"{text.lower().replace(' ', '-').replace('.', '').replace(chr(39), '')}-{k}", 'name': text, 'nameRu': LABELS_RU.get(text),
                 'kind': 'place', 'position': {'x': lab['position'][0], 'y': None, 'z': lab['position'][1]}, 'floor': 'OUTSIDE', 'source': 'tarkov.dev map labels',
             })
 
         ground = median([s[1] for s in samples])
+        # floors: the ground, then the layers of this map that have SVG plans (bunkers, garage, storeys)
+        floors = [{'id': 'OUTSIDE', 'name': 'Outside', 'nameRu': 'Вся территория', 'group': 'outside', 'svgLayer': 'Ground_Level', 'minY': None, 'maxY': None, 'displayY': round(ground, 1)}]
+        levels = {'defaultFloor': 'OUTSIDE', 'order': ['OUTSIDE'], 'groups': [{'id': 'outside', 'name': 'Outside', 'nameRu': 'Вся территория', 'floors': ['OUTSIDE']}], 'source': 'single level'}
+        drawn = [(svg_layer, fl) for svg_layer, fl in level_cfg['layers'].items() if svg_layer in present]
+        if drawn:
+            group_floors = []
+            for svg_layer, (fid, name, name_ru, offset) in drawn:
+                ys = sorted(m['position']['y'] for m in markers if m.get('floor') == fid)
+                display = ys[len(ys) // 4] if ys else ground + offset
+                floors.append({'id': fid, 'name': name, 'nameRu': name_ru, 'group': level_cfg['group']['id'], 'svgLayer': svg_layer, 'minY': None, 'maxY': None,
+                               'displayY': round(display, 1), 'offset': offset})
+                group_floors.append(fid)
+            order = ['UNDERGROUND', 'LEVEL1', 'LEVEL2', 'LEVEL3']
+            group_floors.sort(key=order.index)
+            levels = {
+                'defaultFloor': 'OUTSIDE', 'order': ['OUTSIDE', *group_floors],
+                'groups': [levels['groups'][0], {**level_cfg['group'], 'floors': group_floors}],
+                'zones': {'extents': [{'floor': fid, **e} for fid, e in floor_ext if e['rect']['x0'] > -1e4], 'basements': [], 'interiors': []},
+                'source': 'tarkov.dev map layers (height bands and areas)',
+            }
         exits = [{'key': e['Name'].strip(), 'nameRu': EXITS_RU.get(e['Name'].strip()) or ru.get(e['Name']) or e['Name'].strip(), 'name': en.get(e['Name']) or e['Name'].strip(), 'chance': e.get('Chance')} for e in base.get('exits', [])]
         data = {
             'format': 'tarkov-map-ai/map@1', 'generatedAt': now,
@@ -187,8 +293,8 @@ def main():
                 'bounds': bounds, 'coordinateRotation': tm.get('coordinateRotation', 180), 'environmentFile': f'{map_id}/{map_id}.environment.json',
                 'partialData': {'missing': ['extract', 'key', 'loot', 'questPoints'], 'exits': exits},
             },
-            'levels': {'defaultFloor': 'OUTSIDE', 'order': ['OUTSIDE'], 'groups': [{'id': 'outside', 'name': 'Outside', 'nameRu': 'Вся территория', 'floors': ['OUTSIDE']}], 'source': 'single level'},
-            'floors': [{'id': 'OUTSIDE', 'name': 'Outside', 'nameRu': 'Вся территория', 'group': 'outside', 'svgLayer': 'Ground_Level', 'minY': None, 'maxY': None, 'displayY': round(ground, 1)}],
+            'levels': levels,
+            'floors': floors,
             'locations': locations,
             'markers': markers,
             'loot': {'source': 'none yet', 'containerTypes': [], 'items': {}, 'containers': [], 'loose': []},
@@ -234,6 +340,7 @@ def main():
                  'traders': sorted(traders.values(), key=lambda t: t['name']), 'quests': sorted(quests, key=lambda q: q['nameRu'] or q['name'] or '')}
         with open(os.path.join(out_dir, f'{map_id}.quests.json'), 'w', encoding='utf-8') as f:
             json.dump(qdata, f, ensure_ascii=False, separators=(',', ':'))
+        print(map_id, 'levels', dict(floor_counts), [(f['id'], f['displayY']) for f in floors])
         print(map_id, 'markers', len(markers), 'bosses', sum(1 for m in markers if m['type'] == 'boss'), 'labels', len(locations), 'samples', len(samples),
               'ground', round(ground, 1), 'quests', len(quests), 'exits', len(exits))
 

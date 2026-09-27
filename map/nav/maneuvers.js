@@ -189,7 +189,9 @@ export function describeRoute(ctx) {
         last.text = `${up ? 'Поднимитесь' : 'Спуститесь'} на ${last.storeys} ${last.storeys < 5 ? 'этажа' : 'этажей'}: ${leg.floorName}`;
         waypoints[waypoints.length - 1].label = `${up ? '↑' : '↓'} ${leg.floorName}`;
       } else {
-        push({ kind: up ? 'up' : 'down', dir: up ? 'up' : 'down', at, text, storeys });
+        // open maps: the stairs to bunkers, garages and storeys are not drawn; the way is taken at a tunnel's end
+        const note = ctx.guessedStairs ? 'Лестница на плане не нарисована: переход показан в конце ближайшего прохода, настоящий спуск или подъём где-то рядом.' : undefined;
+        push({ kind: up ? 'up' : 'down', dir: up ? 'up' : 'down', at, text, storeys, note });
         waypoints.push({ kind: up ? 'up' : 'down', x: at.x, y: at.y, z: at.z, label: `${up ? '↑' : '↓'} ${leg.floorName}` });
       }
     } else if (prev.inside !== leg.inside && leg.layer.street) {
