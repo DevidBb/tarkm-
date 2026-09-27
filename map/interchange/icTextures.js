@@ -39,8 +39,8 @@ function loadImage(url) {
 }
 
 // crop: {x, y, w, h} in SVG units. Resolves { texture, crop }.
-export async function rasterSvg(svgDoc, { layers, css, crop, pxPerUnit = 4, maxSize = 4096, anisotropy = 4 }) {
-  const { canvas } = await rasterCanvas(svgDoc, { layers, css, crop, pxPerUnit, maxSize });
+export async function rasterSvg(svgDoc, { layers, css, crop, pxPerUnit = 4, maxSize = 4096, anisotropy = 4, background = null }) {
+  const { canvas } = await rasterCanvas(svgDoc, { layers, css, crop, pxPerUnit, maxSize, background });
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = anisotropy;
@@ -54,7 +54,7 @@ export async function rasterMask(svgDoc, { layers, css, crop, pxPerUnit = 1, max
   return { data, width: canvas.width, height: canvas.height, crop, scale };
 }
 
-async function rasterCanvas(svgDoc, { layers, css, crop, pxPerUnit, maxSize }) {
+async function rasterCanvas(svgDoc, { layers, css, crop, pxPerUnit, maxSize, background = null }) {
   const scale = Math.min(pxPerUnit, maxSize / crop.w, maxSize / crop.h);
   const width = Math.max(1, Math.round(crop.w * scale));
   const height = Math.max(1, Math.round(crop.h * scale));
@@ -75,7 +75,13 @@ async function rasterCanvas(svgDoc, { layers, css, crop, pxPerUnit, maxSize }) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
-  canvas.getContext('2d', { willReadFrequently: false }).drawImage(img, 0, 0, width, height);
+  const g2 = canvas.getContext('2d', { willReadFrequently: false });
+  if (background) {
+    // ground outside the drawn areas (otherwise transparent, i.e. black on the terrain)
+    g2.fillStyle = background;
+    g2.fillRect(0, 0, width, height);
+  }
+  g2.drawImage(img, 0, 0, width, height);
   return { canvas, scale: width / crop.w };
 }
 

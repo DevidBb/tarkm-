@@ -10,36 +10,48 @@ import { rasterSvg } from '../interchange/icTextures.js';
 import { interchangeModels } from '../interchange/icModels.js';
 import { propModels, vehicleModels } from '../city/models.js';
 import { carveWater, buildOutside, scatterTrees } from '../shoreline/slBuild.js';
+import { buildTerrain } from '../../services/terrain.js';
+import { InstancedLayer, composeMatrix } from '../city/instancing.js';
+import { paint } from '../city/models.js';
+import { rng, hashString } from '../city/util.js';
+import { raiseMountains, slopeBoulders, boulderGeometries } from './relief.js';
+import { mergeGeometries } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/utils/BufferGeometryUtils.js/+esm';
+import { roundBuildingHook, buildLandmarks } from './landmarks.js';
 
 const CSS_GROUND = [
-  '.land{fill:#5f6b45}', '.trees{fill:#3d5033}', '.rock{fill:#8d8570}', '.water{fill:#34505f}', '.wood{fill:#6a5236}',
+  '.land{fill:#5f6b45}', '.trees{fill:#3d5033}', '.rock{fill:#7a7862}', '.water{fill:#34505f}', '.wood{fill:#6a5236}',
   '.gravel{fill:#7d6a4e}', '.tarmac{fill:#55585a}', '.road_gravel{stroke:#7d6a4e}', '.road_tarmac{stroke:#55585a}',
   '.cement{fill:#8f8c85}', '.building{fill:#3c3b37}', '.fence{stroke:none}', '.map_border{stroke:none}',
-  '.railroad{stroke:#4d4036;stroke-dasharray:none}', '.powerline{stroke:none}', '.plane{fill:#6b6f6e;stroke:none}', '.misc{fill:#6b6a63}',
+  '.railroad{stroke:#4d4036;stroke-dasharray:none}', '.powerline{stroke:none}', '.plane{fill:#6b6f6e;stroke:none}', '.misc{fill:#6b6a63}', '.chopper{fill:#4d4c45}',
   '.danger{fill:#b3261e;fill-opacity:.12;stroke:#b3261e;stroke-opacity:.35;stroke-dasharray:none}', '.stairs{fill:none}',
   '.shadow{filter:none}', '.task{fill:none}', '.floor{fill:none}', '.locked{fill:none}', '.trees *{fill:#3d5033}',
 ].join('');
 
 // Per map: ground colour, how dense the scattered groves are, building heights (city = Ground Zero towers).
 const PROFILES = {
-  woods: { ground: 0x56653e, groves: { max: 34000, step: 6, floor: 0.34, peak: 0.85 } },
-  reserve: { ground: 0x5f6b45, groves: { max: 6000, step: 8, floor: 0.02, peak: 0.55 } },
-  lighthouse: { ground: 0x66704a, groves: { max: 12000, step: 7, floor: 0.04, peak: 0.6 } },
-  'ground-zero': { ground: 0x6b6d62, groves: { max: 500, step: 10, floor: 0.0, peak: 0.25 }, city: true },
+  woods: { ground: 0x56653e, groves: { max: 36000, step: 6, floor: 0.34, peak: 0.85, onRock: 0.35 } },
+  reserve: { ground: 0x5f6b45, groves: { max: 6500, step: 8, floor: 0.02, peak: 0.55, onRock: 0.5 } },
+  lighthouse: { ground: 0x66704a, groves: { max: 18000, step: 7, floor: 0.06, peak: 0.6, onRock: 0.8 } },
+  'ground-zero': { ground: 0x6b6d62, base: 0x55575a, groves: { max: 500, step: 10, floor: 0.0, peak: 0.25 }, city: true },
 };
 
 const STYLES = ['brick', 'panel', 'industrial'];
+const CITY_STYLES = ['glass', 'office', 'modern', 'panel'];
 
 // SVG ids of each part of the ground, from the group classes of Ground_Level.
 export function idsByClass(svgDoc, { city = false } = {}) {
   const ids = { water: [], docks: [], rocks: [], forest: [], fences: [], powerlines: [], towers: [], railroad: [], mines: [], roads: [], roadsUnpaved: [], paths: [], buildings: [] };
   const root = svgDoc.querySelector('[id="Ground_Level"]');
   if (!root) return ids;
+  ids.landAbove = {};
   for (const g of root.children) {
     if (g.localName !== 'g') continue;
     const id = g.getAttribute('id') || '';
     const cls = (g.getAttribute('class') || '').split(/\s+/);
     const has = (c) => cls.includes(c);
+    // islands: land groups drawn after a water group lie on it
+    if (has('land')) for (const w of ids.water) ids.landAbove[w].push(id);
+    if (has('water')) ids.landAbove[id] = [];
     if (/tower/i.test(id)) ids.towers.push(id);
     else if (/roof/i.test(id)) continue;
     else if (has('water')) ids.water.push(id);
@@ -58,7 +70,7 @@ export function idsByClass(svgDoc, { city = false } = {}) {
       const parts = subs.length ? subs.map((c) => c.getAttribute('id')) : [id];
       for (const pid of parts) {
         if (/tower/i.test(pid)) ids.towers.push(pid);
-        else ids.buildings.push([pid, city ? 'auto-city' : 'auto', 0, STYLES]);
+        else ids.buildings.push([pid, city ? 'auto-city' : 'auto', 0, city ? CITY_STYLES : STYLES]);
       }
     }
   }
@@ -69,7 +81,7 @@ function createMaterials(groundColor) {
   const lambert = (o) => new THREE.MeshLambertMaterial(o);
   return {
     solid: lambert({ vertexColors: true, side: THREE.DoubleSide }),
-    terrain: lambert({ color: groundColor }),
+    terrain: lambert({ color: groundColor, vertexColors: true }),
     water: new THREE.MeshPhongMaterial({ color: 0x2c4c5e, shininess: 60, specular: 0x334455, transparent: true, opacity: 0.88 }),
     plan: {},
     glass: lambert({ color: 0x9cc6d6, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false }),
@@ -101,10 +113,18 @@ export class OpenLayer {
 
   async build(svgDoc, environment) {
     const t0 = performance.now();
-    const { projection, terrain } = this.mapData;
-    if (!terrain) throw new Error('В данных карты нет рельефа.');
+    const { projection } = this.mapData;
+    if (!this.mapData.terrain) throw new Error('В данных карты нет рельефа.');
     const profile = PROFILES[this.mapData.map.id] || {};
     const svg = createSvgReader(svgDoc, projection);
+    const ids = idsByClass(svgDoc, { city: profile.city });
+    // A finer relief than the shared 6 m one, with the mountains of the plan raised on it.
+    const terrain = buildTerrain(this.mapData.raw.terrain.samples, this.mapData.map.bounds, { cell: 4, smooth: 110 });
+    const rockPolys = ids.rocks.flatMap((id) => svg.polygons(id, { minArea: 2 }));
+    const mountains = raiseMountains(terrain, rockPolys, { maxHeight: profile.mountains || 36 });
+    this.mapData.terrain = terrain;
+    this.mapData.heightAt = terrain.heightAtScene;
+    projection.terrain = terrain;
     const anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
     const materials = createMaterials(profile.ground || 0x5f6b45);
     this.materials = materials;
@@ -124,13 +144,39 @@ export class OpenLayer {
       environment,
       anisotropy,
       resort: { polys: [], inResort: () => false },
-      ids: idsByClass(svgDoc, { city: profile.city }),
+      ids,
+      landAbove: ids.landAbove,
       groves: profile.groves,
+      rockFilter: () => false, // rocks are hills of the relief or boulders, built here
+      builtBuildings: [],
+      landmarkGeos: [],
+      noTrees: [],
     };
+    ctx.roundBuilding = roundBuildingHook(ctx, ctx.landmarkGeos);
     this.ctx = ctx;
     const water = carveWater(ctx);
     this.outside = buildOutside(ctx, water);
     this.root.add(this.outside.group);
+    const landmarks = buildLandmarks(ctx, this.outside);
+    // Loose boulders on the raised slopes; small rock outlines of the plan as stones.
+    const rb = rng(hashString(`${this.mapData.map.id}:boulders`));
+    const stones = boulderGeometries(rockPolys, ctx.ground, rb);
+    if (stones.length) {
+      const mesh = new THREE.Mesh(mergeGeometries(stones, false), materials.solid);
+      mesh.name = 'stones';
+      this.outside.group.add(mesh);
+    }
+    const spots = slopeBoulders(terrain, rockPolys, rb);
+    if (spots.length) {
+      const geo = paint(new THREE.IcosahedronGeometry(1, 0), '#8a877f');
+      const boulders = new InstancedLayer(this.outside.props, { name: 'boulders', geometry: geo, material: materials.rock, maxDistance: 900 });
+      for (const s of spots) {
+        const k = 0.6 + rb() * 1.8;
+        boulders.add(composeMatrix(s.x, s.y - k * 0.3, s.z, rb() * 6.28, k * (0.8 + rb() * 0.6), k * (0.5 + rb() * 0.5), k));
+      }
+      boulders.build();
+      this.outside.layers.push(boulders);
+    }
     try {
       const groves = await scatterTrees(ctx, this.outside);
       this.outside.stats.groveTrees = groves.trees;
@@ -138,7 +184,8 @@ export class OpenLayer {
       console.warn('[open] groves', e);
     }
     const { width: W, height: H } = this.mapData.map.svg;
-    rasterSvg(svgDoc, { layers: ['Ground_Level'], css: CSS_GROUND, crop: { x: 0, y: 0, w: W, h: H }, pxPerUnit: W * H > 1.2e6 ? 2 : 3, anisotropy })
+    const background = `#${new THREE.Color(profile.base || profile.ground || 0x5f6b45).getHexString()}`;
+    rasterSvg(svgDoc, { layers: ['Ground_Level'], css: CSS_GROUND, crop: { x: 0, y: 0, w: W, h: H }, pxPerUnit: W * H > 1.2e6 ? 2 : 3, anisotropy, background })
       .then(({ texture }) => {
         materials.terrain.map = texture;
         materials.terrain.color.set(0xffffff);
@@ -149,9 +196,13 @@ export class OpenLayer {
     this.applyFlags();
     return {
       ms: Math.round(performance.now() - t0),
-      ids: Object.fromEntries(Object.entries(ctx.ids).map(([k, v]) => [k, v.length])),
+      ids: Object.fromEntries(Object.entries(ctx.ids).filter(([, v]) => Array.isArray(v)).map(([k, v]) => [k, v.length])),
       terrain: { grid: `${terrain.cols}x${terrain.rows}`, cell: terrain.cell, samples: terrain.samples },
       water: water.surfaces.length,
+      mountains,
+      landmarks,
+      boulders: spots.length,
+      stones: stones.length,
       outside: this.outside.stats,
     };
   }

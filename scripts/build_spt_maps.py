@@ -50,6 +50,14 @@ LABELS_RU = {
     'Collapsed Tunnel': 'Обвалившийся туннель', 'Abandoned Village': 'Заброшенная деревня', 'Cottages': 'Коттеджи', 'Pier': 'Пирс',
     'Railroad Bridge': 'Ж/д мост', 'Airfield': 'Аэродром', 'Command Bunker': 'Командный бункер', 'Swimming Pool': 'Бассейн',
     'Warehouses': 'Склады', 'Storage': 'Склад', 'Checkpoint Fence Tower': 'Вышка у КПП',
+    'K Buildings': 'Корпуса К', 'White Queen': 'Белый ферзь', 'White Rook': 'Белая ладья', 'Train Station': 'Ж/д вокзал', 'E1 Bunkers': 'Бункеры E1',
+    'E2 Bunkers': 'Бункеры E2', 'д - Warehouse Bunkers': 'Складские бункеры (Д)', 'Garage': 'Гараж', 'Mechanic': 'Мастерская', 'Gas Station': 'Заправка',
+    'Shipping Yard': 'Контейнерная площадка', 'K1': 'К1', 'K2': 'К2', 'K3': 'К3', 'K4': 'К4', 'K5': 'К5', 'K6': 'К6', 'Tarmac': 'Плац',
+    'Drug Lab': 'Нарколаборатория', 'Plant 1': 'Цех 1', 'Plant 2': 'Цех 2', 'Plant 3': 'Цех 3', 'Pipes': 'Трубы', 'Gunner Nest': 'Пулемётное гнездо',
+    'Convenience': 'Магазин', 'Red Brick': 'Красный кирпичный дом', 'Hillside': 'Дома на склоне', 'Boathouses': 'Лодочные сараи', 'Dead Tree': 'Сухое дерево',
+    'Pikes Peak Resort': 'Курорт Пайкс-Пик', 'Grand Chalet': 'Большое шале', 'Tennis Court': 'Теннисный корт', 'Lightkeeper Island': 'Остров Смотрителя',
+    'Skyside': 'Skyside', 'Fusion': 'Fusion', 'Empire': 'Empire', 'Elemental Global': 'Elemental Global', 'Oasis': 'Oasis', 'ASAP Winery': 'Винодельня ASAP',
+    'Tarbank': 'Tarbank', 'GAGRIN Hotel': 'Отель «Гагрин»', 'M Showroom': 'Автосалон M', 'Science Office': 'Научный офис', 'TerraGroup': 'TerraGroup',
 }
 
 BOSSES = {

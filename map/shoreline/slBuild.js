@@ -97,7 +97,14 @@ export function carveWater(ctx) {
   const { cols, rows, cell, gx0, gz0, heights } = terrain;
   const waterY = new Float32Array(cols * rows).fill(NaN);
   const surfaces = [];
-  for (const poly of polysOf(ctx, 'water', { minArea: 30 })) {
+  // Land drawn above a water body in the plan (Lighthouse draws the sea first, then the islands on it) stays dry.
+  const dryOf = new Map();
+  const dry = (id) => {
+    if (!dryOf.has(id)) dryOf.set(id, ((ctx.landAbove && ctx.landAbove[id]) || []).flatMap((lid) => svg.polygons(lid, { minArea: 30 })));
+    return dryOf.get(id);
+  };
+  const bodies = idsOf(ctx, 'water').flatMap((id) => svg.polygons(id, { minArea: 30 }).map((poly) => [poly, dry(id)]));
+  for (const [poly, above] of bodies) {
     const info = ringInfo(poly.outer);
     const flat = info.width >= 20; // lakes and the sea; the narrow river follows the ground
     let level = Infinity;
@@ -110,8 +117,14 @@ export function carveWater(ctx) {
     let nodes = 0;
     for (let r = r0; r <= r1; r += 1) {
       for (let c = c0; c <= c1; c += 1) {
-        if (!pointInPolygon({ x: -(gx0 + c * cell), z: gz0 + r * cell }, poly)) continue;
+        const p = { x: -(gx0 + c * cell), z: gz0 + r * cell };
+        if (!pointInPolygon(p, poly)) continue;
         const i = r * cols + c;
+        if (above.some((q) => pointInPolygon(p, q))) {
+          // an island keeps its shore above the water around it
+          if (flat) heights[i] = Math.max(heights[i], level + 0.9);
+          continue;
+        }
         const h = heights[i];
         const wy = flat ? level : h - 0.4;
         heights[i] = flat ? Math.min(h, level - 2.2) : h - 1.6;
@@ -155,6 +168,24 @@ export function buildTerrainMesh(terrain, projection, material) {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  if (material.vertexColors) {
+    // Slopes darker and greyer (rock faces), flats a little uneven, so hills read as relief under a flat plan texture.
+    const col = new Float32Array(cols * rows * 3);
+    const h = (r, c) => heights[Math.max(0, Math.min(rows - 1, r)) * cols + Math.max(0, Math.min(cols - 1, c))];
+    for (let r = 0; r < rows; r += 1) {
+      for (let c = 0; c < cols; c += 1) {
+        const i = r * cols + c;
+        const slope = Math.hypot(h(r, c + 1) - h(r, c - 1), h(r + 1, c) - h(r - 1, c)) / (2 * cell);
+        const n = Math.sin(c * 1.7 + Math.sin(r * 0.9) * 2.1) * Math.cos(r * 1.3 + Math.sin(c * 0.7) * 1.7);
+        const k = Math.max(0.62, 1 - Math.min(0.38, slope * 0.32)) + n * 0.04;
+        const grey = Math.min(0.3, slope * 0.25);
+        col[i * 3] = k * (1 - grey) + 0.62 * grey;
+        col[i * 3 + 1] = k * (1 - grey) + 0.6 * grey;
+        col[i * 3 + 2] = k * (1 - grey) + 0.56 * grey;
+      }
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  }
   g.setIndex(new THREE.BufferAttribute(index, 1));
   g.computeVertexNormals();
   g.computeBoundingSphere();
@@ -308,10 +339,17 @@ export function buildOutside(ctx, water) {
     for (const poly of svg.polygons(gid, { minArea: 3 })) {
       // 'auto': the kind and height from the footprint (open maps without separate building groups)
       const area0 = ringInfo(poly.outer).area;
+      // A round footprint (tank, silo, clarifier) is built by the map's own hook when it has one.
+      if (ctx.roundBuilding && ctx.roundBuilding(poly, { ground, footprints })) {
+        stats.round = (stats.round || 0) + 1;
+        continue;
+      }
       const auto = kind0 === 'auto' || kind0 === 'auto-city';
       const kind = !auto ? kind0 : area0 < 160 ? 'small' : area0 < 900 ? 'medium' : 'large';
       const storey = kind0 === 'auto-city' ? 2 : 1; // Ground Zero: office towers, not village houses
-      const H = !auto ? H0 : (kind === 'small' ? 3.1 : kind === 'medium' ? 6.4 : 9.6) * storey * (kind0 === 'auto-city' && kind === 'large' ? 1.6 : 1);
+      // Ground Zero's blocks differ in height (a steady hash of the position, so the skyline is not one flat level).
+      const vary = kind0 === 'auto-city' ? 0.75 + 0.7 * ((Math.abs(Math.sin(poly.outer[0].x * 12.9898 + poly.outer[0].z * 78.233)) * 43758.5453) % 1) : 1;
+      const H = !auto ? H0 : (kind === 'small' ? 3.1 : kind === 'medium' ? 6.4 : 9.6) * storey * (kind0 === 'auto-city' && kind === 'large' ? 1.6 : 1) * vary;
       const info = ringInfo(poly.outer);
       let low = ground(info.center.x, info.center.z);
       let high = low;
@@ -325,7 +363,8 @@ export function buildOutside(ctx, water) {
       const eave = floorY + height;
       const style = pick(rb, styles);
       // Painted plaster on houses (every house its own colour), near-white on sheds and industrial blocks.
-      const tint = color(pick(rb, style === 'industrial' || kind === 'terminal' ? INDUSTRIAL_TINTS : HOUSE_TINTS));
+      const glassy = style === 'glass' || style === 'office' || style === 'modern';
+      const tint = color(pick(rb, glassy ? ['#ffffff', '#e9eef2', '#f3efe6'] : style === 'industrial' || kind === 'terminal' ? INDUSTRIAL_TINTS : HOUSE_TINTS));
       facadeRing(facade(style), poly.outer, low - 0.4, eave, floorY, tint);
       for (const hole of poly.holes) facadeRing(facade('brick'), hole, low - 0.4, eave, floorY, tint);
       if (poly.outer.length === 4 && !poly.holes.length && kind !== 'terminal') {
@@ -335,6 +374,7 @@ export function buildOutside(ctx, water) {
         ringWalls(roofs, poly.outer, eave, eave + 0.45, C.parapetLow, C.parapet);
       }
       footprints.push({ poly, bounds: info.bounds });
+      if (ctx.builtBuildings) ctx.builtBuildings.push({ poly, eave, floorY, kind, center: info.center, area: info.area });
       stats.buildings += 1;
     }
   }
@@ -395,6 +435,7 @@ export function buildOutside(ctx, water) {
   // rocks
   const rockGeos = [];
   for (const poly of polysOf(ctx, 'rocks', { minArea: 2 })) {
+    if (ctx.rockFilter && !ctx.rockFilter(poly)) continue; // big rock areas are hills of the relief (map/open/relief.js)
     const info = ringInfo(poly.outer);
     let low = Infinity;
     for (const p of poly.outer) low = Math.min(low, ground(p.x, p.z));
@@ -691,17 +732,22 @@ export function buildOutside(ctx, water) {
 // roads, water and buildings. The SVG marks only part of the woods, so these positions are an approximation.
 export async function scatterTrees(ctx, outside) {
   const { svg, projection, props, icProps, materials, mapData, ground } = ctx;
+  // ctx.groves.onRock: share of the grove density that also grows on rocky hills (grey in the mask).
+  const onRock = (ctx.groves && ctx.groves.onRock) || 0;
   const mask = await rasterMask(svg.svgDoc, {
-    layers: ['Ground_Level'], css: CSS_OPEN_GROUND, crop: { x: 0, y: 0, w: mapData.map.svg.width, h: mapData.map.svg.height }, pxPerUnit: 1,
+    layers: ['Ground_Level'], css: onRock ? `${CSS_OPEN_GROUND}.rock,.rock *{fill:#808080!important}` : CSS_OPEN_GROUND,
+    crop: { x: 0, y: 0, w: mapData.map.svg.width, h: mapData.map.svg.height }, pxPerUnit: 1,
   });
-  const open = (p) => {
+  const value = (p) => {
     const u = (p.x - projection.sceneLeft) / projection.svgScaleX;
     const v = (p.z - projection.sceneTop) / projection.svgScaleZ;
     const px = Math.floor((u - mask.crop.x) * mask.scale);
     const py = Math.floor((v - mask.crop.y) * mask.scale);
-    if (px < 0 || py < 0 || px >= mask.width || py >= mask.height) return false;
-    return mask.data[(py * mask.width + px) * 4] > 140;
+    if (px < 0 || py < 0 || px >= mask.width || py >= mask.height) return 0;
+    return mask.data[(py * mask.width + px) * 4];
   };
+  const limit = onRock ? 90 : 140;
+  const open = (p) => value(p) > limit;
   const clear = (p, rad) => open(p) && [0, 1.571, 3.142, 4.712].every((a) => open({ x: p.x + Math.cos(a) * rad, z: p.z + Math.sin(a) * rad }));
   const lattice = (i, j) => {
     const h = Math.sin(i * 127.1 + j * 311.7) * 43758.5453;
@@ -732,8 +778,8 @@ export async function scatterTrees(ctx, outside) {
     for (let z = projection.sceneTop + 4; z < projection.sceneTop + projection.depth; z += step) {
       const p = { x: x + (r() - 0.5) * step * 0.75, z: z + (r() - 0.5) * step * 0.75 };
       const n = noise(p.x, p.z);
-      const density = n < 0.5 ? floorD : Math.min(peak, floorD + (n - 0.5) * 2.2 * (peak / 0.6));
-      if (r() > density || !clear(p, 3) || outside.inWater(p) || outside.inFootprint(p) || outside.onRoad(p, 2.5)) continue;
+      const density = (n < 0.5 ? floorD : Math.min(peak, floorD + (n - 0.5) * 2.2 * (peak / 0.6))) * (onRock && value(p) <= 140 ? onRock : 1);
+      if (r() > density || !clear(p, 3) || (ctx.noTrees && ctx.noTrees.some((c) => Math.hypot(p.x - c.x, p.z - c.z) < c.r)) || outside.inWater(p) || outside.inFootprint(p) || outside.onRoad(p, 2.5)) continue;
       const y = ground(p.x, p.z) - 0.1;
       const k = 0.7 + r() * 0.65;
       const ang = r() * Math.PI * 2;
