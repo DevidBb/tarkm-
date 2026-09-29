@@ -45,6 +45,7 @@ const STAIR_PER_STOREY = 5;
 const GROUND_STOREY = 3.2;
 const STOREY = 3.1;
 const UNDER_REL = -3;
+const TARGET_REACH = 90; // m: farthest a target may lie from the walkable plan it is routed to
 const SNAP_START = 60;
 const GOAL_NEAR = 3;
 const GOAL_FAR = 40;
@@ -1340,7 +1341,8 @@ export class Navigator {
         || this.snap(toLayer, b, GOAL_FAR, ok(toLayer, targetInside))
         || this.snap(toLayer, b, GOAL_FAR, ok(toLayer, null))
         || this.snap(toLayer, b, SNAP_START, ok(toLayer, null))
-        || (toLayer !== street ? this.snap(street, b, SNAP_START, ok(street, null)) : null);
+        || (toLayer !== street ? this.snap(street, b, SNAP_START, ok(street, null)) : null)
+        || this.snap(street, b, TARGET_REACH, ok(street, null));
     };
     let sa = this.snap(fromLayer, a, SNAP_START) || (fromLayer !== street ? this.snap(street, a, SNAP_START) : null);
     if (!sa) return null;
@@ -1391,7 +1393,10 @@ export class Navigator {
     for (const t of targets) {
       const toLayer = this.layerFor(t.position, t.floor);
       const b = { x: -t.position.x, z: t.position.z };
-      const sb = this.snap(toLayer, b, GOAL_NEAR, same(toLayer)) || this.snap(toLayer, b, GOAL_FAR, same(toLayer)) || this.snap(street, b, SNAP_START, same(street));
+      // a target just past a drawn border or fence (an extract through the map limit) is approached as close as the
+      // plan allows: the rest shows as the end gap
+      const sb = this.snap(toLayer, b, GOAL_NEAR, same(toLayer)) || this.snap(toLayer, b, GOAL_FAR, same(toLayer)) || this.snap(street, b, SNAP_START, same(street))
+        || this.snap(street, b, TARGET_REACH, same(street));
       if (sb) goals.push({ t, sb, toLayer, b });
     }
     if (!goals.length) return [];
