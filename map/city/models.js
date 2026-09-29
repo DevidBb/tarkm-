@@ -6,8 +6,9 @@
 
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
 import { mergeGeometries } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/utils/BufferGeometryUtils.js/+esm';
+import { registerLod } from './instancing.js';
 
-function paint(geo, hex) {
+export function paint(geo, hex) {
   const g = geo.index ? geo.toNonIndexed() : geo;
   g.deleteAttribute('uv');
   const c = new THREE.Color(hex);
@@ -163,7 +164,7 @@ export function propModels() {
   const metal = '#6f726e';
   const dark = '#2f312f';
   const concrete = '#9a988f';
-  return {
+  const models = {
     lamp: merge([cyl(0.07, 0.11, 8.2, 6, 0, 0, 0, metal), box(1.9, 0.08, 0.08, 0.95, 8.0, 0, metal), box(0.7, 0.18, 0.3, 1.75, 7.8, 0, '#3b3d3b'), box(0.5, 0.02, 0.2, 1.75, 7.78, 0, '#d9d3b3')]),
     trafficLight: merge([
       cyl(0.07, 0.08, 3.4, 6, 0, 0, 0, '#3c3e3c'), box(0.34, 1.0, 0.3, 0, 2.55, 0, '#181a19'),
@@ -217,6 +218,14 @@ export function propModels() {
     signBoard: merge([box(1, 1, 0.22, 0, 0, 0.11, '#2b2c2b')]),
     gun: merge([box(0.08, 0.8, 0.08, 0, 0, 0, '#2c2e2c'), box(1.3, 0.1, 0.1, 0.4, 0.8, 0, '#2c2e2c'), box(0.4, 0.3, 0.3, -0.1, 0.72, 0, '#3a3d38')]),
   };
+  // simpler models far away (map/city/instancing.js LOD levels)
+  registerLod(models.treeCrown, [{ from: 240, geometry: merge([place(paint(new THREE.OctahedronGeometry(2.4, 0), '#ffffff'), 0, 4.6, 0)]) }]);
+  registerLod(models.treeTrunk, [{ from: 240, geometry: merge([cyl(0.1, 0.2, 3.2, 3, 0, 0, 0, '#4a3b2b')]) }, { from: 520, geometry: null }]);
+  registerLod(models.balconyOpen, [{ from: 150, geometry: merge([box(2.7, 0.14, 1.05, 0, 0, 0.52, '#9a988f'), box(2.7, 1.0, 0.05, 0, 0.14, 1.03, '#74766f')]) }]);
+  registerLod(models.balconyGlazed, [{ from: 150, geometry: merge([box(2.7, 1.14, 1.05, 0, 0, 0.52, '#cfcac0'), box(2.7, 1.35, 1.05, 0, 1.14, 0.52, '#3d4b50')]) }]);
+  registerLod(models.acUnit, [{ from: 120, geometry: merge([box(0.85, 0.55, 0.3, 0, 0, 0.16, '#d7d8d3')]) }]);
+  registerLod(models.lamp, [{ from: 200, geometry: merge([cyl(0.07, 0.11, 8.2, 3, 0, 0, 0, '#6f726e'), box(1.9, 0.12, 0.12, 0.95, 7.95, 0, '#6f726e')]) }]);
+  return models;
 }
 
 function sandbagNest() {

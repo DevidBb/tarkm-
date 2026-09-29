@@ -19,6 +19,7 @@ import { walkLine, addMesh, facadeRing, gableRoof } from '../shoreline/slBuild.j
 import { customsFacade } from './csTextures.js';
 import { tankGeometry, canopyGeometry, CONTAINER_COLORS, CABIN_COLORS, GARAGE_COLORS, SHEET_COLORS, GRASS_COLORS, BARREL_COLORS } from './csModels.js';
 import { merge } from '../city/models.js';
+import { HOUSE_TINTS, INDUSTRIAL_TINTS } from '../fx/palette.js';
 
 const C = {
   roofRust: color('#6b4f3a'), roofGrey: color('#5c5f5e'), roofDark: color('#46423c'), roofSlate: color('#6e7271'), gable: color('#8a7d6a'),
@@ -116,7 +117,7 @@ export function buildBuildings(ctx, parts) {
   const facade = (style) => {
     if (!facadeBuckets.has(style)) {
       facadeBuckets.set(style, new MeshBucket());
-      if (!materials.facades[style]) materials.facades[style] = new THREE.MeshLambertMaterial({ map: customsFacade(style, anisotropy), side: THREE.DoubleSide });
+      if (!materials.facades[style]) materials.facades[style] = new THREE.MeshLambertMaterial({ map: customsFacade(style, anisotropy), side: THREE.DoubleSide, vertexColors: true });
     }
     return facadeBuckets.get(style);
   };
@@ -124,6 +125,7 @@ export function buildBuildings(ctx, parts) {
   const frames = new MeshBucket();
   const tanks = [];
   const rb = rng(hashString('customs-buildings-v2'));
+  const rt = rng(hashString('customs-tints'));
   const footprints = [];
   const doors = [];
   const layer = {
@@ -243,8 +245,10 @@ export function buildBuildings(ctx, parts) {
       else height = info.area > 150 ? 4.2 : 3.4;
       const eave = floorY + height;
       fp.eave = eave;
-      facadeRing(facade(style), poly.outer, low - 0.4, eave, floorY);
-      for (const hole of poly.holes) facadeRing(facade(style), hole, low - 0.4, eave, floorY);
+      // Houses and blocks in painted plaster, each its own colour; warehouses, garages and sheds near white.
+      const tint = color(pick(rt, kind === 'house' || kind === 'block' || kind === 'dorm' ? HOUSE_TINTS : INDUSTRIAL_TINTS));
+      facadeRing(facade(style), poly.outer, low - 0.4, eave, floorY, tint);
+      for (const hole of poly.holes) facadeRing(facade(style), hole, low - 0.4, eave, floorY, tint);
 
       const pitched = poly.outer.length === 4 && !poly.holes.length && box.fill > 0.95;
       if (pitched && (kind === 'house' || kind === 'shed')) {

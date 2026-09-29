@@ -48,9 +48,15 @@ export async function loadMapData(url = MAP_DATA_URL) {
     if (levels && levels.zones) {
       const { extents = [], basements = [], interiors = [] } = levels.zones;
       const { x, y, z } = position;
+      // Open maps: a layer's area and height band may reach the ground around it; a point is on that layer only
+      // when it is clearly under (bunkers, garage) or above (storeys) the relief there.
+      const ground = data.map.kind === 'open' && projection.heightAt ? projection.heightAt(-x, z) : null;
       for (const e of extents) {
         const q = e.rect;
-        if (x >= q.x0 && x <= q.x1 && z >= q.z0 && z <= q.z1 && y >= e.minY && y < e.maxY) return e.floor;
+        if (x >= q.x0 && x <= q.x1 && z >= q.z0 && z <= q.z1 && y >= e.minY && y < e.maxY) {
+          if (ground != null && (e.floor === 'UNDERGROUND' ? y > ground - 2.5 : y < ground + 2)) continue;
+          return e.floor;
+        }
       }
       for (const b of basements) if (y < b.maxY && insideRings([b.outline], position)) return 'UNDERGROUND';
       for (const ring of interiors) if (insideRings([ring], position)) return 'LEVEL1';

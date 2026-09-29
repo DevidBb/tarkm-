@@ -3,13 +3,14 @@
 // conifers and bushes. Parts painted per instance (crowns, dumpsters) are white.
 
 import { box, cyl, merge } from '../city/models.js';
+import { registerLod } from '../city/instancing.js';
 
 export const CAR_PAINTS = ['#e8e6df', '#e8e6df', '#a9adb0', '#a9adb0', '#5d6165', '#1c1d1f', '#1c1d1f', '#a12b27', '#6b1c21', '#1f3558', '#6f8fa8', '#3e5a3a', '#c9b98f', '#5a3d2b'];
 export const CAR_MODELS = ['sedan', 'sedan', 'hatch', 'hatch', 'suv'];
 
 export function interchangeModels() {
   const wheel = (r, w, x, z, rotated = Math.PI / 2) => cyl(r, r, w, 10, x, r - w / 2, z, '#161616', rotated);
-  return {
+  const models = {
     // loot containers (tarkov.dev container types)
     crate: merge([box(1.2, 0.85, 0.9, 0, 0, 0, '#8a6a42'), box(1.22, 0.08, 0.92, 0, 0.3, 0, '#6d5334'), box(1.22, 0.08, 0.92, 0, 0.62, 0, '#6d5334')]),
     weaponBox: merge([box(1.5, 0.45, 0.55, 0, 0, 0, '#3f4a36'), box(1.52, 0.05, 0.57, 0, 0.44, 0, '#2f372a'), box(0.1, 0.12, 0.3, 0.6, 0.45, 0, '#1f231d'), box(0.1, 0.12, 0.3, -0.6, 0.45, 0, '#1f231d')]),
@@ -58,4 +59,12 @@ export function interchangeModels() {
     coniferCrown: merge([cyl(0, 2.6, 5.4, 7, 0, 2.2, 0, '#ffffff'), cyl(0, 2.0, 4.4, 7, 0, 4.9, 0, '#ffffff'), cyl(0, 1.2, 3.2, 7, 0, 7.6, 0, '#ffffff')]),
     bush: merge([cyl(0.7, 1.1, 1.1, 6, 0, 0, 0, '#ffffff'), cyl(0.15, 0.8, 0.6, 6, 0, 1.1, 0, '#ffffff')]),
   };
+  // simpler models far away (map/city/instancing.js LOD levels)
+  registerLod(models.coniferCrown, [
+    { from: 240, geometry: merge([cyl(0, 2.5, 8.6, 5, 0, 2.2, 0, '#ffffff')]) },
+    { from: 800, geometry: merge([cyl(0, 2.4, 8.6, 3, 0, 2.2, 0, '#ffffff')]) },
+  ]);
+  registerLod(models.coniferTrunk, [{ from: 240, geometry: merge([cyl(0.12, 0.24, 3, 3, 0, 0, 0, '#4a3b2b')]) }, { from: 520, geometry: null }]);
+  registerLod(models.bush, [{ from: 150, geometry: merge([cyl(0.3, 1.1, 1.6, 4, 0, 0, 0, '#ffffff')]) }]);
+  return models;
 }

@@ -23,14 +23,23 @@ function canvas(w, h) {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
-  return [c, c.getContext('2d')];
+  // CPU-backed: the generated textures are read back (grain), which stalls on a GPU canvas for 0.1-2 s each
+  return [c, c.getContext('2d', { willReadFrequently: true })];
 }
 
+// Fine noise over a whole texture. The random values come from a table drawn once per call (a prime length, so
+// the pattern does not line up from row to row) instead of a generator call per pixel: the same look, ~10× faster
+// (this was the largest single cost of loading Streets).
+const GRAIN_N = 65521;
+const grainTable = new Float32Array(GRAIN_N);
 function grain(ctx, w, h, r, amount) {
   const img = ctx.getImageData(0, 0, w, h);
   const d = img.data;
+  for (let k = 0; k < GRAIN_N; k += 1) grainTable[k] = (r() - 0.5) * amount;
+  let j = Math.floor(r() * GRAIN_N);
   for (let i = 0; i < d.length; i += 4) {
-    const n = (r() - 0.5) * amount;
+    const n = grainTable[j];
+    j = j + 1 === GRAIN_N ? 0 : j + 1;
     d[i] += n;
     d[i + 1] += n;
     d[i + 2] += n;

@@ -167,8 +167,10 @@ export function buildFlightMeshes(flights, heights, materials) {
 }
 
 // ---------------------------------------------------------------- cars
-export function buildCars(parent, placements, ctx) {
+// burn: { share, max, onlyWrecks } - some wrecks burn (ctx.fx, map/fx/ambience.js); call before instancing.
+export function buildCars(parent, placements, ctx, burn = null) {
   const { cars: models, materials } = ctx;
+  if (burn && ctx.fx) ctx.fx.cars(placements, burn);
   const layers = [];
   const byModel = new Map();
   const near = (name, geometry, material) => {
@@ -193,9 +195,9 @@ export function buildCars(parent, placements, ctx) {
     const matrix = composeMatrix(pl.x, pl.y, pl.z, pl.heading);
     const col = new THREE.Color(pl.paint);
     lay.body.add(matrix, col);
-    lay.glass.add(matrix);
+    if (!pl.burned) lay.glass.add(matrix);
     lay.detail.add(matrix);
-    if (lay.decal) lay.decal.add(matrix);
+    if (lay.decal && !pl.burned) lay.decal.add(matrix);
     far.add(composeMatrix(pl.x, pl.y + 0.3, pl.z, pl.heading, m.length, m.height * 0.8, m.width), col.clone());
   }
   for (const l of layers) l.build();
@@ -674,7 +676,7 @@ export function buildStreet(ctx) {
   layers.push(...detail.layers);
   placements.push(...detail.placements);
   stats.detail = detail.stats;
-  layers.push(...buildCars(carGroup, placements, ctx));
+  layers.push(...buildCars(carGroup, placements, ctx, { share: 0.03, max: 6, onlyWrecks: false }));
   stats.cars = placements.length;
 
   // Crates, weapon boxes, caches at their loot spawn points; doors at key locks.

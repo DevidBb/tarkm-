@@ -65,6 +65,7 @@ export class FactoryLayer {
     const { width: W, height: H } = this.mapData.map.svg;
     const crop = { x: 0, y: 0, w: W, h: H };
     const ctx = {
+      fx: this.fx || null,
       svg,
       projection,
       heights: this.heights,

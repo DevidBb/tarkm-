@@ -20,6 +20,9 @@ import { buildCars, pylonGeometry } from '../interchange/icBuild.js';
 import { floorProps } from '../interchange/icStreetDetail.js';
 import { CAR_PAINTS, CAR_MODELS } from '../interchange/icModels.js';
 import { rasterMask } from '../interchange/icTextures.js';
+import { HOUSE_TINTS, INDUSTRIAL_TINTS, ROOF_COLORS } from '../fx/palette.js';
+import { canopyGeometry } from '../customs/csModels.js';
+import { box as mbox, merge as mmerge } from '../city/models.js';
 
 // Open ground for scattered trees: meadows and fields white; roads, paths, pavement, rocks, water, piers, buildings and
 // the SVG forest areas (they have their own trees) black.
@@ -63,6 +66,21 @@ export function walkLine(line, step, fn, offset = step / 2) {
   }
 }
 
+// SVG group ids of each part of the open ground. Shoreline's own ids by default; other open maps (Woods, Reserve,
+// Lighthouse, Ground Zero) pass ctx.ids found by class (see map/open/OpenLayer.js).
+const SHORELINE_IDS = {
+  water: ['Water'], docks: ['Docks'], rocks: ['Rocks'], forest: ['Forest'], fences: ['Fences'], powerlines: ['Powerlines'],
+  towers: ['Powerline_Towers'], railroad: ['Railroad'], mines: ['Mines'], roads: ['Roads'], roadsUnpaved: ['Roads_Unpaved'], paths: ['Path'],
+  buildings: [
+    ['Small_Buildings', 'small', 3.1, ['brick', 'panel', 'industrial']],
+    ['Medium_Buildings', 'medium', 6.4, ['panel', 'brick', 'industrial']],
+    ['Terminal', 'terminal', 6.5, ['industrial']],
+  ],
+};
+export const idsOf = (ctx, key) => (ctx.ids && ctx.ids[key]) || SHORELINE_IDS[key] || [];
+export const polysOf = (ctx, key, opts) => idsOf(ctx, key).flatMap((id) => ctx.svg.polygons(id, opts));
+export const strokesOf = (ctx, key) => idsOf(ctx, key).flatMap((id) => ctx.svg.strokes(id));
+
 export function addMesh(parent, bucket, material, name) {
   const mesh = bucket.mesh(material);
   if (mesh) {
@@ -79,7 +97,14 @@ export function carveWater(ctx) {
   const { cols, rows, cell, gx0, gz0, heights } = terrain;
   const waterY = new Float32Array(cols * rows).fill(NaN);
   const surfaces = [];
-  for (const poly of svg.polygons('Water', { minArea: 30 })) {
+  // Land drawn above a water body in the plan (Lighthouse draws the sea first, then the islands on it) stays dry.
+  const dryOf = new Map();
+  const dry = (id) => {
+    if (!dryOf.has(id)) dryOf.set(id, ((ctx.landAbove && ctx.landAbove[id]) || []).flatMap((lid) => svg.polygons(lid, { minArea: 30 })));
+    return dryOf.get(id);
+  };
+  const bodies = idsOf(ctx, 'water').flatMap((id) => svg.polygons(id, { minArea: 30 }).map((poly) => [poly, dry(id)]));
+  for (const [poly, above] of bodies) {
     const info = ringInfo(poly.outer);
     const flat = info.width >= 20; // lakes and the sea; the narrow river follows the ground
     let level = Infinity;
@@ -92,8 +117,14 @@ export function carveWater(ctx) {
     let nodes = 0;
     for (let r = r0; r <= r1; r += 1) {
       for (let c = c0; c <= c1; c += 1) {
-        if (!pointInPolygon({ x: -(gx0 + c * cell), z: gz0 + r * cell }, poly)) continue;
+        const p = { x: -(gx0 + c * cell), z: gz0 + r * cell };
+        if (!pointInPolygon(p, poly)) continue;
         const i = r * cols + c;
+        if (above.some((q) => pointInPolygon(p, q))) {
+          // an island keeps its shore above the water around it
+          if (flat) heights[i] = Math.max(heights[i], level + 0.9);
+          continue;
+        }
         const h = heights[i];
         const wy = flat ? level : h - 0.4;
         heights[i] = flat ? Math.min(h, level - 2.2) : h - 1.6;
@@ -137,12 +168,112 @@ export function buildTerrainMesh(terrain, projection, material) {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  if (material.vertexColors) {
+    // Slopes darker and greyer (rock faces), flats a little uneven, so hills read as relief under a flat plan texture.
+    const col = new Float32Array(cols * rows * 3);
+    const h = (r, c) => heights[Math.max(0, Math.min(rows - 1, r)) * cols + Math.max(0, Math.min(cols - 1, c))];
+    for (let r = 0; r < rows; r += 1) {
+      for (let c = 0; c < cols; c += 1) {
+        const i = r * cols + c;
+        const slope = Math.hypot(h(r, c + 1) - h(r, c - 1), h(r + 1, c) - h(r - 1, c)) / (2 * cell);
+        const n = Math.sin(c * 1.7 + Math.sin(r * 0.9) * 2.1) * Math.cos(r * 1.3 + Math.sin(c * 0.7) * 1.7);
+        const k = Math.max(0.62, 1 - Math.min(0.38, slope * 0.32)) + n * 0.04;
+        const grey = Math.min(0.3, slope * 0.25);
+        col[i * 3] = k * (1 - grey) + 0.62 * grey;
+        col[i * 3 + 1] = k * (1 - grey) + 0.6 * grey;
+        col[i * 3 + 2] = k * (1 - grey) + 0.56 * grey;
+      }
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  }
   g.setIndex(new THREE.BufferAttribute(index, 1));
   g.computeVertexNormals();
   g.computeBoundingSphere();
   const mesh = new THREE.Mesh(g, material);
   mesh.name = 'terrain';
   return mesh;
+}
+
+// The relief as square tiles (128×128 nodes) instead of one mesh: the camera draws only the tiles in view. Positions,
+// normals (computed over the whole grid, so the seams stay smooth), uv and shading colours are copied per tile.
+export function tileTerrain(mesh, terrain, size = 128) {
+  const { cols, rows } = terrain;
+  const src = mesh.geometry;
+  const names = ['position', 'normal', 'uv', 'color'].filter((n) => src.attributes[n]);
+  const group = new THREE.Group();
+  group.name = mesh.name;
+  for (let r0 = 0; r0 < rows - 1; r0 += size) {
+    for (let c0 = 0; c0 < cols - 1; c0 += size) {
+      const r1 = Math.min(rows - 1, r0 + size);
+      const c1 = Math.min(cols - 1, c0 + size);
+      const tc = c1 - c0 + 1;
+      const tr = r1 - r0 + 1;
+      const g = new THREE.BufferGeometry();
+      for (const n of names) {
+        const a = src.attributes[n];
+        const k = a.itemSize;
+        const arr = new Float32Array(tc * tr * k);
+        for (let r = 0; r < tr; r += 1) {
+          const from = ((r0 + r) * cols + c0) * k;
+          arr.set(a.array.subarray(from, from + tc * k), r * tc * k);
+        }
+        g.setAttribute(n, new THREE.BufferAttribute(arr, k));
+      }
+      const index = new (tc * tr > 65535 ? Uint32Array : Uint16Array)((tc - 1) * (tr - 1) * 6);
+      let q = 0;
+      for (let r = 0; r < tr - 1; r += 1) {
+        for (let c = 0; c < tc - 1; c += 1) {
+          const a = r * tc + c;
+          const b = a + 1;
+          const d = a + tc;
+          const e = d + 1;
+          index[q++] = a; index[q++] = b; index[q++] = d;
+          index[q++] = b; index[q++] = e; index[q++] = d;
+        }
+      }
+      g.setIndex(new THREE.BufferAttribute(index, 1));
+      g.computeBoundingSphere();
+      const tile = new THREE.Mesh(g, mesh.material);
+      tile.name = `${mesh.name}-tile`;
+      tile.renderOrder = mesh.renderOrder;
+      tile.matrixAutoUpdate = false;
+      group.add(tile);
+    }
+  }
+  src.dispose();
+  return group;
+}
+
+// Triangle soup (water) sorted into square tiles for the same reason.
+export function tileSoup(mesh, size = 256) {
+  const pos = mesh.geometry.attributes.position.array;
+  const buckets = new Map();
+  for (let t = 0; t < pos.length; t += 9) {
+    const cx = (pos[t] + pos[t + 3] + pos[t + 6]) / 3;
+    const cz = (pos[t + 2] + pos[t + 5] + pos[t + 8]) / 3;
+    const key = `${Math.floor(cx / size)},${Math.floor(cz / size)}`;
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(t);
+  }
+  const group = new THREE.Group();
+  group.name = mesh.name;
+  for (const list of buckets.values()) {
+    const arr = new Float32Array(list.length * 9);
+    list.forEach((t, i) => arr.set(pos.subarray(t, t + 9), i * 9));
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    const nrm = new Float32Array(arr.length);
+    for (let i = 1; i < nrm.length; i += 3) nrm[i] = 1;
+    g.setAttribute('normal', new THREE.BufferAttribute(nrm, 3));
+    g.computeBoundingSphere();
+    const tile = new THREE.Mesh(g, mesh.material);
+    tile.name = `${mesh.name}-tile`;
+    tile.renderOrder = mesh.renderOrder;
+    tile.matrixAutoUpdate = false;
+    group.add(tile);
+  }
+  mesh.geometry.dispose();
+  return group;
 }
 
 export function buildWaterMesh(terrain, waterY, material) {
@@ -172,7 +303,7 @@ export function buildWaterMesh(terrain, waterY, material) {
 }
 
 // ---------------------------------------------------------------- buildings
-export function facadeRing(bucket, ring, y0, y1, vBase) {
+export function facadeRing(bucket, ring, y0, y1, vBase, tint = WHITE) {
   let s = 0;
   for (let i = 0; i < ring.length; i += 1) {
     const a = ring[i];
@@ -182,7 +313,7 @@ export function facadeRing(bucket, ring, y0, y1, vBase) {
     const u0 = s / UPPER_TILE.w;
     const u1 = (s + len) / UPPER_TILE.w;
     const v = (y) => (y - vBase) / UPPER_TILE.h;
-    bucket.quad([a.x, y0, a.z, u0, v(y0)], [b.x, y0, b.z, u1, v(y0)], [b.x, y1, b.z, u1, v(y1)], [a.x, y1, a.z, u0, v(y1)], [(b.z - a.z) / len, 0, -(b.x - a.x) / len], WHITE);
+    bucket.quad([a.x, y0, a.z, u0, v(y0)], [b.x, y0, b.z, u1, v(y0)], [b.x, y1, b.z, u1, v(y1)], [a.x, y1, a.z, u0, v(y1)], [(b.z - a.z) / len, 0, -(b.x - a.x) / len], tint);
     s += len;
   }
 }
@@ -245,15 +376,15 @@ export function buildOutside(ctx, water) {
     return !Number.isNaN(water.waterY[r * terrain.cols + c]);
   };
 
-  group.add(buildTerrainMesh(terrain, ctx.projection, materials.terrain));
+  group.add(tileTerrain(buildTerrainMesh(terrain, ctx.projection, materials.terrain), terrain));
   const waterMesh = buildWaterMesh(terrain, water.waterY, materials.water);
-  if (waterMesh) group.add(waterMesh);
+  if (waterMesh) group.add(tileSoup(waterMesh));
 
   // piers on piles
   const flatLevels = water.surfaces.filter((s) => s.flat && Number.isFinite(s.level)).map((s) => s.level);
   const seaLevel = flatLevels.length ? Math.min(...flatLevels) : -66;
   const deck = new MeshBucket();
-  for (const poly of svg.polygons('Docks', { minArea: 4 })) {
+  for (const poly of polysOf(ctx, 'docks', { minArea: 4 })) {
     const deckY = seaLevel + 1.6;
     slab(deck, poly, deckY, C.deck);
     slab(deck, { outer: poly.outer, holes: [] }, deckY - 0.3, C.deckDark, { down: true });
@@ -279,19 +410,28 @@ export function buildOutside(ctx, water) {
   const facade = (style) => {
     if (!facadeBuckets.has(style)) {
       facadeBuckets.set(style, new MeshBucket());
-      if (!materials.facades[style]) materials.facades[style] = new THREE.MeshLambertMaterial({ map: upperTexture(style, style === 'stalinka' ? 1 : 0, anisotropy), side: THREE.DoubleSide });
+      if (!materials.facades[style]) materials.facades[style] = new THREE.MeshLambertMaterial({ map: upperTexture(style, style === 'stalinka' ? 1 : 0, anisotropy), side: THREE.DoubleSide, vertexColors: true });
     }
     return facadeBuckets.get(style);
   };
   const roofs = new MeshBucket();
   const rb = rng(hashString('shoreline-buildings'));
-  const KINDS = [
-    ['Small_Buildings', 'small', 3.1, ['brick', 'panel', 'industrial']],
-    ['Medium_Buildings', 'medium', 6.4, ['panel', 'brick', 'industrial']],
-    ['Terminal', 'terminal', 6.5, ['industrial']],
-  ];
-  for (const [gid, kind, H, styles] of KINDS) {
+  const KINDS = idsOf(ctx, 'buildings');
+  for (const [gid, kind0, H0, styles] of KINDS) {
     for (const poly of svg.polygons(gid, { minArea: 3 })) {
+      // 'auto': the kind and height from the footprint (open maps without separate building groups)
+      const area0 = ringInfo(poly.outer).area;
+      // A round footprint (tank, silo, clarifier) is built by the map's own hook when it has one.
+      if (ctx.roundBuilding && ctx.roundBuilding(poly, { ground, footprints })) {
+        stats.round = (stats.round || 0) + 1;
+        continue;
+      }
+      const auto = kind0 === 'auto' || kind0 === 'auto-city';
+      const kind = !auto ? kind0 : area0 < 160 ? 'small' : area0 < 900 ? 'medium' : 'large';
+      const storey = kind0 === 'auto-city' ? 2 : 1; // Ground Zero: office towers, not village houses
+      // Ground Zero's blocks differ in height (a steady hash of the position, so the skyline is not one flat level).
+      const vary = kind0 === 'auto-city' ? 0.75 + 0.7 * ((Math.abs(Math.sin(poly.outer[0].x * 12.9898 + poly.outer[0].z * 78.233)) * 43758.5453) % 1) : 1;
+      const H = !auto ? H0 : (kind === 'small' ? 3.1 : kind === 'medium' ? 6.4 : 9.6) * storey * (kind0 === 'auto-city' && kind === 'large' ? 1.6 : 1) * vary;
       const info = ringInfo(poly.outer);
       let low = ground(info.center.x, info.center.z);
       let high = low;
@@ -301,17 +441,28 @@ export function buildOutside(ctx, water) {
         high = Math.max(high, g);
       }
       const floorY = high + 0.15;
-      const height = kind === 'small' && info.area > 150 ? 4.2 : H;
+      let height = kind === 'small' && info.area > 150 ? 4.2 : H;
+      // Game data inside the footprint (storey floors, spawn and door heights) sets the height where there is some.
+      const hinted = ctx.heightHint ? ctx.heightHint(poly, info, floorY) : null;
+      if (hinted && hinted.height > height) {
+        height = hinted.height;
+        stats.raisedByData = (stats.raisedByData || 0) + 1;
+      }
       const eave = floorY + height;
-      facadeRing(facade(pick(rb, styles)), poly.outer, low - 0.4, eave, floorY);
-      for (const hole of poly.holes) facadeRing(facade('brick'), hole, low - 0.4, eave, floorY);
+      const style = pick(rb, styles);
+      // Painted plaster on houses (every house its own colour), near-white on sheds and industrial blocks.
+      const glassy = style === 'glass' || style === 'office' || style === 'modern';
+      const tint = color(pick(rb, glassy ? ['#ffffff', '#e9eef2', '#f3efe6'] : style === 'industrial' || kind === 'terminal' ? INDUSTRIAL_TINTS : HOUSE_TINTS));
+      facadeRing(facade(style), poly.outer, low - 0.4, eave, floorY, tint);
+      for (const hole of poly.holes) facadeRing(facade('brick'), hole, low - 0.4, eave, floorY, tint);
       if (poly.outer.length === 4 && !poly.holes.length && kind !== 'terminal') {
-        gableRoof(roofs, poly.outer, eave, kind === 'small' ? 1.5 : 2.3, pick(rb, [C.roofRust, C.roofGrey, C.roofDark]), C.gable);
+        gableRoof(roofs, poly.outer, eave, kind === 'small' ? 1.5 : 2.3, color(pick(rb, ROOF_COLORS)), C.gable);
       } else {
         slab(roofs, poly, eave, C.roofFlat);
         ringWalls(roofs, poly.outer, eave, eave + 0.45, C.parapetLow, C.parapet);
       }
       footprints.push({ poly, bounds: info.bounds });
+      if (ctx.builtBuildings) ctx.builtBuildings.push({ poly, eave, floorY, kind, center: info.center, area: info.area });
       stats.buildings += 1;
     }
   }
@@ -326,7 +477,7 @@ export function buildOutside(ctx, water) {
     for (const p of poly.outer) low = Math.min(low, ground(p.x, p.z));
     const bottom = Math.min(low, heights.LEVEL1) - 0.5;
     for (const ring of [poly.outer, ...poly.holes]) {
-      facadeRing(resortFacade, ring, bottom, roofY, heights.LEVEL1 - 0.3);
+      facadeRing(resortFacade, ring, bottom, roofY, heights.LEVEL1 - 0.3, color('#f1e7cf'));
       ringWalls(roofs, ring, roofY, roofY + 0.9, C.parapetLow, C.parapet);
     }
     slab(resortRoof, poly, roofY, WHITE);
@@ -357,8 +508,8 @@ export function buildOutside(ctx, water) {
 
   const inFootprint = (p) => footprints.some((f) => p.x >= f.bounds.x0 && p.x <= f.bounds.x1 && p.z >= f.bounds.z0 && p.z <= f.bounds.z1 && pointInPolygon(p, f.poly));
   const pathSegs = [];
-  for (const id of ['Roads', 'Roads_Unpaved', 'Path']) {
-    for (const s of svg.strokes(id)) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) pathSegs.push({ a: line[i], b: line[i + 1], width: s.width });
+  for (const s of [...strokesOf(ctx, 'roads'), ...strokesOf(ctx, 'roadsUnpaved'), ...strokesOf(ctx, 'paths')]) {
+    for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) pathSegs.push({ a: line[i], b: line[i + 1], width: s.width });
   }
   const pathGrid = new SegmentGrid(pathSegs, 24);
   const onRoad = (p, pad = 0) => pathGrid.near(p, 14).some((sg) => {
@@ -371,7 +522,8 @@ export function buildOutside(ctx, water) {
 
   // rocks
   const rockGeos = [];
-  for (const poly of svg.polygons('Rocks', { minArea: 2 })) {
+  for (const poly of polysOf(ctx, 'rocks', { minArea: 2 })) {
+    if (ctx.rockFilter && !ctx.rockFilter(poly)) continue; // big rock areas are hills of the relief (map/open/relief.js)
     const info = ringInfo(poly.outer);
     let low = Infinity;
     for (const p of poly.outer) low = Math.min(low, ground(p.x, p.z));
@@ -400,7 +552,7 @@ export function buildOutside(ctx, water) {
   const treeCrown = L(vegGroup, 'tree-crown', props.treeCrown, 2200);
   const bush = L(vegGroup, 'bush', icProps.bush, 520);
   const rf = rng(hashString('shoreline-forest'));
-  for (const poly of svg.polygons('Forest', { minArea: 40 })) {
+  for (const poly of polysOf(ctx, 'forest', { minArea: 40 })) {
     const { bounds } = ringInfo(poly.outer);
     for (let x = bounds.x0 + 2; x < bounds.x1 && stats.trees < 18000; x += 7) {
       for (let z = bounds.z0 + 2; z < bounds.z1; z += 7) {
@@ -440,7 +592,7 @@ export function buildOutside(ctx, water) {
 
   // fences
   const fence = L(propsGroup, 'fence', props.fenceMetal, 700);
-  for (const s of svg.strokes('Fences')) {
+  for (const s of strokesOf(ctx, 'fences')) {
     for (const line of s.lines) {
       walkLine(line, 2.5, (p, dir) => {
         fence.add(composeMatrix(p.x, ground(p.x, p.z) - 0.05, p.z, alongX(dir)));
@@ -451,10 +603,10 @@ export function buildOutside(ctx, water) {
 
   // power line towers (turned across the line) and wires
   const lineSegs = [];
-  for (const s of svg.strokes('Powerlines')) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) lineSegs.push({ a: line[i], b: line[i + 1] });
+  for (const s of strokesOf(ctx, 'powerlines')) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) lineSegs.push({ a: line[i], b: line[i + 1] });
   const lineGrid = new SegmentGrid(lineSegs, 40);
   const pylon = L(propsGroup, 'pylon', pylonGeometry(), 2200);
-  for (const poly of svg.polygons('Powerline_Towers', { minArea: 1 })) {
+  for (const poly of polysOf(ctx, 'towers', { minArea: 1 })) {
     const c = centroid(poly.outer);
     const near = lineGrid.nearest(c, 30);
     let rot = 0;
@@ -498,7 +650,7 @@ export function buildOutside(ctx, water) {
   const sleeperGeo = new THREE.BoxGeometry(0.26, 0.16, 2.6).translate(0, 0.08, 0);
   sleeperGeo.setAttribute('color', new THREE.Float32BufferAttribute(new Array(sleeperGeo.attributes.position.count * 3).fill(0.42), 3));
   const sleeper = L(propsGroup, 'sleeper', sleeperGeo, 320, materials.metal);
-  for (const s of svg.strokes('Railroad')) {
+  for (const s of strokesOf(ctx, 'railroad')) {
     for (const line of s.lines) {
       for (let i = 0; i < line.length - 1; i += 1) {
         const a = line[i];
@@ -520,7 +672,7 @@ export function buildOutside(ctx, water) {
 
   // minefields: signs along the SVG outlines and at the tarkov.dev minefields
   const mineSign = L(propsGroup, 'sign-mines', props.signMines, 520);
-  for (const poly of svg.polygons('Mines', { minArea: 20 })) {
+  for (const poly of polysOf(ctx, 'mines', { minArea: 20 })) {
     const own = { outer: poly.outer, holes: [] };
     poly.outer.forEach((a, i) => {
       const b = poly.outer[(i + 1) % poly.outer.length];
@@ -544,7 +696,7 @@ export function buildOutside(ctx, water) {
 
   // lamps along paved roads
   const lamp = L(propsGroup, 'lamp', props.lamp, 800);
-  for (const s of svg.strokes('Roads')) {
+  for (const s of strokesOf(ctx, 'roads')) {
     for (const line of s.lines) {
       let side = 1;
       walkLine(line, 55, (p, dir) => {
@@ -560,7 +712,7 @@ export function buildOutside(ctx, water) {
 
   // data: cars at trunk locks and V-Ex, stationary weapons, checkpoint
   const roadSegs = [];
-  for (const id of ['Roads', 'Roads_Unpaved', 'Path']) for (const s of svg.strokes(id)) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) roadSegs.push({ a: line[i], b: line[i + 1] });
+  for (const s of [...strokesOf(ctx, 'roads'), ...strokesOf(ctx, 'roadsUnpaved'), ...strokesOf(ctx, 'paths')]) for (const line of s.lines) for (let i = 0; i < line.length - 1; i += 1) roadSegs.push({ a: line[i], b: line[i + 1] });
   const roadGrid = new SegmentGrid(roadSegs, 24);
   const rc = rng(hashString('shoreline-cars'));
   const placements = [];
@@ -575,7 +727,71 @@ export function buildOutside(ctx, water) {
     const y = v.position.y != null ? Math.max(ground(p.x, p.z) - 0.3, v.position.y - 0.9) : ground(p.x, p.z);
     placements.push({ x: p.x, y, z: p.z, heading, model: pick(rc, CAR_MODELS), paint: pick(rc, CAR_PAINTS) });
   }
-  layers.push(...buildCars(carGroup, placements, ctx));
+  // abandoned cars on the roads (decoration; a few of them burn)
+  const rw = rng(hashString('shoreline-wrecks'));
+  const WRECKS = ['#5b4a3c', '#6e5a45', '#4a4642', '#7a6a55', '#5d3b2e', '#3e4a52'];
+  for (const s of [...strokesOf(ctx, 'roads'), ...strokesOf(ctx, 'roadsUnpaved')]) {
+    {
+      for (const line of s.lines) {
+        walkLine(line, 36, (p, dir) => {
+          if (rw() > 0.2) return;
+          const side = (rw() < 0.5 ? -1 : 1) * (s.width / 2 - 0.8 + rw() * 2);
+          const q = off(p, { x: dir.z, z: -dir.x }, side);
+          if (inWater(q) || inFootprint(q)) return;
+          placements.push({ x: q.x, y: ground(q.x, q.z), z: q.z, heading: alongX(dir) + (rw() < 0.5 ? Math.PI : 0) + (rw() - 0.5) * 0.8, model: pick(rw, [...CAR_MODELS, 'van']), paint: pick(rw, WRECKS), wreck: true });
+        }, 17);
+      }
+    }
+  }
+  stats.wrecks = placements.filter((p) => p.wreck).length;
+
+  // the gas station: a canopy over three pumps between the station and the road, and a price pylon
+  const gasGeos = [];
+  const pumpGeo = mmerge([mbox(0.8, 0.2, 0.6, 0, 0, 0, '#7d7a72'), mbox(0.6, 1.7, 0.4, 0, 0.2, 0, '#e3ded2'), mbox(0.62, 0.3, 0.42, 0, 1.6, 0, '#c8361f'), mbox(0.4, 0.3, 0.03, 0, 1.1, 0.21, '#1b1f22')]);
+  const pylonGeo = mmerge([mbox(0.35, 7.5, 0.35, 0, 0, 0, '#8e8b83'), mbox(2.4, 3.4, 0.35, 0, 4.2, 0, '#f1ede4'), mbox(2.5, 0.9, 0.4, 0, 7, 0, '#c8361f'), mbox(2.0, 0.45, 0.38, 0, 5.2, 0, '#1f2a36'), mbox(2.0, 0.45, 0.38, 0, 4.6, 0, '#1f2a36')]);
+  const stations = [];
+  for (const e of (ctx.mapData.entities || []).filter((x) => x.type === 'place' && /gas|заправ/i.test(`${x.name} ${x.nameRu}`))) {
+    const p0 = { x: -e.position.x, z: e.position.z };
+    if (stations.some((s) => Math.hypot(s.x - p0.x, s.z - p0.z) < 80)) continue; // two labels of one station
+    stations.push(p0);
+    const hit = roadGrid.nearest(p0, 70);
+    if (!hit) continue;
+    const { a, b } = hit.seg;
+    const len = Math.hypot(b.x - a.x, b.z - a.z) || 1;
+    const d = { x: (b.x - a.x) / len, z: (b.z - a.z) / len };
+    const t = Math.max(0, Math.min(1, hit.t));
+    const q = { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t };
+    let n = { x: p0.x - q.x, z: p0.z - q.z };
+    const nl = Math.hypot(n.x, n.z) || 1;
+    n = { x: n.x / nl, z: n.z / nl };
+    let c = off(q, n, 11);
+    for (let k = 0; k < 10 && inFootprint(c); k += 1) c = off(c, n, -1);
+    const y = ground(c.x, c.z);
+    const g = canopyGeometry(15, 9, 5.2);
+    g.rotateY(alongX(d));
+    g.translate(c.x, y, c.z);
+    gasGeos.push(g);
+    for (const k of [-4.5, 0, 4.5]) {
+      const pq = off(c, d, k);
+      const pg = pumpGeo.clone();
+      pg.rotateY(alongX(d));
+      pg.translate(pq.x, y + 0.25, pq.z);
+      gasGeos.push(pg);
+    }
+    const sp = off(off(q, n, 4.5), d, 12);
+    const sg = pylonGeo.clone();
+    sg.rotateY(faceZ(n) + Math.PI / 2);
+    sg.translate(sp.x, ground(sp.x, sp.z), sp.z);
+    gasGeos.push(sg);
+    stats.gasStations = (stats.gasStations || 0) + 1;
+  }
+  if (gasGeos.length) {
+    const m = new THREE.Mesh(mergeGeometries(gasGeos.map((g) => (g.index ? g.toNonIndexed() : g))), materials.props);
+    m.name = 'gas-station';
+    propsGroup.add(m);
+  }
+
+  layers.push(...buildCars(carGroup, placements, ctx, { share: 0.3, max: 6, onlyWrecks: true }));
   stats.cars = placements.length;
   const sandbags = L(propsGroup, 'sandbags', props.sandbags, 600);
   const gun = L(propsGroup, 'gun', props.gun, 400);
@@ -604,17 +820,22 @@ export function buildOutside(ctx, water) {
 // roads, water and buildings. The SVG marks only part of the woods, so these positions are an approximation.
 export async function scatterTrees(ctx, outside) {
   const { svg, projection, props, icProps, materials, mapData, ground } = ctx;
+  // ctx.groves.onRock: share of the grove density that also grows on rocky hills (grey in the mask).
+  const onRock = (ctx.groves && ctx.groves.onRock) || 0;
   const mask = await rasterMask(svg.svgDoc, {
-    layers: ['Ground_Level'], css: CSS_OPEN_GROUND, crop: { x: 0, y: 0, w: mapData.map.svg.width, h: mapData.map.svg.height }, pxPerUnit: 1,
+    layers: ['Ground_Level'], css: onRock ? `${CSS_OPEN_GROUND}.rock,.rock *{fill:#808080!important}` : CSS_OPEN_GROUND,
+    crop: { x: 0, y: 0, w: mapData.map.svg.width, h: mapData.map.svg.height }, pxPerUnit: 1,
   });
-  const open = (p) => {
+  const value = (p) => {
     const u = (p.x - projection.sceneLeft) / projection.svgScaleX;
     const v = (p.z - projection.sceneTop) / projection.svgScaleZ;
     const px = Math.floor((u - mask.crop.x) * mask.scale);
     const py = Math.floor((v - mask.crop.y) * mask.scale);
-    if (px < 0 || py < 0 || px >= mask.width || py >= mask.height) return false;
-    return mask.data[(py * mask.width + px) * 4] > 140;
+    if (px < 0 || py < 0 || px >= mask.width || py >= mask.height) return 0;
+    return mask.data[(py * mask.width + px) * 4];
   };
+  const limit = onRock ? 90 : 140;
+  const open = (p) => value(p) > limit;
   const clear = (p, rad) => open(p) && [0, 1.571, 3.142, 4.712].every((a) => open({ x: p.x + Math.cos(a) * rad, z: p.z + Math.sin(a) * rad }));
   const lattice = (i, j) => {
     const h = Math.sin(i * 127.1 + j * 311.7) * 43758.5453;
@@ -635,12 +856,18 @@ export async function scatterTrees(ctx, outside) {
   const [coniferTrunk, coniferCrown, treeTrunk, treeCrown] = layers;
   const r = rng(hashString('shoreline-groves'));
   let trees = 0;
-  for (let x = projection.sceneLeft + 4; x < projection.sceneLeft + projection.width && trees < 9000; x += 8) {
-    for (let z = projection.sceneTop + 4; z < projection.sceneTop + projection.depth; z += 8) {
-      const p = { x: x + (r() - 0.5) * 6, z: z + (r() - 0.5) * 6 };
+  // ctx.groves tunes the scatter per map (Woods is a forest, Ground Zero a city).
+  const gv = ctx.groves || {};
+  const maxTrees = gv.max || 9000;
+  const step = gv.step || 8;
+  const floorD = gv.floor != null ? gv.floor : 0.015;
+  const peak = gv.peak || 0.6;
+  for (let x = projection.sceneLeft + 4; x < projection.sceneLeft + projection.width && trees < maxTrees; x += step) {
+    for (let z = projection.sceneTop + 4; z < projection.sceneTop + projection.depth; z += step) {
+      const p = { x: x + (r() - 0.5) * step * 0.75, z: z + (r() - 0.5) * step * 0.75 };
       const n = noise(p.x, p.z);
-      const density = n < 0.5 ? 0.015 : Math.min(0.6, (n - 0.5) * 2.2);
-      if (r() > density || !clear(p, 3) || outside.inWater(p) || outside.inFootprint(p) || outside.onRoad(p, 2.5)) continue;
+      const density = (n < 0.5 ? floorD : Math.min(peak, floorD + (n - 0.5) * 2.2 * (peak / 0.6))) * (onRock && value(p) <= 140 ? onRock : 1);
+      if (r() > density || !clear(p, 3) || (ctx.noTrees && ctx.noTrees.some((c) => Math.hypot(p.x - c.x, p.z - c.z) < c.r)) || outside.inWater(p) || outside.inFootprint(p) || outside.onRoad(p, 2.5)) continue;
       const y = ground(p.x, p.z) - 0.1;
       const k = 0.7 + r() * 0.65;
       const ang = r() * Math.PI * 2;

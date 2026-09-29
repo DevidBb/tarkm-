@@ -25,7 +25,7 @@ export function TopBar({ map, floor, runtime, player, mapSwitcher = null }) {
       </div>
       <div class="topbar__cell">
         ${mapSwitcher || html`<span class="eyebrow">Карта</span><span class="topbar__value">${map ? map.map.name : '…'}</span>`}
-        ${map && map.map.nameRu && html`<span class="topbar__sub">${map.map.nameRu}</span>`}
+        ${!mapSwitcher && map && map.map.nameRu && html`<span class="topbar__sub">${map.map.nameRu}</span>`}
       </div>
       <div class="topbar__cell">
         <span class="eyebrow">Этаж</span>

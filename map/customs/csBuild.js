@@ -22,7 +22,7 @@ import { rng, hashString, pick, pointInPolygon, centroid, SegmentGrid, orient, s
 import { buildCars, pylonGeometry } from '../interchange/icBuild.js';
 import { floorProps } from '../interchange/icStreetDetail.js';
 import { CAR_PAINTS, CAR_MODELS } from '../interchange/icModels.js';
-import { walkLine, addMesh, buildTerrainMesh, buildWaterMesh, stripSloped } from '../shoreline/slBuild.js';
+import { walkLine, addMesh, buildTerrainMesh, buildWaterMesh, stripSloped, tileTerrain, tileSoup } from '../shoreline/slBuild.js';
 import { buildBuildings, buildRoads, buildPaths, buildFences, buildYards, buildLandmarks, buildGrass } from './csOutside.js';
 
 const WHITE = color('#ffffff');
@@ -193,9 +193,9 @@ export function buildOutside(ctx, water) {
 
   const terrainMesh = buildTerrainMesh(terrain, ctx.projection, materials.terrain);
   shadeHollows(terrainMesh, terrain);
-  ground3d.add(terrainMesh);
+  ground3d.add(tileTerrain(terrainMesh, terrain));
   const waterMesh = buildWaterMesh(terrain, water.waterY, materials.water);
-  if (waterMesh) ground3d.add(waterMesh);
+  if (waterMesh) ground3d.add(tileSoup(waterMesh));
 
   // roads (with their drawn width), yards
   const ROADS = ['Main_Roads', 'High_Roads', 'Roads', 'Dirt_Roads'];
@@ -426,7 +426,7 @@ export function buildOutside(ctx, water) {
           const q = off(p, { x: dir.z, z: -dir.x }, shoulder);
           if (inWater(q) || inFootprint(q)) return;
           const heading = alongX(dir) + (rc() < 0.5 ? Math.PI : 0) + (rc() - 0.5) * 0.9;
-          placements.push({ x: q.x, y: ground(q.x, q.z), z: q.z, heading, model: pick(rc, [...CAR_MODELS, 'van', 'truck']), paint: rc() < 0.7 ? pick(rc, WRECK) : pick(rc, CAR_PAINTS) });
+          placements.push({ x: q.x, y: ground(q.x, q.z), z: q.z, heading, model: pick(rc, [...CAR_MODELS, 'van', 'truck']), paint: rc() < 0.7 ? pick(rc, WRECK) : pick(rc, CAR_PAINTS), wreck: true });
           stats.wrecks += 1;
         }, 15);
       }
@@ -453,7 +453,7 @@ export function buildOutside(ctx, water) {
     const y = v.position.y != null ? Math.max(ground(p.x, p.z) - 0.3, v.position.y - 0.9) : ground(p.x, p.z);
     placements.push({ x: p.x, y, z: p.z, heading, model: pick(rc, CAR_MODELS), paint: pick(rc, CAR_PAINTS) });
   }
-  layers.push(...buildCars(carGroup, placements, ctx));
+  layers.push(...buildCars(carGroup, placements, ctx, { share: 0.3, max: 9, onlyWrecks: true }));
   stats.cars = placements.length;
   const sandbags = L(propsGroup, 'sandbags', props.sandbags, 600);
   const gun = L(propsGroup, 'gun', props.gun, 400);
@@ -495,7 +495,7 @@ export function buildOutside(ctx, water) {
   for (const l of layers) if (!l.cells.length) l.build();
   lap('instancing');
   stats.ms = T;
-  return { group, ground: ground3d, built, props: propsGroup, cars: carGroup, vegetation: vegGroup, layers, stats, inWater, inFootprint, onRoad, terrainMesh };
+  return { group, ground: ground3d, built, props: propsGroup, cars: carGroup, vegetation: vegGroup, layers, stats, inWater, inFootprint, onRoad };
 }
 
 // ---------------------------------------------------------------- building levels
@@ -516,7 +516,8 @@ function floorHeight(ctx, id, poly) {
   let high = -Infinity;
   for (const p of poly.outer) high = Math.max(high, ground(p.x, p.z));
   const base = high + 0.15;
-  const fallback = { UNDERGROUND: base - 3.4, LEVEL1: base, LEVEL2: base + 3.3, LEVEL3: base + 6.6 }[id];
+  const def = (ctx.levelDefs || CUSTOMS_LEVELS)[id] || {};
+  const fallback = def.offset != null ? base + def.offset : { UNDERGROUND: base - 3.4, LEVEL1: base, LEVEL2: base + 3.3, LEVEL3: base + 6.6 }[id];
   if (!ys.length) return fallback;
   ys.sort((a, c) => a - c);
   // loose loot lies on the floor, containers stand on it: the lower quartile is the floor
@@ -546,23 +547,25 @@ function stairs(bucket, poly, rise) {
 
 export function buildLevel(ctx, id) {
   const { svg, heights, materials } = ctx;
-  const def = CUSTOMS_LEVELS[id];
+  // ctx.levelDefs / ctx.levelOrder: the levels of another map built the same way (the open maps' bunkers and storeys)
+  const def = (ctx.levelDefs || CUSTOMS_LEVELS)[id];
+  const order = ctx.levelOrder || ORDER;
   const base = heights[id];
   const group = new THREE.Group();
   group.name = id;
   const walls = new THREE.Group();
   group.add(walls);
-  const floors = polygonsExcept(svg, def.floors, def.locked, { minArea: 1.5 });
+  const floors = [].concat(def.floors).flatMap((fid) => polygonsExcept(svg, fid, def.locked, { minArea: 1.5 }));
   const stats = { floorParts: floors.length, partitions: 0, blocks: 0, voids: 0, locked: 0, stairs: 0 };
   const floorB = new MeshBucket(ctx.planUvFor ? ctx.planUvFor(id) : ctx.planUv);
   const under = new MeshBucket();
   const wallB = new MeshBucket();
   const lockedB = new MeshBucket();
   const stairB = new MeshBucket();
-  const bunker = id === 'UNDERGROUND';
+  const bunker = def.bunker != null ? def.bunker : id === 'UNDERGROUND';
   const hi = bunker ? C.bunker : C.wall;
   const lo = bunker ? C.bunkerLow : C.wallLow;
-  const next = ORDER[ORDER.indexOf(id) + 1];
+  const next = order[order.indexOf(id) + 1];
   const slabs = [];
   for (const poly of floors) {
     const y = floorHeight(ctx, id, poly) - base; // local height inside the level group
@@ -628,7 +631,7 @@ export function buildLevel(ctx, id) {
   abs.name = `${id}-props`;
   abs.position.y = -base;
   group.add(abs);
-  const guess = { UNDERGROUND: -3.4, LEVEL1: 0.15, LEVEL2: 3.45, LEVEL3: 6.75 }[id];
+  const guess = def.offset != null ? def.offset : { UNDERGROUND: -3.4, LEVEL1: 0.15, LEVEL2: 3.45, LEVEL3: 6.75 }[id];
   const groundAt = (x, z) => {
     const y = levelAt({ x, z });
     return y == null ? ctx.ground(x, z) + guess : y + base + 0.02;

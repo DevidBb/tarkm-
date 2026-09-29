@@ -97,6 +97,7 @@ export class CustomsLayer {
     const full = { x: 0, y: 0, w: W, h: H };
 
     const ctx = {
+      fx: this.fx || null,
       svg,
       projection,
       terrain,
