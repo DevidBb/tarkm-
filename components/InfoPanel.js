@@ -21,8 +21,12 @@ function typeFields(e) {
       return [['Для кого', FACTION_LABELS[m.faction] || m.faction], ['Игровой id', m.gameKey]];
     case 'transit':
       return [['Переход', e.nameRu || e.name]];
-    case 'key':
-      return [['Ключ', e.nameRu || e.name], ['Ключ (EN)', e.name], ['Что открывает', m.lockType === 'trunk' ? 'Багажник' : 'Дверь'], ['Нужно электричество', m.needsPower ? 'Да' : 'Нет']];
+    case 'key': {
+      const opens = m.lockType === 'trunk' ? 'Багажник' : m.lockType === 'container' ? 'Контейнер' : 'Дверь';
+      // doors from the tarkov.dev snapshot come without the key's name
+      if (!m.keyId && /^Locked/.test(e.name || '')) return [['Ключ', 'нет в открытых данных'], ['Что открывает', opens], ['Нужно электричество', m.needsPower ? 'Да' : 'Нет']];
+      return [['Ключ', e.nameRu || e.name], ['Ключ (EN)', e.name], ['Что открывает', opens], ['Нужно электричество', m.needsPower ? 'Да' : 'Нет']];
+    }
     case 'boss':
       return [
         ['Зона', m.zoneNameRu || m.zoneName || m.zone],
