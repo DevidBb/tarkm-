@@ -4,10 +4,11 @@
 
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
 import { box, cyl, merge } from '../city/models.js';
+import { registerLod } from '../city/instancing.js';
 
 export function customsModels() {
   const ribs = (len, h, d, n, col) => Array.from({ length: n }, (_, i) => box(0.07, h, d + 0.04, -len / 2 + ((i + 0.5) * len) / n, 0.08, 0, col));
-  return {
+  const models = {
     // 20 ft shipping container (tinted), doors at -X
     container: merge([
       box(6.06, 2.59, 2.44, 0, 0, 0, '#ffffff'),
@@ -71,6 +72,9 @@ export function customsModels() {
     // telegraph pole with a cross arm
     pole: merge([cyl(0.12, 0.16, 8, 6, 0, 0, 0, '#4e4032'), box(1.6, 0.1, 0.1, 0, 7.4, 0, '#4e4032'), cyl(0.05, 0.05, 0.2, 5, -0.6, 7.5, 0, '#cfcfc6'), cyl(0.05, 0.05, 0.2, 5, 0.6, 7.5, 0, '#cfcfc6')]),
   };
+  // simpler models far away (map/city/instancing.js LOD levels)
+  registerLod(models.grass, [{ from: 50, geometry: merge([cyl(0, 0.36, 0.72, 3, 0, 0, 0, '#eeeeee')]) }]);
+  return models;
 }
 
 // Vertical fuel tank with a conical roof and a ladder (merged geometry, vertex colors), at (x, y, z).

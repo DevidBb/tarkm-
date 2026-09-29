@@ -194,6 +194,88 @@ export function buildTerrainMesh(terrain, projection, material) {
   return mesh;
 }
 
+// The relief as square tiles (128×128 nodes) instead of one mesh: the camera draws only the tiles in view. Positions,
+// normals (computed over the whole grid, so the seams stay smooth), uv and shading colours are copied per tile.
+export function tileTerrain(mesh, terrain, size = 128) {
+  const { cols, rows } = terrain;
+  const src = mesh.geometry;
+  const names = ['position', 'normal', 'uv', 'color'].filter((n) => src.attributes[n]);
+  const group = new THREE.Group();
+  group.name = mesh.name;
+  for (let r0 = 0; r0 < rows - 1; r0 += size) {
+    for (let c0 = 0; c0 < cols - 1; c0 += size) {
+      const r1 = Math.min(rows - 1, r0 + size);
+      const c1 = Math.min(cols - 1, c0 + size);
+      const tc = c1 - c0 + 1;
+      const tr = r1 - r0 + 1;
+      const g = new THREE.BufferGeometry();
+      for (const n of names) {
+        const a = src.attributes[n];
+        const k = a.itemSize;
+        const arr = new Float32Array(tc * tr * k);
+        for (let r = 0; r < tr; r += 1) {
+          const from = ((r0 + r) * cols + c0) * k;
+          arr.set(a.array.subarray(from, from + tc * k), r * tc * k);
+        }
+        g.setAttribute(n, new THREE.BufferAttribute(arr, k));
+      }
+      const index = new (tc * tr > 65535 ? Uint32Array : Uint16Array)((tc - 1) * (tr - 1) * 6);
+      let q = 0;
+      for (let r = 0; r < tr - 1; r += 1) {
+        for (let c = 0; c < tc - 1; c += 1) {
+          const a = r * tc + c;
+          const b = a + 1;
+          const d = a + tc;
+          const e = d + 1;
+          index[q++] = a; index[q++] = b; index[q++] = d;
+          index[q++] = b; index[q++] = e; index[q++] = d;
+        }
+      }
+      g.setIndex(new THREE.BufferAttribute(index, 1));
+      g.computeBoundingSphere();
+      const tile = new THREE.Mesh(g, mesh.material);
+      tile.name = `${mesh.name}-tile`;
+      tile.renderOrder = mesh.renderOrder;
+      tile.matrixAutoUpdate = false;
+      group.add(tile);
+    }
+  }
+  src.dispose();
+  return group;
+}
+
+// Triangle soup (water) sorted into square tiles for the same reason.
+export function tileSoup(mesh, size = 256) {
+  const pos = mesh.geometry.attributes.position.array;
+  const buckets = new Map();
+  for (let t = 0; t < pos.length; t += 9) {
+    const cx = (pos[t] + pos[t + 3] + pos[t + 6]) / 3;
+    const cz = (pos[t + 2] + pos[t + 5] + pos[t + 8]) / 3;
+    const key = `${Math.floor(cx / size)},${Math.floor(cz / size)}`;
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(t);
+  }
+  const group = new THREE.Group();
+  group.name = mesh.name;
+  for (const list of buckets.values()) {
+    const arr = new Float32Array(list.length * 9);
+    list.forEach((t, i) => arr.set(pos.subarray(t, t + 9), i * 9));
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+    const nrm = new Float32Array(arr.length);
+    for (let i = 1; i < nrm.length; i += 3) nrm[i] = 1;
+    g.setAttribute('normal', new THREE.BufferAttribute(nrm, 3));
+    g.computeBoundingSphere();
+    const tile = new THREE.Mesh(g, mesh.material);
+    tile.name = `${mesh.name}-tile`;
+    tile.renderOrder = mesh.renderOrder;
+    tile.matrixAutoUpdate = false;
+    group.add(tile);
+  }
+  mesh.geometry.dispose();
+  return group;
+}
+
 export function buildWaterMesh(terrain, waterY, material) {
   const { cols, rows, cell, gx0, gz0 } = terrain;
   const pos = [];
@@ -294,9 +376,9 @@ export function buildOutside(ctx, water) {
     return !Number.isNaN(water.waterY[r * terrain.cols + c]);
   };
 
-  group.add(buildTerrainMesh(terrain, ctx.projection, materials.terrain));
+  group.add(tileTerrain(buildTerrainMesh(terrain, ctx.projection, materials.terrain), terrain));
   const waterMesh = buildWaterMesh(terrain, water.waterY, materials.water);
-  if (waterMesh) group.add(waterMesh);
+  if (waterMesh) group.add(tileSoup(waterMesh));
 
   // piers on piles
   const flatLevels = water.surfaces.filter((s) => s.flat && Number.isFinite(s.level)).map((s) => s.level);

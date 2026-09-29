@@ -5,6 +5,14 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
 
 const DEFAULT_CELL = 160;
+
+// Simplified models of a geometry for larger distances, shared by every layer that draws it:
+// [{ from: meters, geometry }], nearest first; geometry null = not drawn from there on.
+export const LOD_MODELS = new WeakMap();
+export function registerLod(geometry, levels) {
+  if (geometry) LOD_MODELS.set(geometry, levels);
+  return geometry;
+}
 const tmpQ = new THREE.Quaternion();
 const tmpE = new THREE.Euler();
 const tmpP = new THREE.Vector3();
@@ -19,10 +27,13 @@ export function composeMatrix(x, y, z, rotY = 0, sx = 1, sy = 1, sz = 1, rotX = 
 }
 
 export class InstancedLayer {
-  constructor(parent, { name, geometry, material, minDistance = 0, maxDistance = Infinity, cell = DEFAULT_CELL }) {
+  static lodScale = 1;
+
+  constructor(parent, { name, geometry, material, minDistance = 0, maxDistance = Infinity, cell = DEFAULT_CELL, lods = null }) {
     this.parent = parent;
     this.name = name;
     this.geometry = geometry;
+    this.lods = lods || LOD_MODELS.get(geometry) || [];
     this.material = material;
     this.minDistance = minDistance;
     this.maxDistance = maxDistance;
@@ -67,28 +78,56 @@ export class InstancedLayer {
       mesh.matrixAutoUpdate = false;
       mesh.visible = false;
       this.parent.add(mesh);
-      this.cells.push({ mesh, center });
+      // lower levels of detail: the same instances (shared matrix / colour buffers) with a simpler model
+      const levels = [];
+      for (const lod of this.lods) {
+        if (!lod.geometry) {
+          levels.push({ from: lod.from, mesh: null });
+          continue;
+        }
+        const m = new THREE.InstancedMesh(lod.geometry, this.material, list.length);
+        m.instanceMatrix = mesh.instanceMatrix;
+        if (mesh.instanceColor) m.instanceColor = mesh.instanceColor;
+        m.computeBoundingSphere();
+        m.name = `${this.name}-lod${levels.length + 1}`;
+        m.matrixAutoUpdate = false;
+        m.visible = false;
+        this.parent.add(m);
+        levels.push({ from: lod.from, mesh: m });
+      }
+      this.cells.push({ mesh, center, levels });
     }
     this.items = [];
     return this;
   }
 
   update(cameraPosition) {
+    // InstancedLayer.lodScale: draw-distance factor of the adaptive quality (1 = full)
+    const k = InstancedLayer.lodScale;
+    const min = this.minDistance * k;
+    const max = this.maxDistance * k;
     for (const c of this.cells) {
       const d = c.center.distanceTo(cameraPosition);
-      c.mesh.visible = this.enabled && d >= this.minDistance && d < this.maxDistance;
+      const shown = this.enabled && d >= min && d < max;
+      let active = c.mesh;
+      for (const level of c.levels) if (d >= level.from * k) active = level.mesh;
+      c.mesh.visible = shown && active === c.mesh;
+      for (const level of c.levels) if (level.mesh) level.mesh.visible = shown && active === level.mesh;
     }
   }
 
   setEnabled(enabled) {
     this.enabled = enabled;
-    if (!enabled) for (const c of this.cells) c.mesh.visible = false;
+    if (!enabled) for (const c of this.cells) for (const m of [c.mesh, ...c.levels.map((l) => l.mesh)]) if (m) m.visible = false;
   }
 
   dispose() {
     for (const c of this.cells) {
-      this.parent.remove(c.mesh);
-      c.mesh.dispose();
+      for (const m of [c.mesh, ...c.levels.map((l) => l.mesh)]) {
+        if (!m) continue;
+        this.parent.remove(m);
+        m.dispose();
+      }
     }
     this.cells = [];
   }

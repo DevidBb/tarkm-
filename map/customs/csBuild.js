@@ -22,7 +22,7 @@ import { rng, hashString, pick, pointInPolygon, centroid, SegmentGrid, orient, s
 import { buildCars, pylonGeometry } from '../interchange/icBuild.js';
 import { floorProps } from '../interchange/icStreetDetail.js';
 import { CAR_PAINTS, CAR_MODELS } from '../interchange/icModels.js';
-import { walkLine, addMesh, buildTerrainMesh, buildWaterMesh, stripSloped } from '../shoreline/slBuild.js';
+import { walkLine, addMesh, buildTerrainMesh, buildWaterMesh, stripSloped, tileTerrain, tileSoup } from '../shoreline/slBuild.js';
 import { buildBuildings, buildRoads, buildPaths, buildFences, buildYards, buildLandmarks, buildGrass } from './csOutside.js';
 
 const WHITE = color('#ffffff');
@@ -193,9 +193,9 @@ export function buildOutside(ctx, water) {
 
   const terrainMesh = buildTerrainMesh(terrain, ctx.projection, materials.terrain);
   shadeHollows(terrainMesh, terrain);
-  ground3d.add(terrainMesh);
+  ground3d.add(tileTerrain(terrainMesh, terrain));
   const waterMesh = buildWaterMesh(terrain, water.waterY, materials.water);
-  if (waterMesh) ground3d.add(waterMesh);
+  if (waterMesh) ground3d.add(tileSoup(waterMesh));
 
   // roads (with their drawn width), yards
   const ROADS = ['Main_Roads', 'High_Roads', 'Roads', 'Dirt_Roads'];
@@ -495,7 +495,7 @@ export function buildOutside(ctx, water) {
   for (const l of layers) if (!l.cells.length) l.build();
   lap('instancing');
   stats.ms = T;
-  return { group, ground: ground3d, built, props: propsGroup, cars: carGroup, vegetation: vegGroup, layers, stats, inWater, inFootprint, onRoad, terrainMesh };
+  return { group, ground: ground3d, built, props: propsGroup, cars: carGroup, vegetation: vegGroup, layers, stats, inWater, inFootprint, onRoad };
 }
 
 // ---------------------------------------------------------------- building levels

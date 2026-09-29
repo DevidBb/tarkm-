@@ -21,7 +21,7 @@ function canvas(w = S, h = S) {
   const c = document.createElement('canvas');
   c.width = w;
   c.height = h;
-  return [c, c.getContext('2d')];
+  return [c, c.getContext('2d', { willReadFrequently: true })]; // read back (noise): CPU-backed
 }
 
 function finish(key, c, anisotropy, repeat = true) {

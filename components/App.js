@@ -198,7 +198,9 @@ export function App({ mapSwitcher = null, mapDef = null } = {}) {
         onNavState: (state) => setNavState(state),
       });
     } catch (e) {
-      setSceneError(`3D-сцена не запустилась: ${e.message}`);
+      setSceneError(/webgl/i.test(e.message || '')
+        ? 'WebGL недоступен в этом браузере: включите аппаратное ускорение или обновите драйвер видеокарты.'
+        : `3D-сцена не запустилась: ${e.message}`);
       return undefined;
     }
     sceneRef.current = scene;
@@ -617,15 +619,16 @@ export function App({ mapSwitcher = null, mapDef = null } = {}) {
     const scene = sceneRef.current;
     if (!scene || !routeFromPoint) return;
     setExits({ side, phase: 'busy', list: [] });
-    setTimeout(() => {
-      const filter = (e) => {
-        const f = e.meta && e.meta.faction;
-        if (e.type === 'transit') return side === 'pmc';
-        return side === 'pmc' ? f !== 'scav' : f !== 'pmc';
-      };
-      const list = scene.routesToExtracts(routeFromPoint, filter).slice(0, 8);
-      setExits({ side, phase: 'done', list });
-    }, 40);
+    const filter = (e) => {
+      const f = e.meta && e.meta.faction;
+      if (e.type === 'transit') return side === 'pmc';
+      return side === 'pmc' ? f !== 'scav' : f !== 'pmc';
+    };
+    // computed in slices: the page stays responsive meanwhile
+    Promise.resolve(scene.routesToExtracts(routeFromPoint, filter)).then((all) => {
+      if (sceneRef.current !== scene) return;
+      setExits((x) => (x.side === side && x.phase === 'busy' ? { side, phase: 'done', list: (all || []).slice(0, 8) } : x));
+    });
   }, [routeFromPoint]);
 
   const stepTo = useCallback((k) => {

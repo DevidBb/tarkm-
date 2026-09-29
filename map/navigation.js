@@ -235,6 +235,26 @@ function labelComponents(walk, cols, rows) {
   return { comp, count: next - 1 };
 }
 
+// Runs a generator to its end (the synchronous variants).
+function drain(it) {
+  for (;;) {
+    const r = it.next();
+    if (r.done) return r.value;
+  }
+}
+
+// Gives the page a turn (input, painting) between search slices; a message is not throttled like setTimeout(0).
+const pageTurn = typeof MessageChannel !== 'undefined' ? new MessageChannel() : null;
+const turnQueue = [];
+if (pageTurn) pageTurn.port1.onmessage = () => { const f = turnQueue.shift(); if (f) f(); };
+function yieldToPage() {
+  if (!pageTurn) return new Promise((r) => setTimeout(r, 0));
+  return new Promise((r) => {
+    turnQueue.push(r);
+    pageTurn.port2.postMessage(0);
+  });
+}
+
 class MinHeap {
   constructor(capacity = 1 << 16) {
     this.keys = new Float64Array(capacity);
@@ -325,6 +345,7 @@ export class Navigator {
     this.portals = new Map();
     this.heap = new MinHeap();
     this.cache = new Map();
+    this.queue = Promise.resolve();
     this.ready = false;
     this.stats = null;
     this.safe = false;
@@ -480,6 +501,7 @@ export class Navigator {
       await this.linkLayers(stairs, compTotal, svgDoc);
     }
     for (const l of this.layers) delete l.spec;
+    this.precomputeCosts();
     this.prepareHeights();
     this.ready = true;
     this.stats = {
@@ -1126,7 +1148,21 @@ export class Navigator {
     return best;
   }
 
+  // Walking cost of every cell without the sniper-zone term, computed once after the layers are final (the search
+  // reads it instead of recomputing the same sum for every neighbour of every expanded cell).
+  precomputeCosts() {
+    for (const layer of this.layers) {
+      const cost = new Float32Array(layer.n);
+      const hz = layer.hazard;
+      layer.hazard = null;
+      for (let i = 0; i < layer.n; i += 1) if (layer.walk[i]) cost[i] = this.cellCost(layer, i);
+      layer.hazard = hz;
+      layer.cost = cost;
+    }
+  }
+
   cellCost(layer, i) {
+    if (layer.cost) return layer.cost[i] + (layer.hazard && layer.hazard[i] ? (this.safe ? HAZARD.safe : HAZARD.normal) : 0);
     const inside = layer.indoor[i];
     const k = inside ? IN : OUT;
     const d = layer.dist[i] * this.cell * 0.5;
@@ -1150,7 +1186,13 @@ export class Navigator {
 
   // A* from one node to one goal node (heuristic in cells); with a Set of goal nodes it is a Dijkstra that stops
   // once every goal is settled (routes to many extracts at once).
-  search(startNode, goal, { through = false } = {}) {
+  search(startNode, goal, opts = {}) {
+    return drain(this.searchGen(startNode, goal, opts));
+  }
+
+  // The search as a generator that pauses every 16k expanded cells: route() runs it through at once, the async
+  // variants run it in ~10 ms slices so the page stays responsive while a long route is computed.
+  *searchGen(startNode, goal, { through = false } = {}) {
     const { heap } = this;
     const many = goal instanceof Set;
     // buildings without a plan open only for the start and the goals inside them (unless `through`)
@@ -1190,6 +1232,7 @@ export class Navigator {
     let remaining = many ? goal.size : 1;
     const reachedGoals = new Set();
     const doorCost = DOOR_COST / this.cell;
+    const hazardCost = this.safe ? HAZARD.safe : HAZARD.normal;
     while (heap.size) {
       const node = heap.pop();
       if (closedStamp[node] === gen) continue;
@@ -1201,11 +1244,12 @@ export class Navigator {
         if (remaining <= 0) break;
       }
       if (expanded > this.maxExpanded) break;
+      if ((expanded & 16383) === 0) yield;
       const layer = this.layerOfNode(node);
-      const { walk, indoor, cols, rows, base } = layer;
+      const { walk, indoor, cols, rows, base, cost, hazard, softId } = layer;
       const cur = node - base;
       const gCur = g[node];
-      const cCur = this.cellCost(layer, cur);
+      const cCur = cost[cur] + (hazard && hazard[cur] ? hazardCost : 0);
       const r = (cur / cols) | 0;
       const c = cur - r * cols;
       for (let dr = -1; dr <= 1; dr += 1) {
@@ -1218,10 +1262,10 @@ export class Navigator {
           const ni = nr * cols + nc;
           const nn = base + ni;
           if (!walk[ni] || closedStamp[nn] === gen) continue;
-          if (openSoft && layer.softId && layer.softId[ni] && !openSoft.has(layer.softId[ni])) continue;
+          if (openSoft && softId && softId[ni] && !openSoft.has(softId[ni])) continue;
           const diagonal = dr && dc;
           if (diagonal && (!walk[r * cols + nc] || !walk[nr * cols + c])) continue; // no corner cutting
-          let ng = gCur + (diagonal ? Math.SQRT2 : 1) * (cCur + this.cellCost(layer, ni)) * 0.5;
+          let ng = gCur + (diagonal ? Math.SQRT2 : 1) * (cCur + cost[ni] + (hazard && hazard[ni] ? hazardCost : 0)) * 0.5;
           if (layer.street && indoor[ni] !== indoor[cur]) ng += doorCost;
           if (stamp[nn] !== gen || ng < g[nn]) {
             g[nn] = ng;
@@ -1428,9 +1472,57 @@ export class Navigator {
   }
 
   // Route between two game positions. Options: the floor ids of both ends (used when a position has no height).
-  route(fromGame, toGame, { fromFloor = null, toFloor = null, targetName = null } = {}) {
+  routeKey(fromGame, toGame, { fromFloor = null, toFloor = null, targetName = null } = {}) {
+    return [-fromGame.x, fromGame.z, fromGame.y, -toGame.x, toGame.z, toGame.y].map((v) => (v == null ? '-' : v.toFixed(1))).join(':') + `|${fromFloor}|${toFloor}|${this.safe}|${targetName}`;
+  }
+
+  // A route already computed for these ends (undefined when there is none yet).
+  cachedRoute(fromGame, toGame, opts = {}) {
+    const key = this.routeKey(fromGame, toGame, opts);
+    return this.cache.has(key) ? this.cache.get(key) : undefined;
+  }
+
+  route(fromGame, toGame, opts = {}) {
+    return drain(this.routeGen(fromGame, toGame, opts));
+  }
+
+  routeAsync(fromGame, toGame, opts = {}, signal = null) {
+    const hit = this.cachedRoute(fromGame, toGame, opts);
+    return hit !== undefined ? Promise.resolve(hit) : this.runAsync(() => this.routeGen(fromGame, toGame, opts), signal);
+  }
+
+  routeToMany(fromGame, targets, opts = {}) {
+    return drain(this.routeToManyGen(fromGame, targets, opts));
+  }
+
+  routeToManyAsync(fromGame, targets, opts = {}, signal = null) {
+    return this.runAsync(() => this.routeToManyGen(fromGame, targets, opts), signal);
+  }
+
+  // One computation at a time (the search state is shared), in slices of ~10 ms; a cancelled request gives null.
+  runAsync(make, signal) {
+    const run = async () => {
+      if (signal && signal.cancelled) return null;
+      const it = make();
+      let t = performance.now();
+      for (;;) {
+        const r = it.next();
+        if (r.done) return r.value;
+        if (signal && signal.cancelled) return null;
+        if (performance.now() - t > 10) {
+          await yieldToPage();
+          t = performance.now();
+        }
+      }
+    };
+    const job = this.queue.then(run, run);
+    this.queue = job.catch(() => null);
+    return job;
+  }
+
+  *routeGen(fromGame, toGame, { fromFloor = null, toFloor = null, targetName = null } = {}) {
     if (!this.ready) return null;
-    const key = [-fromGame.x, fromGame.z, fromGame.y, -toGame.x, toGame.z, toGame.y].map((v) => (v == null ? '-' : v.toFixed(1))).join(':') + `|${fromFloor}|${toFloor}|${this.safe}|${targetName}`;
+    const key = this.routeKey(fromGame, toGame, { fromFloor, toFloor, targetName });
     if (this.cache.has(key)) return this.cache.get(key);
     const t0 = performance.now();
     const ends = this.endpoints(fromGame, toGame, fromFloor, toFloor);
@@ -1438,7 +1530,7 @@ export class Navigator {
     const from = ends.sa.layer.base + ends.sa.i;
     const to = ends.sb.layer.base + ends.sb.i;
     // around buildings without a plan; through them only if there is no other way
-    const found = this.search(from, to) || this.search(from, to, { through: true });
+    const found = (yield* this.searchGen(from, to)) || (yield* this.searchGen(from, to, { through: true }));
     if (!found) return null;
     const result = this.assemble(found.nodes, fromGame, toGame, ends, targetName);
     result.expanded = found.expanded;
@@ -1450,7 +1542,7 @@ export class Navigator {
 
   // Routes from one position to many targets (nearest extract): one Dijkstra, then each path. Returns the
   // reachable targets sorted by walking length, each with its full route.
-  routeToMany(fromGame, targets, { fromFloor = null } = {}) {
+  *routeToManyGen(fromGame, targets, { fromFloor = null } = {}) {
     if (!this.ready || !targets.length) return [];
     const t0 = performance.now();
     const street = this.streetLayer;
@@ -1471,9 +1563,9 @@ export class Navigator {
     }
     if (!goals.length) return [];
     const goalNodes = new Set(goals.map((g) => g.sb.layer.base + g.sb.i));
-    const found = this.search(sa.layer.base + sa.i, goalNodes);
+    const found = yield* this.searchGen(sa.layer.base + sa.i, goalNodes);
     const missed = new Set([...goalNodes].filter((node) => !found.pathTo(node)));
-    const second = missed.size ? this.search(sa.layer.base + sa.i, missed, { through: true }) : null;
+    const second = missed.size ? yield* this.searchGen(sa.layer.base + sa.i, missed, { through: true }) : null;
     const out = [];
     for (const { t, sb, toLayer, b } of goals) {
       const node = sb.layer.base + sb.i;

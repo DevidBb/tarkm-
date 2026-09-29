@@ -13,17 +13,16 @@ import { CityLayer } from './city/CityLayer.js';
 import { Navigator } from './navigation.js';
 import { Ambience, campFires } from './fx/ambience.js';
 import { levelViewFor, levelCamera } from '../services/levels.js';
+import { FramePacer, GpuTimer, PerfPanel } from './perf.js';
+import { InstancedLayer } from './city/instancing.js';
 
 // Overcast haze: the 3D city fades into it at low camera angles instead of a black void.
 const SKY_COLOR = 0x5a636a;
 
+// Whether the browser has WebGL at all. A probe context used to be created here on every map load (0.1-0.5 s and a
+// second context held until collected); the renderer's own creation error is reported by the caller instead.
 export function webglAvailable() {
-  try {
-    const canvas = document.createElement('canvas');
-    return Boolean(canvas.getContext('webgl2') || canvas.getContext('webgl'));
-  } catch {
-    return false;
-  }
+  return typeof window !== 'undefined' && Boolean(window.WebGL2RenderingContext || window.WebGLRenderingContext);
 }
 
 export class MapScene {
@@ -37,8 +36,21 @@ export class MapScene {
     this.wallMode = 'full';
     this.flight = null;
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+    this.basePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    // Frame pacing and adaptive quality (map/perf.js): render scale first, then the draw distance of small details.
+    this.pacer = new FramePacer({
+      onQuality: (q) => {
+        this.renderer.setPixelRatio(this.basePixelRatio * q.scale);
+        InstancedLayer.lodScale = q.lod;
+        this.resize();
+      },
+    });
+    InstancedLayer.lodScale = this.pacer.quality.lod;
+    this.renderer.setPixelRatio(this.basePixelRatio * this.pacer.quality.scale);
+    this.gpuTimer = new GpuTimer(this.renderer.getContext());
+    this.lastCalls = 0;
+    this.lastTriangles = 0;
     this.renderer.setClearColor(SKY_COLOR, 1);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.domElement.className = 'viewport__webgl';
@@ -84,6 +96,10 @@ export class MapScene {
     this.camera.position.copy(this.home.position);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // OrbitControls listens for keys on the canvas' root node (the document) and removes that listener through
+    // getRootNode() on dispose; by then React has detached the viewport, so the listener (and with it this whole
+    // scene, its geometry and the navigator) would stay alive. The document is remembered here for dispose.
+    this.rootNode = this.renderer.domElement.getRootNode();
     this.controls.target.copy(this.home.target);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
@@ -104,6 +120,7 @@ export class MapScene {
     this.floors = this.kind === 'city' ? new FloorLayers(this.scene, mapData, this.renderer) : null;
     this.buildings = this.kind === 'city' ? new Buildings(this.scene, mapData) : null;
     this.markers = new MarkerLayer(this.scene, mapData, { onSelect, onRoute });
+    this.markers.onChange = () => this.pacer.invalidate(); // a route computed in the background arrived
     this.navigator = null;
     this.loot = new LootLayer(this.scene, mapData);
     this.city = this.kind === 'city' ? new CityLayer(this.scene, mapData, this.renderer) : null;
@@ -135,6 +152,23 @@ export class MapScene {
       const hit = this.loot.pick(ev.clientX - rect.left, ev.clientY - rect.top, this.camera, rect.width, rect.height);
       if (hit) onSelect(hit.id);
     });
+
+    // Anything the user does keeps the view live for a while (animated fire, route flow); a still view is not redrawn.
+    this.controls.addEventListener('change', () => this.pacer.invalidate());
+    for (const type of ['pointerdown', 'wheel', 'keydown']) canvas.addEventListener(type, () => this.pacer.input(), { passive: true });
+    // Every public call (floor, filters, route, selection, flights...) changes what is drawn.
+    const internal = new Set(['constructor', 'frame', 'updateZoomClass', 'resize', 'dispose', 'sceneCounts', 'pickGround', 'routesToExtracts', 'stepPreview']);
+    for (const name of Object.getOwnPropertyNames(MapScene.prototype)) {
+      const fn = this[name];
+      if (internal.has(name) || typeof fn !== 'function') continue;
+      this[name] = (...args) => {
+        const out = fn.apply(this, args);
+        this.pacer.input();
+        if (out && typeof out.then === 'function') out.then(() => this.pacer.invalidate(), () => this.pacer.invalidate());
+        return out;
+      };
+    }
+    this.perfPanel = new PerfPanel(container, this);
 
     this.clock = new THREE.Clock();
     window.__tarkovScene = this; // console / test access
@@ -481,7 +515,7 @@ export class MapScene {
     const targets = this.mapData.entities
       .filter((e) => (e.type === 'extract' || e.type === 'transit') && e.position && filter(e))
       .map((e) => ({ id: e.id, position: e.position, floor: e.floor, name: e.nameRu || e.name, entity: e }));
-    return this.navigator.routeToMany(from.position, targets, { fromFloor: from.floor });
+    return this.navigator.routeToManyAsync(from.position, targets, { fromFloor: from.floor });
   }
 
   resetView() {
@@ -493,8 +527,19 @@ export class MapScene {
   }
 
   frame() {
-    const dt = Math.min(this.clock.getDelta(), 0.1);
     if (this.paused) return;
+    const now = performance.now();
+    const moving = Boolean(this.flight || this.preview);
+    const animated = Boolean((this.fx.root.visible && this.fx.built && this.fx.fires && this.fx.fires.length) || this.markers.routeFlow);
+    const tick = this.pacer.tick(now, { moving: moving || this.cameraMoving, animated });
+    if (!tick) {
+      // damping of the orbit controls still settles between skipped frames
+      this.cameraMoving = this.controls.update();
+      if (this.cameraMoving) this.pacer.invalidate();
+      return;
+    }
+    const t0 = performance.now();
+    const { dt } = tick;
     if (this.flight) {
       const f = this.flight;
       f.t = Math.min(1, f.t + dt / 0.9);
@@ -503,7 +548,8 @@ export class MapScene {
       this.camera.position.lerpVectors(f.fromPosition, f.toPosition, e);
       if (f.t >= 1) this.flight = null;
     }
-    this.controls.update();
+    this.cameraMoving = this.controls.update();
+    if (this.cameraMoving) this.pacer.invalidate();
     this.updateZoomClass();
     if (this.floors) this.floors.update(dt);
     if (this.buildings) this.buildings.update(dt);
@@ -512,8 +558,25 @@ export class MapScene {
     this.fx.update(dt);
     this.markers.update(dt, this.camera);
     if (this.preview) this.stepPreview(dt);
+    this.gpuTimer.begin();
     this.renderer.render(this.scene, this.camera);
+    this.gpuTimer.end();
+    this.lastCalls = this.renderer.info.render.calls;
+    this.lastTriangles = this.renderer.info.render.triangles;
     this.labels.render(this.scene, this.camera);
+    this.pacer.cpu(performance.now() - t0);
+  }
+
+  sceneCounts() {
+    let objects = 0;
+    let visible = 0;
+    this.scene.traverse((o) => {
+      objects += 1;
+    });
+    this.scene.traverseVisible((o) => {
+      if (o.isMesh) visible += 1;
+    });
+    return { objects, visible, labels: this.labels.domElement.childElementCount };
   }
 
   // Declutter labels by camera distance: far = dots only, mid = place names, near = everything.
@@ -542,12 +605,31 @@ export class MapScene {
   dispose() {
     this.disposed = true;
     this.renderer.setAnimationLoop(null);
+    this.perfPanel.dispose();
     this.resizeObserver.disconnect();
     this.controls.dispose();
+    if (this.rootNode) {
+      this.rootNode.removeEventListener('keydown', this.controls._interceptControlDown, { capture: true });
+      this.rootNode.removeEventListener('keyup', this.controls._interceptControlUp, { capture: true });
+    }
     this.loot.dispose();
     this.fx.dispose();
     if (this.levels) this.levels.dispose();
+    // free GPU memory now, not whenever the old WebGL context gets collected
+    const textures = new Set();
+    this.scene.traverse((o) => {
+      if (o.geometry) o.geometry.dispose();
+      for (const m of [].concat(o.material || [])) {
+        for (const v of Object.values(m)) if (v && v.isTexture) textures.add(v);
+        m.dispose();
+      }
+      if (o.isInstancedMesh) o.dispose();
+    });
+    for (const t of textures) t.dispose();
+    this.renderer.renderLists.dispose();
     this.renderer.dispose();
+    this.renderer.forceContextLoss();
+    this.navigator = null;
     this.container.replaceChildren();
   }
 }

@@ -356,26 +356,58 @@ export class MarkerLayer {
 
   // Walking route along roads, yards and through buildings when the navigator is ready; a straight line otherwise.
   updateRoute() {
+    this.clearRoute();
+    const start = this.routeFrom();
+    const target = this.routeTo();
+    if (!start || !target) {
+      if (this.routeSignal) this.routeSignal.cancelled = true;
+      this.routeToken = (this.routeToken || 0) + 1;
+      this.emitRoute(null);
+      return;
+    }
+    const entity = target.entity;
+    const targetName = entity.type === 'pin' ? entity.name : displayName(entity);
+    const opts = { fromFloor: start.floor, toFloor: entity.floor, targetName };
+    const token = (this.routeToken = (this.routeToken || 0) + 1);
+    if (this.routeSignal) this.routeSignal.cancelled = true;
+    this.routeSignal = null;
+    if (this.navigator) {
+      const hit = this.navigator.cachedRoute(start.position, entity.position, opts);
+      if (hit === undefined) {
+        // computed in slices off the frame loop; meanwhile the straight line and "building the route"
+        const signal = { cancelled: false };
+        this.routeSignal = signal;
+        this.drawRoute(start, target, null, { pending: true });
+        this.navigator.routeAsync(start.position, entity.position, opts, signal).then((nav) => {
+          if (signal.cancelled || token !== this.routeToken) return;
+          this.routeSignal = null;
+          this.clearRoute();
+          this.drawRoute(start, target, nav);
+          if (this.onChange) this.onChange();
+        });
+        return;
+      }
+      this.drawRoute(start, target, hit);
+      return;
+    }
+    this.drawRoute(start, target, null);
+  }
+
+  clearRoute() {
     if (this.routeGroup) disposeObject(this.routeGroup);
     if (this.routeBuilt) this.routeBuilt.dispose();
     this.routeGroup = null;
     this.routeBuilt = null;
     this.routeMaterials = [];
     this.routeFlow = null;
-    const start = this.routeFrom();
-    const target = this.routeTo();
-    if (!start || !target) {
-      this.emitRoute(null);
-      return;
-    }
+  }
+
+  drawRoute(start, target, nav, { pending = false } = {}) {
     const from = start.anchor;
     const to = target.anchor;
     const entity = target.entity;
     const targetName = entity.type === 'pin' ? entity.name : displayName(entity);
     const group = new THREE.Group();
-    const nav = this.navigator
-      ? this.navigator.route(start.position, entity.position, { fromFloor: start.floor, toFloor: entity.floor, targetName })
-      : null;
     const el = document.createElement('div');
     el.className = 'route-label';
     let labelAt;
@@ -414,7 +446,7 @@ export class MarkerLayer {
       const { meters, is3d } = distanceBetween(start.position, entity.position);
       el.innerHTML = `<b>${formatMeters(meters)}</b><span>по прямой${is3d ? '' : ' (без высоты)'}</span>`;
       labelAt = from.clone().lerp(to, 0.5);
-      this.emitRoute({ ...base, length: null, straight: meters, endGap: null, outside: false, unreachable: Boolean(this.navigator) });
+      this.emitRoute({ ...base, length: null, straight: meters, endGap: null, outside: false, unreachable: Boolean(this.navigator) && !pending, pending });
     }
 
     const label = new CSS2DObject(el);
