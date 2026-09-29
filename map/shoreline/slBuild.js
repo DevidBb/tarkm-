@@ -359,7 +359,13 @@ export function buildOutside(ctx, water) {
         high = Math.max(high, g);
       }
       const floorY = high + 0.15;
-      const height = kind === 'small' && info.area > 150 ? 4.2 : H;
+      let height = kind === 'small' && info.area > 150 ? 4.2 : H;
+      // Game data inside the footprint (storey floors, spawn and door heights) sets the height where there is some.
+      const hinted = ctx.heightHint ? ctx.heightHint(poly, info, floorY) : null;
+      if (hinted && hinted.height > height) {
+        height = hinted.height;
+        stats.raisedByData = (stats.raisedByData || 0) + 1;
+      }
       const eave = floorY + height;
       const style = pick(rb, styles);
       // Painted plaster on houses (every house its own colour), near-white on sheds and industrial blocks.

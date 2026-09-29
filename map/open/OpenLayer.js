@@ -15,7 +15,8 @@ import { carveWater, buildOutside, scatterTrees } from '../shoreline/slBuild.js'
 import { buildTerrain } from '../../services/terrain.js';
 import { InstancedLayer, composeMatrix } from '../city/instancing.js';
 import { paint } from '../city/models.js';
-import { rng, hashString } from '../city/util.js';
+import { rng, hashString, pointInPolygon, SegmentGrid } from '../city/util.js';
+import { floorProps } from '../interchange/icStreetDetail.js';
 import { raiseMountains, slopeBoulders, boulderGeometries } from './relief.js';
 import { mergeGeometries } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/utils/BufferGeometryUtils.js/+esm';
 import { roundBuildingHook, buildLandmarks } from './landmarks.js';
@@ -48,6 +49,44 @@ const PROFILES = {
 
 const STYLES = ['brick', 'panel', 'industrial'];
 const CITY_STYLES = ['glass', 'office', 'modern', 'panel'];
+
+// Building height from game data inside its footprint (the plan has footprints only): the highest storey floor of
+// tarkov.dev's layer config for that building area, and the highest spawn point, door, switch or quest place inside
+// it (a roof spawn zone marks the roof itself). null when nothing is above the ground floor.
+export function heightHintOf(hints) {
+  if (!hints) return null;
+  const G = 20;
+  const grid = new Map();
+  for (const [x, y, z, roof] of hints.points || []) {
+    const p = { x: -x, y, z, roof: Boolean(roof) };
+    const key = `${Math.floor(p.x / G)},${Math.floor(p.z / G)}`;
+    if (!grid.has(key)) grid.set(key, []);
+    grid.get(key).push(p);
+  }
+  const bands = hints.bands || [];
+  return (poly, info, floorY) => {
+    let need = 0;
+    const { x0, x1, z0, z1 } = info.bounds;
+    for (let a = Math.floor(x0 / G); a <= Math.floor(x1 / G); a += 1) {
+      for (let b = Math.floor(z0 / G); b <= Math.floor(z1 / G); b += 1) {
+        for (const p of grid.get(`${a},${b}`) || []) {
+          const rel = p.y - floorY;
+          if (rel < 1.8 || rel > 90 || !pointInPolygon(p, poly)) continue;
+          need = Math.max(need, p.roof ? rel + 0.2 : rel + 3.0);
+        }
+      }
+    }
+    const gx = -info.center.x;
+    const gz = info.center.z;
+    for (const band of bands) {
+      const q = band.rect;
+      if (gx < q.x0 || gx > q.x1 || gz < q.z0 || gz > q.z1) continue;
+      const rel = band.floorY - floorY;
+      if (rel >= 1.8 && rel < 90) need = Math.max(need, rel + 3.0);
+    }
+    return need > 0 ? { height: need } : null;
+  };
+}
 
 // SVG ids of each part of the ground, from the group classes of Ground_Level.
 export function idsByClass(svgDoc, { city = false } = {}) {
@@ -166,6 +205,7 @@ export class OpenLayer {
       noTrees: [],
     };
     ctx.roundBuilding = roundBuildingHook(ctx, ctx.landmarkGeos);
+    ctx.heightHint = heightHintOf(this.mapData.raw.heightHints);
     this.ctx = ctx;
     // Levels besides the ground, built like Customs' (plan slabs, walls from the outlines) when first shown.
     const { width: SW, height: SH } = this.mapData.map.svg;
@@ -195,6 +235,10 @@ export class OpenLayer {
     this.outside = buildOutside(ctx, water);
     this.root.add(this.outside.group);
     const landmarks = buildLandmarks(ctx, this.outside);
+    // Doors where the game has locked doors: on the nearest building wall, at the ground or at their storey.
+    const walls = new SegmentGrid(ctx.builtBuildings.flatMap((b) => b.poly.outer.map((a, i, ring) => ({ a, b: ring[(i + 1) % ring.length] }))), 16);
+    const doorProps = floorProps(ctx, this.mapData.defaultFloor, this.outside.props, { groundY: 0, walls, groundAt: (x, z) => terrain.heightAtScene(x, z) });
+    this.outside.layers.push(...doorProps.layers);
     // Loose boulders on the raised slopes; small rock outlines of the plan as stones.
     const rb = rng(hashString(`${this.mapData.map.id}:boulders`));
     const stones = boulderGeometries(rockPolys, ctx.ground, rb);
@@ -239,6 +283,7 @@ export class OpenLayer {
       water: water.surfaces.length,
       mountains,
       landmarks,
+      doors: doorProps.doors,
       boulders: spots.length,
       stones: stones.length,
       levels: Object.keys(ctx.levelDefs),

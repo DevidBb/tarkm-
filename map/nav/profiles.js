@@ -40,7 +40,7 @@ export const NAV_PROFILES = {
     roles: { Obstacles: 'block', 'Obstacles-2': 'block', Wall: 'block', 'Wall-2': 'block', 'Wall-3': 'block', 'Wall-b': 'block', Building: 'block' },
   },
   woods: { cell: 1.0, street: ['OUTSIDE', 'LEVEL1'], roles: { Plane: 'block', Pier: 'road' } },
-  reserve: { cell: 0.8, street: ['OUTSIDE', 'LEVEL1'], roles: { Misc: 'block', Bunker_entr: 'building' }, portals: 'tips' },
+  reserve: { cell: 0.8, street: ['OUTSIDE', 'LEVEL1'], roles: { Misc: 'block', Bunker_entr: 'building' }, portals: 'tips', entrances: ['Bunker_entr'] },
   lighthouse: { cell: 1.0, street: ['OUTSIDE', 'LEVEL1'] },
   'ground-zero': { cell: 0.5, street: ['OUTSIDE', 'LEVEL1'], roles: { Roofs: 'ignore', Fountain: 'water' }, portals: 'tips' },
   terminal: { cell: 0.9, street: ['OUTSIDE', 'LEVEL1'], roles: { Buildings: 'recurse', Unacessible: 'block' } },

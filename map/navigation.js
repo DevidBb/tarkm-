@@ -494,6 +494,7 @@ export class Navigator {
       portals: this.portalCount,
       flights: this.flights || 0,
       tips: this.tips || 0,
+      entrances: this.entrances || 0,
       assumedEntrances: opened,
     };
   }
@@ -617,6 +618,30 @@ export class Navigator {
       if (q2[o + 1] > 127) locked[i] = 1;
     }
     Object.assign(layer, { road, forest, hazard: hazards ? hazard : null, soft, locked });
+    // Each building without a floor plan gets its own id: the route may enter one only to reach a point inside it,
+    // never to cut through it (its doors are not drawn, so crossing it would mean walking through walls).
+    let softCount = 0;
+    const softId = new Int32Array(n);
+    const queue = new Int32Array(n);
+    for (let i = 0; i < n; i += 1) {
+      if (!soft[i] || softId[i]) continue;
+      softCount += 1;
+      let head = 0;
+      let tail = 0;
+      softId[i] = softCount;
+      queue[tail++] = i;
+      while (head < tail) {
+        const cur = queue[head++];
+        const r = (cur / layer.cols) | 0;
+        const c = cur - r * layer.cols;
+        for (const j of [c > 0 ? cur - 1 : -1, c < layer.cols - 1 ? cur + 1 : -1, r > 0 ? cur - layer.cols : -1, r < layer.rows - 1 ? cur + layer.cols : -1]) {
+          if (j < 0 || !soft[j] || softId[j]) continue;
+          softId[j] = softCount;
+          queue[tail++] = j;
+        }
+      }
+    }
+    layer.softId = softCount ? softId : null;
   }
 
   decodeMain(layer, px) {
@@ -718,7 +743,36 @@ export class Navigator {
       }
     }
     if (this.profile.portals === 'interchange') await this.interchangePortals(svgDoc);
+    if (this.profile.entrances) await this.entrancePortals(svgDoc);
     if (this.profile.portals === 'tips') this.tipPortals();
+  }
+
+  // Entrance structures drawn on the ground plan over an underground level (Reserve's Bunker_entr: the ramp and
+  // hermetic door of the storage bunker): a real way down, from the ground next to the structure to the level under it.
+  async entrancePortals(svgDoc) {
+    const { createSvgReader } = await import('./interchange/icSvg.js');
+    const svg = createSvgReader(svgDoc, this.projection);
+    const street = this.streetLayer;
+    let count = 0;
+    for (const id of this.profile.entrances) {
+      for (const poly of svg.polygons(id, { minArea: 4 })) {
+        const xs = poly.outer.map((q) => q.x);
+        const zs = poly.outer.map((q) => q.z);
+        const c = { x: (Math.min(...xs) + Math.max(...xs)) / 2, z: (Math.min(...zs) + Math.max(...zs)) / 2 };
+        for (const layer of this.layers) {
+          if (layer.street) continue;
+          const down = this.snap(layer, c, 6);
+          if (!down) continue;
+          // the ground side: the nearest open cell around the structure
+          const up = this.snap(street, c, 25, (i) => !street.indoor[i]);
+          if (!up) continue;
+          this.addPortal(layer, down.i, street, up.i, (STAIR_BASE + STAIR_PER_STOREY + up.d) / this.cell);
+          (this.entranceNodes || (this.entranceNodes = [])).push({ layer, i: down.i }, { layer: street, i: up.i });
+          count += 1;
+        }
+      }
+    }
+    this.entrances = count;
   }
 
   // Open maps' bunkers, garages and upper storeys: their plans draw no stairs to the ground. The way between them is
@@ -777,6 +831,9 @@ export class Navigator {
         chosen.push(p);
         this.addPortal(layer, t.i, up.layer, up.i, cost);
         (this.tipNodes || (this.tipNodes = [])).push({ layer, i: t.i }, { layer: up.layer, i: up.i });
+        if (!this.guessed) this.guessed = new Set();
+        this.guessed.add(layer.base + t.i);
+        this.guessed.add(up.layer.base + up.i);
         count += 1;
         if (chosen.length >= 40) break;
       }
@@ -1093,9 +1150,18 @@ export class Navigator {
 
   // A* from one node to one goal node (heuristic in cells); with a Set of goal nodes it is a Dijkstra that stops
   // once every goal is settled (routes to many extracts at once).
-  search(startNode, goal) {
+  search(startNode, goal, { through = false } = {}) {
     const { heap } = this;
     const many = goal instanceof Set;
+    // buildings without a plan open only for the start and the goals inside them (unless `through`)
+    let openSoft = null;
+    if (!through) {
+      openSoft = new Set();
+      for (const node of [startNode, ...(many ? goal : [goal])]) {
+        const l = this.layerOfNode(node);
+        if (l.softId && l.softId[node - l.base]) openSoft.add(l.softId[node - l.base]);
+      }
+    }
     this.gen += 1;
     const gen = this.gen;
     heap.clear();
@@ -1152,6 +1218,7 @@ export class Navigator {
           const ni = nr * cols + nc;
           const nn = base + ni;
           if (!walk[ni] || closedStamp[nn] === gen) continue;
+          if (openSoft && layer.softId && layer.softId[ni] && !openSoft.has(layer.softId[ni])) continue;
           const diagonal = dr && dc;
           if (diagonal && (!walk[r * cols + nc] || !walk[nr * cols + c])) continue; // no corner cutting
           let ng = gCur + (diagonal ? Math.SQRT2 : 1) * (cCur + this.cellCost(layer, ni)) * 0.5;
@@ -1368,7 +1435,10 @@ export class Navigator {
     const t0 = performance.now();
     const ends = this.endpoints(fromGame, toGame, fromFloor, toFloor);
     if (!ends) return null;
-    const found = this.search(ends.sa.layer.base + ends.sa.i, ends.sb.layer.base + ends.sb.i);
+    const from = ends.sa.layer.base + ends.sa.i;
+    const to = ends.sb.layer.base + ends.sb.i;
+    // around buildings without a plan; through them only if there is no other way
+    const found = this.search(from, to) || this.search(from, to, { through: true });
     if (!found) return null;
     const result = this.assemble(found.nodes, fromGame, toGame, ends, targetName);
     result.expanded = found.expanded;
@@ -1400,10 +1470,14 @@ export class Navigator {
       if (sb) goals.push({ t, sb, toLayer, b });
     }
     if (!goals.length) return [];
-    const found = this.search(sa.layer.base + sa.i, new Set(goals.map((g) => g.sb.layer.base + g.sb.i)));
+    const goalNodes = new Set(goals.map((g) => g.sb.layer.base + g.sb.i));
+    const found = this.search(sa.layer.base + sa.i, goalNodes);
+    const missed = new Set([...goalNodes].filter((node) => !found.pathTo(node)));
+    const second = missed.size ? this.search(sa.layer.base + sa.i, missed, { through: true }) : null;
     const out = [];
     for (const { t, sb, toLayer, b } of goals) {
-      const nodes = found.pathTo(sb.layer.base + sb.i);
+      const node = sb.layer.base + sb.i;
+      const nodes = found.pathTo(node) || (second ? second.pathTo(node) : null);
       if (!nodes) continue;
       const route = this.assemble(nodes, fromGame, t.position, { a, b, sa, sb, toLayer }, t.name || null);
       out.push({ target: t, route });
@@ -1470,6 +1544,8 @@ export class Navigator {
       const mid = trim ? leg.cells.slice(trim, -trim) : leg.cells;
       leg.assumed = Boolean(leg.layer.assumed) && mid.some((i) => leg.layer.assumed[i]);
       leg.hazard = Boolean(leg.layer.hazard) && leg.cells.some((i) => leg.layer.hazard[i]);
+      // arrived on this layer by a way the plan does not draw (a tunnel's end taken as the stairs)
+      leg.guessedStairs = Boolean(this.guessed && k > 0 && legs[k - 1].layer !== leg.layer && this.guessed.has(leg.layer.base + leg.cells[0]));
       leg.locks = leg.inside ? this.locksNear(leg.layer, leg.flat, 1.8) : [];
       const prev = legs[k - 1];
       if (prev && leg.layer.street && prev.layer === leg.layer) {
@@ -1505,7 +1581,6 @@ export class Navigator {
       targetName,
       targetFloor: this.floorName(toLayer, true),
       fenceCrossings,
-      guessedStairs: this.profile.portals === 'tips',
     });
     const dy = fromGame.y != null && toGame.y != null ? fromGame.y - toGame.y : 0;
     return {

@@ -384,6 +384,22 @@ def main():
                         have.add((round(q['x']), round(q['z'])))
                         samples.append([q['x'], q['y'], q['z']])
 
+        # Height hints for the buildings (the plan has footprints only): every data point with its height (spawn points
+        # of any storey, doors, switches, extracts, quest places; roof spawn zones marked), and the storey floors of
+        # tarkov.dev's layer config per building area (Reserve's barracks, the Dome, knights...).
+        hint_pts = []
+        for sp in base['SpawnPointParams']:
+            p = sp['Position']
+            if abs(p['x']) < 0.01 and abs(p['z']) < 0.01:
+                continue
+            roof = 1 if 'roof' in (sp.get('BotZoneName') or '').lower() else 0
+            hint_pts.append([round(p['x'], 1), round(p['y'], 1), round(p['z'], 1), roof])
+        for m in markers:
+            if m['type'] in ('key', 'switch', 'extract'):
+                q = m['position']
+                hint_pts.append([round(q['x'], 1), round(q['y'], 1), round(q['z'], 1), 0])
+        hint_bands = [{'rect': e['rect'], 'floorY': e['minY'], 'name': e['name']} for e in other_ext if e['minY'] > -1000 and e['rect']['x0'] > -1e4]
+
         # place labels
         locations = []
         for k, lab in enumerate(tm.get('labels', [])):
@@ -437,6 +453,7 @@ def main():
             'markers': markers,
             'loot': {'source': 'none yet', 'containerTypes': [], 'items': {}, 'containers': [], 'loose': []},
             'terrain': {'source': 'heights of SPT spawn points', 'samples': samples},
+            'heightHints': {'points': hint_pts, 'bands': hint_bands},
         }
         with open(os.path.join(out_dir, f'{map_id}.map.json'), 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
@@ -522,6 +539,11 @@ def main():
                     'lightkeeperRequired': bool(t.get('lightkeeperRequired')), 'neededKeys': [], 'objectives': objectives,
                 })
             quest_source = {'name': 'tarkov.dev API snapshot of 2026-09-20 (quest points); texts from the game locale', 'url': 'https://tarkov.dev'}
+        # quest places are height hints for the buildings too
+        data['heightHints']['points'] += [[round(pt['position']['x'], 1), round(pt['position']['y'], 1), round(pt['position']['z'], 1), 0]
+                                          for q in quests for o in q['objectives'] for pt in o['points'] if pt['floor'] != 'UNDERGROUND']
+        with open(os.path.join(out_dir, f'{map_id}.map.json'), 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
         qdata = {'format': 'tarkov-map-ai/quests@1', 'generatedAt': now, 'mapId': cfg['gameId'],
                  'source': quest_source,
                  'traders': sorted(traders.values(), key=lambda t: t['name']), 'quests': sorted(quests, key=lambda q: q['nameRu'] or q['name'] or '')}
