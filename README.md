@@ -16,3 +16,8 @@ python3 -m http.server 8000
 ```
 
 Map, quest and price data: tarkov.dev (see `data/customs/ATTRIBUTION.md`).
+
+Woods, Reserve, Lighthouse and Ground Zero (`scripts/build_spt_maps.py`): plans by Shebuka (tarkov-dev-svg-maps,
+CC BY-NC-SA 4.0), map config and labels from the tarkov-dev repository, relief and quest texts from the SPT server
+database, and extracts, doors, switches, hazards, bosses, spawns and quest points from a snapshot of the tarkov.dev API
+(`data-snapshot.js` of tarkovtaskmap/tarkovtaskmap.github.io, 2026-09-20).
